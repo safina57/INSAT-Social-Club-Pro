@@ -24,4 +24,17 @@ export class User {
   @Field(() => Date)
   updatedAt?: Date;
 
+  @Field(() => String)
+  accessToken?: string;
+
+  @Field(() => String)
+  verificationToken?: string;
+
+  @Field(() => Boolean)
+  isVerified?: boolean;
+
+  @Field(() => String)
+  resetPasswordToken?: string;
+
+
 }

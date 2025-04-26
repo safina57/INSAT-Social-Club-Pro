@@ -11,6 +11,7 @@ import { UsersService } from 'src/users/users.service';
 import { APP_GUARD } from '@nestjs/core';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { MailerService } from 'src/mailer/mailer.service';
 @Module({
   imports: [
     JwtModule.registerAsync({
@@ -30,6 +31,7 @@ import { RolesGuard } from './guards/roles.guard';
   providers: [
     AuthService,
     UsersService,
+    MailerService,
     JwtStrategy,
     {
       provide: HashingService,

@@ -18,6 +18,10 @@ export class BaseService<T> {
     return (this.prisma[this.model] as any).findUnique({ where: { id } });
   }
 
+  findByField(field: string, value: any): Promise<T> {
+    return (this.prisma[this.model] as any).findUnique({ where: { [field]: value } });
+  }
+
   update(id: string, data: any): Promise<T> {
     return (this.prisma[this.model] as any).update({ where: { id }, data });
   }

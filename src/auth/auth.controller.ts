@@ -1,10 +1,12 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, BadRequestException, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   LoginDTO,
   LoginResponseDto,
   RegisterDTO,
   RegisterResponseDto,
+  VerifyResponseDto,
+  ForgotPasswordResponseDto,
 } from './dto';
 import { Public } from './decorators/public.decorator';
 
@@ -22,5 +24,26 @@ export class AuthController {
   @Post('register')
   register(@Body() registerDTO: RegisterDTO): Promise<RegisterResponseDto> {
     return this.authService.register(registerDTO);
+  }
+
+  @Public()
+  @Get('verify-email')
+  verify(@Query('token') token: string): Promise<VerifyResponseDto> {
+    return this.authService.verifyEmail(token);
+  }
+
+  @Public()
+  @Post('forgot-password')
+  forgotPassword(@Body('email') email: string): Promise<ForgotPasswordResponseDto> {
+    return this.authService.forgotPassword(email);
+  }
+
+  @Public()
+  @Post('reset-password')
+  resetPassword(
+    @Query('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ): Promise<ForgotPasswordResponseDto> {
+    return this.authService.resetPassword(token, newPassword);
   }
 }
