@@ -21,7 +21,7 @@ import { MailerService } from 'src/mailer/mailer.service';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get<number>('JWT_EXPIRATION'),
+          expiresIn: configService.get<string>('JWT_EXPIRATION'),
         },
       }),
     }),

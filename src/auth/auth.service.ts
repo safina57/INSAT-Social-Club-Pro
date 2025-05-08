@@ -33,8 +33,10 @@ export class AuthService {
   ) {}
 
   async register(registerDTO: RegisterDTO): Promise<RegisterResponseDto> {
-    if(!this.isPasswordStrong(registerDTO.password)) {
-      throw new BadRequestException('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character');
+    if (!this.isPasswordStrong(registerDTO.password)) {
+      throw new BadRequestException(
+        'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character',
+      );
     }
 
     const hashedPassword = await this.hashingService.hash(registerDTO.password);
@@ -45,18 +47,25 @@ export class AuthService {
         password: hashedPassword,
         role: Role.USER,
       });
-      
+
       const verifyToken = this.generateVerificationToken(user);
       await this.usersService.update(user.id, {
         ...user,
         verificationToken: verifyToken,
       });
-      await this.mailerService.sendVerificationEmail(user.email, verifyToken);
 
-      const { password, role, ...rest } = user;
+      const verificationUrl = `${this.config.get('FRONTEND_URL')}/verify-email?token=${verifyToken}`;
+      const emailHtml = `<p>Please click the following link to verify your email:</p>
+                         <p><a href="${verificationUrl}">${verificationUrl}</a></p>`;
+      await this.mailerService.sendMail(
+        user.email,
+        'Verify Your Email',
+        emailHtml,
+      );
+
       return {
         message: 'User created successfully',
-        data: rest,
+        data: user,
       };
     } catch (error) {
       if (
@@ -88,7 +97,7 @@ export class AuthService {
       throw new ForbiddenException('Email not verified');
     }
     const access_token = await this.generateAccessToken(user.id, user.role);
-    this.usersService.update(user.id, {
+    await this.usersService.update(user.id, {
       ...user,
       accessToken: access_token,
     });
@@ -178,17 +187,17 @@ export class AuthService {
       resetPasswordToken: resetPassToken,
     });
 
-    await this.mailerService.sendResetPasswordEmail(email, resetPassToken);
+    const resetUrl = `${this.config.get('FRONTEND_URL')}/reset-password?token=${resetPassToken}`;
+    const emailHtml = `<p>Please click the following link to reset your password:</p>
+                       <p><a href="${resetUrl}">${resetUrl}</a></p>`;
+    await this.mailerService.sendMail(email, 'Reset Your Password', emailHtml);
 
     return {
       message: 'Reset password email sent successfully',
     };
   }
 
-  async resetPassword(
-    token: string,
-    newPassword: string,
-  ) {
+  async resetPassword(token: string, newPassword: string) {
     const payload = this.jwtService.verify<{
       sub: number;
       type: string;
@@ -247,7 +256,14 @@ export class AuthService {
       verificationToken: verifyToken,
     });
 
-    await this.mailerService.sendVerificationEmail(user.email, verifyToken);
+    const verificationUrl = `${this.config.get('FRONTEND_URL')}/verify-email?token=${verifyToken}`;
+    const emailHtml = `<p>Please click the following link to verify your email:</p>
+                       <p><a href="${verificationUrl}">${verificationUrl}</a></p>`;
+    await this.mailerService.sendMail(
+      user.email,
+      'Verify Your Email',
+      emailHtml,
+    );
   }
 
   private generateResetPassToken(user: User) {
@@ -257,8 +273,8 @@ export class AuthService {
     };
 
     return this.jwtService.sign(payload, {
-      expiresIn: this.config.get('JWT_RESET_PASS_SECRET_EXPIRES_IN'),
-      secret: this.config.get('JWT_RESET_PASS_SECRET'),
+      expiresIn: this.config.get<string>('JWT_RESET_PASS_SECRET_EXPIRES_IN'),
+      secret: this.config.get<string>('JWT_RESET_PASS_SECRET'),
     });
   }
 
@@ -269,8 +285,8 @@ export class AuthService {
     };
 
     return this.jwtService.sign(payload, {
-      expiresIn: this.config.get('JWT_EMAIL_VERIFICATION_EXPIRES_IN'),
-      secret: this.config.get('JWT_EMAIL_VERIFICATION_SECRET'),
+      expiresIn: this.config.get<string>('JWT_EMAIL_VERIFICATION_EXPIRES_IN'),
+      secret: this.config.get<string>('JWT_EMAIL_VERIFICATION_SECRET'),
     });
   }
 

@@ -4,6 +4,9 @@ import { ConfigModule } from '@nestjs/config';
 import { configSchema } from './config-schema';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -11,6 +14,10 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
       envFilePath: '.env',
       validationSchema: configSchema,
+    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
     PrismaModule,
     AuthModule,

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import sgMail from '@sendgrid/mail';
+import * as sgMail from '@sendgrid/mail';
 
 @Injectable()
 export class MailerService {
@@ -12,61 +12,25 @@ export class MailerService {
     sgMail.setApiKey(apiKey);
   }
 
-  async sendVerificationEmail(email: string, token: string): Promise<void> {
+  async sendMail(to: string, subject: string, html: string): Promise<void> {
     const fromEmail = this.configService.get<string>('SENDGRID_FROM_EMAIL');
     if (!fromEmail) {
       throw new Error('SENDGRID_FROM_EMAIL is not defined');
     }
 
-    const verificationUrl = `${this.configService.get('FRONTEND_URL')}/verify-email?token=${token}`;
-
     const msg = {
-      to: email,
+      to,
       from: fromEmail,
-      subject: 'Verify Your Email',
-      html: `<p>Please click the following link to verify your email:</p>
-             <p><a href="${verificationUrl}">${verificationUrl}</a></p>`,
+      subject,
+      html,
     };
 
     try {
       await sgMail.send(msg);
-      console.log('Verification email sent successfully');
+      console.log('Email sent successfully');
     } catch (error) {
-      console.error('Error sending verification email:', error);
-      throw new Error('Failed to send verification email');
-    }
-  }
-
-  async sendResetPasswordEmail(
-    email: string,
-    resetToken: string | Uint8Array<ArrayBufferLike>,
-  ) {
-    const fromEmail = this.configService.get<string>('SENDGRID_FROM_EMAIL');
-    if (!fromEmail) {
-      throw new Error('SENDGRID_FROM_EMAIL is not defined');
-    }
-
-    const tokenString =
-      resetToken instanceof Uint8Array
-        ? Buffer.from(resetToken).toString('base64')
-        : resetToken;
-
-    const resetUrl = `${this.configService.get('FRONTEND_URL')}/reset-password?token=${tokenString}`;
-
-    const msg = {
-      to: email,
-      from: fromEmail,
-      subject: 'Reset Your Password',
-      html: `<p>Please click the following link to reset your password:</p>
-             <p><a href="${resetUrl}">${resetUrl}</a></p>`,
-    };
-
-    try {
-      await sgMail.send(msg);
-      console.log('Reset password email sent successfully');
-    } catch (error) {
-      console.error('Error sending reset password email:', error);
-      throw new Error('Failed to send reset password email');
+      console.error('Error sending email:', error);
+      throw new Error('Failed to send email');
     }
   }
 }
