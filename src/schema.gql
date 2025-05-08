@@ -10,10 +10,10 @@ type User {
   role: Role!
   createdAt: DateTime!
   updatedAt: DateTime!
-  accessToken: String!
-  verificationToken: String!
+  accessToken: String
+  verificationToken: String
   isVerified: Boolean!
-  resetPasswordToken: String!
+  resetPasswordToken: String
 }
 
 """User roles"""

@@ -7,32 +7,32 @@ export class User {
   id: string;
 
   @Field(() => String)
-  username?: string;
+  username: string;
 
   @Field(() => String)
-  email?: string;
+  email: string;
 
   @Field(() => String)
-  password?: string;
+  password: string;
 
   @Field(() => Role)
-  role?: Role;
+  role: Role;
 
   @Field(() => Date)
-  createdAt?: Date;
+  createdAt: Date;
 
   @Field(() => Date)
-  updatedAt?: Date;
+  updatedAt: Date;
 
-  @Field(() => String)
-  accessToken?: string;
+  @Field(() => String, { nullable: true })
+  accessToken?: string | null;
 
-  @Field(() => String)
-  verificationToken?: string;
+  @Field(() => String, { nullable: true })
+  verificationToken?: string | null;
 
   @Field(() => Boolean)
-  isVerified?: boolean;
+  isVerified: boolean;
 
-  @Field(() => String)
-  resetPasswordToken?: string;
+  @Field(() => String, { nullable: true })
+  resetPasswordToken?: string | null;
 }
