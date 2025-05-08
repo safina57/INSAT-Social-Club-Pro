@@ -35,6 +35,4 @@ export class User {
 
   @Field(() => String)
   resetPasswordToken?: string;
-
-
 }
