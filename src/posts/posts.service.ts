@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  ConflictException, // Added ConflictException
 } from '@nestjs/common';
 import { Post, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -64,7 +65,7 @@ export class PostsService extends BaseService<Post> {
     }
     return await this.prisma.post.update({
       where: { id },
-      data: updatePostInput,
+      data: { ...updatePostInput },
       include: {
         author: true,
         comments: true,
@@ -84,6 +85,88 @@ export class PostsService extends BaseService<Post> {
     }
     return await this.prisma.post.delete({
       where: { id },
+    });
+  }
+
+  async likePost(id: string, userId: string): Promise<Post> {
+    const post = await this.findOne(id);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    const existingLike = await this.prisma.like.findUnique({
+      where: {
+        userId_postId: {
+          userId,
+          postId: id,
+        },
+      },
+    });
+
+    if (existingLike) {
+      throw new ConflictException('You have already liked this post');
+    }
+
+    await this.prisma.like.create({
+      data: {
+        userId,
+        postId: id,
+      },
+    });
+
+    return await this.prisma.post.update({
+      where: { id },
+      data: {
+        likesCount: {
+          increment: 1,
+        },
+      },
+      include: {
+        author: true,
+        comments: true,
+      },
+    });
+  }
+
+  async unlikePost(id: string, userId: string): Promise<Post> {
+    const post = await this.findOne(id);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    const existingLike = await this.prisma.like.findUnique({
+      where: {
+        userId_postId: {
+          userId,
+          postId: id,
+        },
+      },
+    });
+
+    if (!existingLike) {
+      throw new NotFoundException('You have not liked this post');
+    }
+
+    await this.prisma.like.delete({
+      where: {
+        userId_postId: {
+          userId,
+          postId: id,
+        },
+      },
+    });
+
+    return await this.prisma.post.update({
+      where: { id },
+      data: {
+        likesCount: {
+          decrement: 1,
+        },
+      },
+      include: {
+        author: true,
+        comments: true,
+      },
     });
   }
 }

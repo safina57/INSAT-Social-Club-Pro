@@ -34,6 +34,7 @@ type Post {
   content: String!
   createdAt: DateTime!
   updatedAt: DateTime!
+  likesCount: Float!
   author: Author!
   authorId: String!
   comments: [Comment!]
@@ -68,6 +69,8 @@ type Mutation {
   createPost(createPostInput: CreatePostInput!): Post!
   updatePost(id: ID!, updatePostInput: UpdatePostInput!): Post!
   removePost(id: ID!): Post!
+  likePost(id: ID!): Post!
+  unlikePost(id: ID!): Post!
   createComment(createCommentInput: CreateCommentInput!): Comment!
   updateComment(id: ID!, updateCommentInput: UpdateCommentInput!): Comment!
   removeComment(id: ID!): Comment!

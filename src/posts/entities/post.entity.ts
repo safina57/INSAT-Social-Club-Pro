@@ -16,6 +16,9 @@ export class Post {
   @Field(() => Date)
   updatedAt: Date;
 
+  @Field(() => Number)
+  likesCount: number;
+
   @Field(() => Author)
   author: Author;
 
