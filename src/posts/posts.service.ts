@@ -30,11 +30,7 @@ export class PostsService extends BaseService<Post> {
         },
       },
       include: {
-        author: {
-          select: {
-            username: true,
-          },
-        },
+        author: true,
       },
     });
   }
@@ -42,9 +38,10 @@ export class PostsService extends BaseService<Post> {
   async findAll(): Promise<Post[]> {
     return await this.prisma.post.findMany({
       include: {
-        author: {
-          select: {
-            username: true,
+        author: true,
+        comments: {
+          include: {
+            author: true,
           },
         },
       },
@@ -69,11 +66,8 @@ export class PostsService extends BaseService<Post> {
       where: { id },
       data: updatePostInput,
       include: {
-        author: {
-          select: {
-            username: true,
-          },
-        },
+        author: true,
+        comments: true,
       },
     });
   }

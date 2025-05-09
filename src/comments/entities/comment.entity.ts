@@ -1,9 +1,8 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { Comment } from '../../comments/entities/comment.entity';
 import { Author } from 'src/users/entities/author.entity';
 
 @ObjectType()
-export class Post {
+export class Comment {
   @Field(() => ID)
   id: string;
 
@@ -21,7 +20,4 @@ export class Post {
 
   @Field(() => String)
   authorId: string;
-
-  @Field(() => [Comment], { nullable: true })
-  comments?: Comment[] | null;
 }

@@ -23,11 +23,6 @@ export class PostsResolver {
     return this.postsService.findAll();
   }
 
-  @Query(() => Post, { name: 'post' })
-  findOne(@Args('id', { type: () => ID }) id: string) {
-    return this.postsService.findOne(id);
-  }
-
   @Mutation(() => Post)
   updatePost(
     @Args('id', { type: () => ID }) id: string,

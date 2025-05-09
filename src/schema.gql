@@ -2,6 +2,43 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Author {
+  id: ID!
+  username: String!
+  email: String!
+  role: Role!
+}
+
+"""User roles"""
+enum Role {
+  USER
+  ADMIN
+}
+
+type Comment {
+  id: ID!
+  content: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  author: Author!
+  authorId: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Post {
+  id: ID!
+  content: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  author: Author!
+  authorId: String!
+  comments: [Comment!]
+}
+
 type User {
   id: ID!
   username: String!
@@ -14,37 +51,14 @@ type User {
   verificationToken: String
   isVerified: Boolean!
   resetPasswordToken: String
-}
-
-"""User roles"""
-enum Role {
-  USER
-  ADMIN
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
-type PostAuthor {
-  username: String!
-}
-
-type Post {
-  id: ID!
-  content: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  author: PostAuthor!
-  authorId: String!
+  posts: [Post!]
+  comments: [Comment!]
 }
 
 type Query {
   users: [User!]!
   user(id: ID!): User!
   posts: [Post!]!
-  post(id: ID!): Post!
 }
 
 type Mutation {
@@ -54,6 +68,9 @@ type Mutation {
   createPost(createPostInput: CreatePostInput!): Post!
   updatePost(id: ID!, updatePostInput: UpdatePostInput!): Post!
   removePost(id: ID!): Post!
+  createComment(createCommentInput: CreateCommentInput!): Comment!
+  updateComment(id: ID!, updateCommentInput: UpdateCommentInput!): Comment!
+  removeComment(id: ID!): Comment!
 }
 
 input CreateUserInput {
@@ -75,4 +92,13 @@ input CreatePostInput {
 
 input UpdatePostInput {
   content: String
+}
+
+input CreateCommentInput {
+  content: String!
+  postId: ID!
+}
+
+input UpdateCommentInput {
+  content: String!
 }
