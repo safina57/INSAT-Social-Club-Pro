@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
+import { PostsModule } from './posts/posts.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { join } from 'path';
     PrismaModule,
     AuthModule,
     UsersModule,
+    PostsModule,
+    CommentsModule,
   ],
   controllers: [],
   providers: [],

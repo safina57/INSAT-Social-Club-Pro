@@ -1,0 +1,2 @@
+-- This migration file has been reconciled to avoid schema conflicts.
+-- The 'likes' column addition has been removed as it conflicts with another migration.
