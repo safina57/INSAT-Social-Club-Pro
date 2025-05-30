@@ -5,13 +5,13 @@ import SignIn from './components/sign-in';
 import SignUp from './components/sign-up';
 import HomePage from './components/home'; 
 import MessagesPage from './components/messages';
+import ContactPage from './components/contact-us';
 
 function App() {
   return (
     <Router>
       <main>
         <Routes>
-         
           {/* Landing Page */}
           <Route
             path="/"
@@ -40,6 +40,12 @@ function App() {
           <Route
             path="/messages"
             element={<MessagesPage />}
+          />
+
+          {/* Contact Us Page */}
+          <Route
+            path="/contact-us"
+            element={<ContactPage />}
           />
 
           {/* Catch-All Route */}
