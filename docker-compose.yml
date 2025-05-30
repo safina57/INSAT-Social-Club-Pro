@@ -11,6 +11,42 @@ services:
       - '5432:5432'
     volumes:
       - insat_social_club_data:/var/lib/postgresql/data
+    networks:
+      - insat-network
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    depends_on:
+      - db
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgres://postgres:Sa77aLa3rithi@db:5432/ApplicationDB
+    networks:
+      - insat-network
+    volumes:
+      - ./backend:/app
+    command: npm run start:prod
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    depends_on:
+      - backend
+    ports:
+      - '3001:3000'
+    networks:
+      - insat-network
+    volumes:
+      - ./frontend:/app
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3000
 
 volumes:
   insat_social_club_data:
+
+networks:
+  insat-network:
