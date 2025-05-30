@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import SignIn from './components/sign-in';
 import SignUp from './components/sign-up';
+import HomePage from './components/home'; 
 
 function App() {
   return (
@@ -27,6 +28,13 @@ function App() {
             path="/signup"
             element={<SignUp />}
           />
+
+          {/* Home Page */}
+          <Route
+            path="/home"
+            element={<HomePage />}
+          />
+              
 
           {/* Catch-All Route */}
         <Route

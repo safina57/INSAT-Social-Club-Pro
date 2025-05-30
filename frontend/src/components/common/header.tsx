@@ -43,11 +43,6 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center">
           <a href="/home" className="flex items-center">
-            <div className="relative h-8 w-8 overflow-hidden rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 p-[2px] mr-2">
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-black text-sm font-bold text-white">
-                IP
-              </div>
-            </div>
             <span className="hidden font-bold sm:inline-block">INSAT PRO CLUB</span>
           </a>
         </div>
