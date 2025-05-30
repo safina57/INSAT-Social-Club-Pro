@@ -56,10 +56,19 @@ type User {
   comments: [Comment!]
 }
 
+type ContactReport {
+  id: Int!
+  fullName: String!
+  email: String!
+  message: String!
+  createdAt: DateTime!
+}
+
 type Query {
   users: [User!]!
   user(id: ID!): User!
   posts: [Post!]!
+  contactReports: [ContactReport!]!
 }
 
 type Mutation {
@@ -74,6 +83,7 @@ type Mutation {
   createComment(createCommentInput: CreateCommentInput!): Comment!
   updateComment(id: ID!, updateCommentInput: UpdateCommentInput!): Comment!
   removeComment(id: ID!): Comment!
+  createContactReport(input: CreateContactReportInput!): ContactReport!
 }
 
 input CreateUserInput {
@@ -104,4 +114,10 @@ input CreateCommentInput {
 
 input UpdateCommentInput {
   content: String!
+}
+
+input CreateContactReportInput {
+  fullName: String!
+  email: String!
+  message: String!
 }
