@@ -9,6 +9,9 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
+import { JobModule } from './job/job.module';
+import { CompanyModule } from './company/company.module';
+import { CompanyManagerModule } from './company-manager/company-maanger.module';
 
 @Module({
   imports: [
@@ -26,6 +29,9 @@ import { CommentsModule } from './comments/comments.module';
     UsersModule,
     PostsModule,
     CommentsModule,
+    JobModule,
+    CompanyModule,
+    CompanyManagerModule
   ],
   controllers: [],
   providers: [],
