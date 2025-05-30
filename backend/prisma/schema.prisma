@@ -20,6 +20,12 @@ enum Role {
   ADMIN
 }
 
+enum ManagerRole {
+  ADMIN,
+  EDITOR
+}
+
+
 model Post {
   id        String   @id @default(uuid())
   content   String
@@ -116,7 +122,7 @@ model CompanyManager {
   user      User     @relation(fields: [userId], references: [id])
   companyId String
   company   Company  @relation(fields: [companyId], references: [id])
-  role      String   // e.g. 'ADMIN', 'EDITOR'
+  role      ManagerRole 
   
   @@unique([userId, companyId])
 }

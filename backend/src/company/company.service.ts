@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -8,7 +8,6 @@ export class CompanyService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createCompanyDto: CreateCompanyDto, userId: string) {
-    // Create the company and assign the creating user as ADMIN manager
     const company = await this.prisma.company.create({
       data: {
         ...createCompanyDto,
@@ -46,7 +45,7 @@ export class CompanyService {
         },
       },
     });
-    if (!manager || manager.role !== 'ADMIN') {
+    if (!manager) {
       throw new ForbiddenException('You do not have permission to update this company');
     }
 
@@ -55,6 +54,53 @@ export class CompanyService {
       data: updateCompanyDto,
     });
   }
+
+async addManager(companyId: string, managerId: string, userId: string) {
+  const manager = await this.prisma.companyManager.findUnique({
+    where: {
+      userId_companyId: {
+        userId,
+        companyId,
+      },
+    },
+  });
+
+  if (!manager || manager.role !== 'ADMIN') {
+    throw new ForbiddenException('You do not have permission to add managers to this company');
+  }
+
+  const userToAssign = await this.prisma.user.findUnique({
+    where: { id: managerId },
+  });
+
+  if (!userToAssign) {
+    throw new NotFoundException('User to assign as manager not found');
+  }
+
+  const existingManager = await this.prisma.companyManager.findUnique({
+    where: {
+      userId_companyId: {
+        userId: managerId,
+        companyId,
+      },
+    },
+  });
+
+  if (existingManager) {
+    throw new ConflictException('User is already a manager of this company');
+  }
+
+  const newManager = await this.prisma.companyManager.create({
+    data: {
+      userId: managerId,
+      companyId: companyId,
+      role: 'EDITOR',
+    },
+  });
+
+  return newManager;
+}
+
 
   async remove(id: string, userId: string) {
     // Only ADMIN can delete
