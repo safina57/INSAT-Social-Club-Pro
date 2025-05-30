@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:latest
-    container_name: postgres
+    container_name: postgresseur
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Sa77aLa3rithi
@@ -28,7 +28,7 @@ services:
       - insat-network
     volumes:
       - ./backend:/app
-    command: npm run start:prod
+    command: npm run start:dev
 
   frontend:
     build:
