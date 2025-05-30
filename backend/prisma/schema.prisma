@@ -20,27 +20,6 @@ enum Role {
   ADMIN
 }
 
-model User {
-  id                        String       @id @default(uuid())
-  username                  String
-  email                     String       @unique
-  password                  String
-  role                      Role         @default(USER)
-  createdAt                 DateTime     @default(now())
-  updatedAt                 DateTime     @updatedAt
-
-  accessToken               String?      @unique
-
-  isVerified                Boolean      @default(false)
-  verificationToken         String?      @unique
-
-  resetPasswordToken        String?      @unique
-
-  posts                     Post[]
-  comments                  Comment[]
-  likes                     Like[] // Added relation to Like model
-}
-
 model Post {
   id        String   @id @default(uuid())
   content   String
@@ -79,4 +58,65 @@ model Like {
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId])
+}
+
+model Company {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  website     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  jobs        Job[]
+  employees   User[]   @relation("CompanyEmployees")
+  managers ComapnyManager[]
+}
+
+model Job {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  location    String?
+  salary      Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+
+  applicants  User[]   @relation("JobApplications")
+}
+
+model User {
+  id                        String       @id @default(uuid())
+  username                  String
+  email                     String       @unique
+  password                  String
+  role                      Role         @default(USER)
+  createdAt                 DateTime     @default(now())
+  updatedAt                 DateTime     @updatedAt
+  accessToken               String?      @unique
+  isVerified                Boolean      @default(false)
+  verificationToken         String?      @unique
+  resetPasswordToken        String?      @unique
+
+  posts                     Post[]
+  comments                  Comment[]
+  likes                     Like[]
+
+  companies                 Company[]    @relation("CompanyEmployees")
+  managedCompanies          ComapnyManager[]
+  jobApplications           Job[]        @relation("JobApplications")
+}
+
+model CompanyManager {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  role      String   // e.g. 'ADMIN', 'EDITOR'
+  
+  @@unique([userId, companyId])
 }
