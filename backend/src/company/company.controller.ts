@@ -41,12 +41,6 @@ export class CompanyController {
   }
 
   @UseGuards(JWTAuthGuard)
-  @Patch('/addManager/:id/:managerId')
-  addManager(@Param('id') id: string, @Param('managerId') managerId, @Req() req) {
-    return this.companyService.addManager(id, managerId, req.user.id);
-  } 
-
-  @UseGuards(JWTAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req) {
     return this.companyService.remove(id, req.user.id);

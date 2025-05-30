@@ -55,51 +55,6 @@ export class CompanyService {
     });
   }
 
-async addManager(companyId: string, managerId: string, userId: string) {
-  const manager = await this.prisma.companyManager.findUnique({
-    where: {
-      userId_companyId: {
-        userId,
-        companyId,
-      },
-    },
-  });
-
-  if (!manager || manager.role !== 'ADMIN') {
-    throw new ForbiddenException('You do not have permission to add managers to this company');
-  }
-
-  const userToAssign = await this.prisma.user.findUnique({
-    where: { id: managerId },
-  });
-
-  if (!userToAssign) {
-    throw new NotFoundException('User to assign as manager not found');
-  }
-
-  const existingManager = await this.prisma.companyManager.findUnique({
-    where: {
-      userId_companyId: {
-        userId: managerId,
-        companyId,
-      },
-    },
-  });
-
-  if (existingManager) {
-    throw new ConflictException('User is already a manager of this company');
-  }
-
-  const newManager = await this.prisma.companyManager.create({
-    data: {
-      userId: managerId,
-      companyId: companyId,
-      role: 'EDITOR',
-    },
-  });
-
-  return newManager;
-}
 
 
   async remove(id: string, userId: string) {
