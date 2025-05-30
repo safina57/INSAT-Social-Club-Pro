@@ -79,11 +79,3 @@ model Like {
 
   @@unique([userId, postId])
 }
-
-model ContactReport {
-  id        Int      @id @default(autoincrement())
-  fullName  String
-  email     String
-  message   String
-  createdAt DateTime @default(now())
-}

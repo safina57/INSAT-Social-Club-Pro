@@ -1,0 +1,33 @@
+@font-face {
+  font-family: 'Neue Kaine Variable';
+  src: url('/fonts/NeueKaine-Variable.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Add more font weights if available */
+@font-face {
+  font-family: 'Neue Kaine Variable';
+  src: url('/fonts/NeueKaine-Variable-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Font class for direct usage in tailwind */
+.font-neuekaine {
+  font-family: 'Neue Kaine Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Global styles to force the font to be applied */
+h2.font-neuekaine, 
+div.font-neuekaine, 
+p.font-neuekaine {
+  font-family: 'Neue Kaine Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Debug information - shows a red border around elements with the font class */
+.debug-font .font-neuekaine {
+  border: 1px solid red;
+}
