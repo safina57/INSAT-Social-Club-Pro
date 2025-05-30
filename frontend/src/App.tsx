@@ -1,5 +1,6 @@
 import './index.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LandingPage from './components/LandingPage';
 
 function App() {
   return (
@@ -7,6 +8,12 @@ function App() {
       <main>
         <Routes>
          
+          {/* Landing Page */}
+          <Route
+            path="/"
+            element={<LandingPage />}
+          />
+
           {/* Catch-All Route */}
         <Route
           path="*"
