@@ -7,6 +7,7 @@ import HomePage from './components/home';
 import MessagesPage from './components/messages';
 import ContactPage from './components/contact-us';
 import NotFound from './components/404page';
+import AdminDashboard from './components/admin-dashboard';
 
 function App() {
   return (
@@ -47,6 +48,12 @@ function App() {
           <Route
             path="/contact-us"
             element={<ContactPage />}
+          />
+
+          {/* Admin Dashboard */}
+          <Route
+            path="/admin/dashboard"
+            element={<AdminDashboard />}
           />
 
           {/* Catch-All Route */}

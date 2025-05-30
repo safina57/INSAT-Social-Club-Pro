@@ -6,14 +6,6 @@ import {
   LayoutDashboard,
   Users,
   FileText,
-  MessageSquare,
-  Bell,
-  Flag,
-  Settings,
-  BarChart3,
-  Shield,
-  HelpCircle,
-  LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -31,45 +23,16 @@ export function AdminSidebar() {
       href: "/admin/dashboard",
     },
     {
-      title: "User Management",
+      title: "User Table",
       icon: <Users className="h-5 w-5" />,
       href: "/admin/users",
     },
     {
-      title: "Content Moderation",
+      title: "Companies Table",
       icon: <FileText className="h-5 w-5" />,
       href: "/admin/content",
     },
-    {
-      title: "Reports",
-      icon: <Flag className="h-5 w-5" />,
-      href: "/admin/reports",
-    },
-    {
-      title: "Analytics",
-      icon: <BarChart3 className="h-5 w-5" />,
-      href: "/admin/analytics",
-    },
-    {
-      title: "Notifications",
-      icon: <Bell className="h-5 w-5" />,
-      href: "/admin/notifications",
-    },
-    {
-      title: "Messages",
-      icon: <MessageSquare className="h-5 w-5" />,
-      href: "/admin/messages",
-    },
-    {
-      title: "Security",
-      icon: <Shield className="h-5 w-5" />,
-      href: "/admin/security",
-    },
-    {
-      title: "Settings",
-      icon: <Settings className="h-5 w-5" />,
-      href: "/admin/settings",
-    },
+
   ]
 
   return (
@@ -133,19 +96,6 @@ export function AdminSidebar() {
               </a>
             ))}
           </nav>
-        </div>
-
-        <div className="mt-auto px-3 py-2 border-t border-border">
-          <div className="space-y-1">
-            <Button variant="ghost" className={cn("w-full justify-start", collapsed ? "px-2" : "px-3")}>
-              <HelpCircle className="h-5 w-5" />
-              {!collapsed && <span className="ml-2">Help & Support</span>}
-            </Button>
-            <Button variant="ghost" className={cn("w-full justify-start", collapsed ? "px-2" : "px-3")}>
-              <LogOut className="h-5 w-5" />
-              {!collapsed && <span className="ml-2">Log Out</span>}
-            </Button>
-          </div>
         </div>
       </ScrollArea>
     </div>
