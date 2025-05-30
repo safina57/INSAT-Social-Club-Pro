@@ -1,8 +1,8 @@
 import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { JobApplicationService } from "./job-application.service";
 import { JobApplication } from "./entities/job-application.entity";
-import { ApplyJobInput } from "./dto/apply-job.entity";
-import { ApplicationStatus } from "./dto/enum/application-status.enum";
+import { ApplyJobInput } from "./dto/apply-job.input";
+import { ApplicationStatus } from "./enum/application-status.enum";
 
 @Resolver(() => JobApplication)
 export class JobApplicationResolver {

@@ -1,6 +1,6 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { ApplicationStatus } from "./dto/enum/application-status.enum";
+import { ApplicationStatus } from "./enum/application-status.enum";
 
 @Injectable()
 export class JobApplicationService {

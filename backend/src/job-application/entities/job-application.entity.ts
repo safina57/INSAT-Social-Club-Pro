@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
-import { ApplicationStatus } from "../dto/enum/application-status.enum";
+import { ApplicationStatus } from "../enum/application-status.enum";
 
 @ObjectType()
 export class JobApplication {
