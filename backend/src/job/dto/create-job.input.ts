@@ -11,6 +11,9 @@ export class CreateJobInput {
   @Field({ nullable: true })
   location?: string;
 
+  @Field({ nullable: true })
+  salary?: number;
+
   @Field()
   companyId: string;
 }

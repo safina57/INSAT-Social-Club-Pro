@@ -12,6 +12,8 @@ import { CommentsModule } from './comments/comments.module';
 import { JobModule } from './job/job.module';
 import { CompanyModule } from './company/company.module';
 import { CompanyManagerModule } from './company-manager/company-maanger.module';
+import { JobApplicationService } from './job-application/job-application.service';
+import { JobApplicationResolver } from './job-application/job-application.resolver';
 
 @Module({
   imports: [
@@ -34,6 +36,6 @@ import { CompanyManagerModule } from './company-manager/company-maanger.module';
     CompanyManagerModule
   ],
   controllers: [],
-  providers: [],
+  providers: [JobApplicationService, JobApplicationResolver],
 })
 export class AppModule {}

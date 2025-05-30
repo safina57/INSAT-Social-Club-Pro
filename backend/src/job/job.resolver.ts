@@ -16,18 +16,18 @@ export class JobResolver {
     return this.jobService.create(createJobInput, userId);
   }
 
-  @Query(() => [Job], { name: 'jobs' })
-  findAll() {
+  @Query(() => [Job])
+  jobs() {
     return this.jobService.findAll();
   }
 
-  @Query(() => Job, { name: 'job' })
-  findOne(@Args('id') id: string) {
+  @Query(() => Job)
+  job(@Args('id') id: string) {
     return this.jobService.findOne(id);
   }
 
-  @Query(() => [Job], { name: 'jobsByCompany' })
-  findByCompany(@Args('companyId') companyId: string) {
+  @Query(() => [Job])
+  jobsByCompany(@Args('companyId') companyId: string) {
     return this.jobService.findByCompany(companyId);
   }
 }

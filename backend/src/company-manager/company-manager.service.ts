@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ManagerRole } from './enums/managerRole.enum';
 
 @Injectable()
 export class CompanyManagerService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async addManager(userIdToAssign: string, companyId: string, role: string, currentUserId: string) {
+  async addManager(userIdToAssign: string, companyId: string, role: ManagerRole, currentUserId: string) {
     // Check if currentUserId is ADMIN of company
     const currentManager = await this.prisma.companyManager.findUnique({
       where: {

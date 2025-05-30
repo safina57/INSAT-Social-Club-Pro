@@ -14,15 +14,15 @@ export class Job {
   @Field({ nullable: true })
   location?: string;
 
-  @Field()
-  createdAt: Date;
-
-  @Field()
-  updatedAt: Date;
+  @Field({ nullable: true })
+  salary?: number;
 
   @Field()
   companyId: string;
 
   @Field()
-  postedById: string;
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
 }

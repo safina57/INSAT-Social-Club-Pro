@@ -23,3 +23,4 @@ export class CompanyManagerController {
     return this.companyManagerService.listManagers(companyId);
   }
 }
+

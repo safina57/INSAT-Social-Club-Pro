@@ -21,7 +21,7 @@ enum Role {
 }
 
 enum ManagerRole {
-  ADMIN,
+  ADMIN
   EDITOR
 }
 
@@ -91,8 +91,9 @@ model Job {
   companyId   String
   company     Company  @relation(fields: [companyId], references: [id])
 
-  applicants  User[]   @relation("JobApplications")
+  applications JobApplication[]
 }
+
 
 model User {
   id                        String       @id @default(uuid())
@@ -115,6 +116,28 @@ model User {
   managedCompanies          CompanyManager[]
   jobApplications           Job[]        @relation("JobApplications")
 }
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model JobApplication {
+  id         String            @id @default(uuid())
+  userId     String
+  jobId      String
+  createdAt  DateTime          @default(now())
+  status     ApplicationStatus @default(PENDING)
+  decidedAt  DateTime?
+
+  user       User              @relation(fields: [userId], references: [id])
+  job        Job               @relation(fields: [jobId], references: [id])
+
+  @@unique([userId, jobId])
+}
+
+
 
 model CompanyManager {
   id        String   @id @default(uuid())
