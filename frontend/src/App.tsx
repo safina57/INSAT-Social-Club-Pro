@@ -2,6 +2,7 @@ import './index.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import SignIn from './components/sign-in';
+import SignUp from './components/sign-up';
 
 function App() {
   return (
@@ -19,6 +20,12 @@ function App() {
           <Route
             path="/signin"
             element={<SignIn />}
+          />
+
+          {/* Sign Up Page */}
+          <Route
+            path="/signup"
+            element={<SignUp />}
           />
 
           {/* Catch-All Route */}
