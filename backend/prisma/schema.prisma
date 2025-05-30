@@ -70,7 +70,7 @@ model Company {
 
   jobs        Job[]
   employees   User[]   @relation("CompanyEmployees")
-  managers ComapnyManager[]
+  managers CompanyManager[]
 }
 
 model Job {
@@ -106,7 +106,7 @@ model User {
   likes                     Like[]
 
   companies                 Company[]    @relation("CompanyEmployees")
-  managedCompanies          ComapnyManager[]
+  managedCompanies          CompanyManager[]
   jobApplications           Job[]        @relation("JobApplications")
 }
 
