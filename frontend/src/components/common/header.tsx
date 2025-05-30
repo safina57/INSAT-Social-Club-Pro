@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Bell, Home, MessageSquare, Search, Users, Menu, X, LogOut } from "lucide-react"
+import { Bell, Home, MessageSquare, Search, Menu, X, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { NotificationsPanel } from "./notifications-panel"
 import {
@@ -28,7 +28,6 @@ export function Header() {
 
   const navItems = [
     { name: "Home", href: "/home", icon: Home },
-    { name: "Network", href: "/network", icon: Users },
     { name: "Messages", href: "/messages", icon: MessageSquare },
   ]
 

@@ -4,6 +4,7 @@ import LandingPage from './components/LandingPage';
 import SignIn from './components/sign-in';
 import SignUp from './components/sign-up';
 import HomePage from './components/home'; 
+import MessagesPage from './components/messages';
 
 function App() {
   return (
@@ -35,6 +36,11 @@ function App() {
             element={<HomePage />}
           />
               
+          {/* Messages Page */}
+          <Route
+            path="/messages"
+            element={<MessagesPage />}
+          />
 
           {/* Catch-All Route */}
         <Route
