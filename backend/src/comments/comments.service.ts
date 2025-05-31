@@ -9,10 +9,12 @@ import { CreateCommentInput } from './dto/create-comment.input';
 import { Role } from 'src/users/enums/role.enum';
 import { Comment, User } from '@prisma/client';
 import { UpdateCommentInput } from './dto/update-comment.input';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { eventsPatterns } from 'src/common/events/events.patterns';
 
 @Injectable()
 export class CommentsService extends BaseService<Comment> {
-  constructor(prisma: PrismaService) {
+  constructor(prisma: PrismaService, private readonly eventEmitter: EventEmitter2) {
     super(prisma, 'comment');
   }
 
@@ -21,7 +23,14 @@ export class CommentsService extends BaseService<Comment> {
     authorId: string,
   ): Promise<Comment> {
     const { content, postId } = createCommentInput;
-    return await this.prisma.comment.create({
+    const post = await this.prisma.post.findUnique({
+    where: { id: postId },
+    select: { authorId: true }, 
+  });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    const comment =  await this.prisma.comment.create({
       data: {
         content,
         post: {
@@ -36,6 +45,18 @@ export class CommentsService extends BaseService<Comment> {
         },
       },
     });
+    
+    this.eventEmitter.emit(eventsPatterns.POST_COMMENTED, {
+    type: eventsPatterns.POST_COMMENTED,
+    userId: post.authorId, 
+    authorId: authorId,           
+    postId: postId,               
+    commentId: comment.id,
+    message: `User ${authorId} commented on post ${postId}`,
+    commentContent: comment.content,
+  });
+
+    return comment;
   }
 
   async updateComment(
