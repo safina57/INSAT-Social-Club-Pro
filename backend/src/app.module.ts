@@ -18,6 +18,7 @@ import { NotificationModule } from './notification/notification.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ImageUploadModule } from './image-upload/image-upload.module';
 import { SupabaseModule } from './supabase/supabase.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { SupabaseModule } from './supabase/supabase.module';
     }),
     ImageUploadModule,
     SupabaseModule,
+    DashboardModule
   ],
   controllers: [],
   providers: [JobApplicationService, JobApplicationResolver],

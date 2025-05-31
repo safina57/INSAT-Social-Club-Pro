@@ -104,6 +104,28 @@ enum ApplicationStatus {
   REJECTED
 }
 
+type ApplicationsByStatus {
+  PENDING: Int!
+  ACCEPTED: Int!
+  REJECTED: Int!
+}
+
+type TimeFrameData {
+  date: String!
+  count: Int!
+}
+
+type DashboardAnalytics {
+  totalUsers: Int!
+  totalCompanies: Int!
+  totalJobs: Int!
+  totalApplications: Int!
+  totalPosts: Int!
+  applicationsByStatus: ApplicationsByStatus!
+  userSignupsPerTimeFrame: [TimeFrameData!]!
+  postsPerTimeFrame: [TimeFrameData!]!
+}
+
 type Query {
   myApplications: [JobApplication!]!
   applicantsForJob(jobId: String!): [JobApplication!]!
@@ -116,6 +138,13 @@ type Query {
   Companies: [CompanyType!]!
   Company(id: ID!): CompanyType!
   listManagers(companyId: ID!): [CompanyManagerType!]!
+  dashboardAnalytics(timeframe: TimeFrame!): DashboardAnalytics!
+}
+
+enum TimeFrame {
+  DAY
+  WEEK
+  MONTH
 }
 
 type Mutation {
