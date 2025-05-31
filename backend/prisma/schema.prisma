@@ -39,6 +39,10 @@ model User {
   posts                     Post[]
   comments                  Comment[]
   likes                     Like[] // Added relation to Like model
+  
+  friends   User[]   @relation("UserFriends")
+  friendOf  User[]   @relation("UserFriends")
+
 }
 
 model Post {

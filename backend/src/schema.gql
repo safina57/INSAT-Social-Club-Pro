@@ -54,6 +54,7 @@ type User {
   resetPasswordToken: String
   posts: [Post!]
   comments: [Comment!]
+  friends: [User!]
 }
 
 type Query {
@@ -66,6 +67,7 @@ type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: ID!): User!
+  addFriend(userId: ID!, friendId: ID!): User!
   createPost(createPostInput: CreatePostInput!): Post!
   updatePost(id: ID!, updatePostInput: UpdatePostInput!): Post!
   removePost(id: ID!): Post!
