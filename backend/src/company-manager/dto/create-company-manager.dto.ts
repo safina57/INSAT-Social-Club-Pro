@@ -8,5 +8,6 @@ export class CreateCompanyManagerDto {
   @IsString()
   companyId: string;   
 
+  @IsEnum(ManagerRole)
   role: ManagerRole = ManagerRole.EDITOR;    
 }
