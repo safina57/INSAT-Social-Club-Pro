@@ -19,6 +19,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ImageUploadModule } from './image-upload/image-upload.module';
 import { SupabaseModule } from './supabase/supabase.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -45,7 +46,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
     }),
     ImageUploadModule,
     SupabaseModule,
-    DashboardModule
+    DashboardModule,
+    ChatModule,
   ],
   controllers: [],
   providers: [JobApplicationService, JobApplicationResolver],

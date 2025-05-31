@@ -1,6 +1,8 @@
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateJobInput } from "./dto/create-job.input";
 import { Injectable } from "@nestjs/common";
+import { paginate } from "src/common/utils/paginate";
+import { PaginationDto } from "src/common/dto/pagination.dto";
 
 @Injectable()
 export class JobService {
@@ -14,15 +16,26 @@ export class JobService {
     });
   }
 
-  findAll() {
-    return this.prisma.job.findMany({ orderBy: { createdAt: 'desc' } });
+  findAll(paginationDto: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto ?? {};
+    return paginate(this.prisma.job, {
+        page,
+        limit,
+        orderBy: { createdAt: 'desc' }, 
+      });
   }
 
   findOne(id: string) {
     return this.prisma.job.findUnique({ where: { id } });
   }
 
-  findByCompany(companyId: string) {
-    return this.prisma.job.findMany({ where: { companyId } });
+  findByCompany(companyId: string, paginationDto?: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto ?? {};
+    return paginate(this.prisma.job, {
+      where: { companyId },
+      page,
+      limit,
+      orderBy: { createdAt: 'desc' },
+    });
   }
 }
