@@ -1,8 +1,10 @@
-import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { JobApplicationService } from "./job-application.service";
 import { JobApplication } from "./entities/job-application.entity";
 import { ApplyJobInput } from "./dto/apply-job.input";
 import { ApplicationStatus } from "./enum/application-status.enum";
+import { GetUser } from "src/auth/decorators/get-user.decorator";
+import { User } from "@prisma/client";
 
 @Resolver(() => JobApplication)
 export class JobApplicationResolver {
@@ -11,15 +13,15 @@ export class JobApplicationResolver {
   @Mutation(() => JobApplication)
   applyToJob(
     @Args('input') input: ApplyJobInput,
-    @Context() context
+    @GetUser() user: User
   ) {
-    const userId = context.req.user.id;
+    const userId = user.id;
     return this.service.apply(input.jobId, userId);
   }
 
   @Query(() => [JobApplication])
-  myApplications(@Context() context) {
-    const userId = context.req.user.id;
+  myApplications(@GetUser() user: User) {
+    const userId = user.id;
     return this.service.getApplicationsByUser(userId);
   }
 
@@ -32,9 +34,9 @@ export class JobApplicationResolver {
 changeApplicationStatus(
   @Args('applicationId') applicationId: string,
   @Args('status', { type: () => ApplicationStatus }) status: ApplicationStatus,
-  @Context() context
+  @GetUser() user: User
 ) {
-  const managerId = context.req.user.id;
+  const managerId = user.id;
   return this.service.changeStatus(applicationId, status, managerId);
 }
 
