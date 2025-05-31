@@ -23,7 +23,7 @@ services:
     ports:
       - '3000:3000'
     environment:
-      DATABASE_URL: postgres://postgres:Sa77aLa3rithi@db:5432/ApplicationDB
+      DATABASE_URL: postgres://postgres:Sa77aLa3rithi@db:5433/ApplicationDB
     networks:
       - insat-network
     volumes:

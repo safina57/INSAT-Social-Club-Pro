@@ -9,6 +9,11 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
+import { JobModule } from './job/job.module';
+import { CompanyModule } from './company/company.module';
+import { CompanyManagerModule } from './company-manager/company-manager.module';
+import { JobApplicationService } from './job-application/job-application.service';
+import { JobApplicationResolver } from './job-application/job-application.resolver';
 import { NotificationModule } from './notification/notification.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ImageUploadModule } from './image-upload/image-upload.module';
@@ -31,6 +36,9 @@ import { SupabaseModule } from './supabase/supabase.module';
     UsersModule,
     PostsModule,
     CommentsModule,
+    JobModule,
+    CompanyModule,
+    CompanyManagerModule
     NotificationModule,
     EventEmitterModule.forRoot({
       wildcard: true,}),
@@ -38,6 +46,6 @@ import { SupabaseModule } from './supabase/supabase.module';
     SupabaseModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [JobApplicationService, JobApplicationResolver],
 })
 export class AppModule {}
