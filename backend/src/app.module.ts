@@ -10,6 +10,7 @@ import { join } from 'path';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { NotificationModule } from './notification/notification.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -28,6 +29,8 @@ import { NotificationModule } from './notification/notification.module';
     PostsModule,
     CommentsModule,
     NotificationModule,
+    EventEmitterModule.forRoot({
+      wildcard: true,}),
   ],
   controllers: [],
   providers: [],

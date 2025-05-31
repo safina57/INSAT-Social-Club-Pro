@@ -10,10 +10,12 @@ import { BaseService } from 'src/common/services/base.service';
 import { CreatePostInput } from './dto/create-post.input';
 import { UpdatePostInput } from './dto/update-post.input';
 import { Role } from 'src/users/enums/role.enum';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { eventsPatterns } from 'src/common/events/events.patterns';
 
 @Injectable()
 export class PostsService extends BaseService<Post> {
-  constructor(prisma: PrismaService) {
+  constructor(prisma: PrismaService, private readonly eventEmitter: EventEmitter2) {
     super(prisma, 'post');
   }
 
@@ -114,7 +116,7 @@ export class PostsService extends BaseService<Post> {
       },
     });
 
-    return await this.prisma.post.update({
+    const updatedPost= await this.prisma.post.update({
       where: { id },
       data: {
         likesCount: {
@@ -126,6 +128,14 @@ export class PostsService extends BaseService<Post> {
         comments: true,
       },
     });
+    this.eventEmitter.emit(eventsPatterns.POST_LIKED, {
+      type: eventsPatterns.POST_LIKED,
+      userId: updatedPost.author.id, 
+      fromUserId: userId,            
+      postId: updatedPost.id,
+      message: `Your post was liked by user ${userId}`,
+    });
+    return updatedPost;
   }
 
   async unlikePost(id: string, userId: string): Promise<Post> {
