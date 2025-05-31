@@ -19,7 +19,6 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ImageUploadModule } from './image-upload/image-upload.module';
 import { SupabaseModule } from './supabase/supabase.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -38,10 +37,11 @@ import { SupabaseModule } from './supabase/supabase.module';
     CommentsModule,
     JobModule,
     CompanyModule,
-    CompanyManagerModule
+    CompanyManagerModule,
     NotificationModule,
     EventEmitterModule.forRoot({
-      wildcard: true,}),
+      wildcard: true,
+    }),
     ImageUploadModule,
     SupabaseModule,
   ],

@@ -1,13 +1,13 @@
-import { IsString } from "class-validator";
-import { ManagerRole } from "../enums/managerRole.enum";
+import { IsEnum, IsString } from 'class-validator';
+import { ManagerRole } from '../enums/managerRole.enum';
 
 export class CreateCompanyManagerDto {
   @IsString()
-  userId: string;      
+  userId: string;
 
   @IsString()
-  companyId: string;   
+  companyId: string;
 
   @IsEnum(ManagerRole)
-  role: ManagerRole = ManagerRole.EDITOR;    
+  role: ManagerRole = ManagerRole.EDITOR;
 }
