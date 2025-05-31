@@ -2,6 +2,7 @@
 
 import type React from "react"
 
+import Aurora from "@/components/ui/Aurora"
 import { useState } from "react"
 import { Header } from "@/components/common/header"
 import { Button } from "@/components/ui/button"
@@ -109,7 +110,19 @@ export default function JobsPage() {
   }
 
   return (
-    <div className="min-h-screen w-full aurora-gradient">
+  <div className="relative min-h-screen w-full overflow-hidden">
+    {/* Aurora Background */}
+    <div className="absolute inset-0 -z-10">
+      <Aurora
+        colorStops={[
+          "#003B49", // Aqua blue
+          "#003B49", // Dark green
+        ]}
+        blend={0.2}
+        amplitude={1.2}
+        speed={0.5}
+      />
+    </div>
       <Header />
       <div className="container mx-auto px-4 py-8 content-z-index">
         <div className="flex flex-col lg:flex-row gap-6">
