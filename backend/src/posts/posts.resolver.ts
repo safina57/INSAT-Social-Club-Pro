@@ -5,6 +5,8 @@ import { UpdatePostInput } from './dto/update-post.input';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from '@prisma/client';
 import { PostsService } from './posts.service';
+import { FileUpload } from 'graphql-upload/processRequest.mjs';
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 
 @Resolver(() => Post)
 export class PostsResolver {
@@ -13,9 +15,12 @@ export class PostsResolver {
   @Mutation(() => Post)
   createPost(
     @Args('createPostInput') createPostInput: CreatePostInput,
+    @Args({ name: 'image', type: () => GraphQLUpload, nullable: true })
+    image: FileUpload | null,
+
     @GetUser() user: User,
   ) {
-    return this.postsService.createPost(createPostInput, user.id);
+    return this.postsService.createPost(createPostInput, image, user.id);
   }
 
   @Query(() => [Post], { name: 'posts' })

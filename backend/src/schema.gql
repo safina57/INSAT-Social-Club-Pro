@@ -32,6 +32,7 @@ scalar DateTime
 type Post {
   id: ID!
   content: String!
+  imageUrl: String
   createdAt: DateTime!
   updatedAt: DateTime!
   likesCount: Float!
@@ -66,7 +67,7 @@ type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: ID!): User!
-  createPost(createPostInput: CreatePostInput!): Post!
+  createPost(createPostInput: CreatePostInput!, image: Upload): Post!
   updatePost(id: ID!, updatePostInput: UpdatePostInput!): Post!
   removePost(id: ID!): Post!
   likePost(id: ID!): Post!
@@ -92,6 +93,9 @@ input UpdateUserInput {
 input CreatePostInput {
   content: String!
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 input UpdatePostInput {
   content: String
