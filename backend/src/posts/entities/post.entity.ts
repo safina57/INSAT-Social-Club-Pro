@@ -10,6 +10,9 @@ export class Post {
   @Field(() => String)
   content: string;
 
+  @Field(() => String, { nullable: true })
+  imageUrl?: string | null;
+
   @Field(() => Date)
   createdAt: Date;
 

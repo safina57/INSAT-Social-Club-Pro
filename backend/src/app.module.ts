@@ -11,6 +11,9 @@ import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { NotificationModule } from './notification/notification.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ImageUploadModule } from './image-upload/image-upload.module';
+import { SupabaseModule } from './supabase/supabase.module';
+
 
 @Module({
   imports: [
@@ -31,6 +34,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     NotificationModule,
     EventEmitterModule.forRoot({
       wildcard: true,}),
+    ImageUploadModule,
+    SupabaseModule,
   ],
   controllers: [],
   providers: [],

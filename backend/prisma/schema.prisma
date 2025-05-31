@@ -44,6 +44,7 @@ model User {
 model Post {
   id        String   @id @default(uuid())
   content   String
+  imageUrl  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   likesCount Int      @default(0)
