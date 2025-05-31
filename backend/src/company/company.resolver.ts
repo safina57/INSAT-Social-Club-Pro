@@ -3,7 +3,6 @@ import {
   Query,
   Mutation,
   Args,
-  Context,
   ID,
 } from '@nestjs/graphql';
 import { CompanyService } from './company.service';
