@@ -12,6 +12,7 @@ export class ImageUploadService {
   ) {}
 
   async uploadImage(file: FileUpload, bucketName: string): Promise<string> {
+    console.log(file);
     const { createReadStream, filename, mimetype } = file;
     const uniqueFilename = `${uuidv4()}-${filename}`;
 
