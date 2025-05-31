@@ -10,20 +10,34 @@ import { BaseService } from 'src/common/services/base.service';
 import { CreatePostInput } from './dto/create-post.input';
 import { UpdatePostInput } from './dto/update-post.input';
 import { Role } from 'src/users/enums/role.enum';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { eventsPatterns } from 'src/common/events/events.patterns';
+import { ImageUploadService } from '../image-upload/image-upload.service';
+import { FileUpload } from 'graphql-upload/processRequest.mjs';
 
 @Injectable()
 export class PostsService extends BaseService<Post> {
-  constructor(prisma: PrismaService) {
+  constructor(
+    prisma: PrismaService,
+    private readonly imageUploadService: ImageUploadService,
+    private readonly eventEmitter: EventEmitter2
+  ) {
     super(prisma, 'post');
   }
 
   async createPost(
     createPostInput: CreatePostInput,
+    image: FileUpload | null,
     authorId: string,
   ): Promise<Post> {
+    let imageUrl: string | null = null;
+    if (image) {
+      imageUrl = await this.imageUploadService.uploadImage(image, 'posts');
+    }
     return await this.prisma.post.create({
       data: {
-        ...createPostInput,
+        content: createPostInput.content,
+        imageUrl,
         author: {
           connect: {
             id: authorId,
@@ -114,7 +128,7 @@ export class PostsService extends BaseService<Post> {
       },
     });
 
-    return await this.prisma.post.update({
+    const updatedPost= await this.prisma.post.update({
       where: { id },
       data: {
         likesCount: {
@@ -126,6 +140,14 @@ export class PostsService extends BaseService<Post> {
         comments: true,
       },
     });
+    this.eventEmitter.emit(eventsPatterns.POST_LIKED, {
+      type: eventsPatterns.POST_LIKED,
+      userId: updatedPost.author.id, 
+      fromUserId: userId,            
+      postId: updatedPost.id,
+      message: `Your post was liked by user ${userId}`,
+    });
+    return updatedPost;
   }
 
   async unlikePost(id: string, userId: string): Promise<Post> {

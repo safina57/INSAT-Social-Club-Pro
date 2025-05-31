@@ -14,6 +14,11 @@ import { CompanyModule } from './company/company.module';
 import { CompanyManagerModule } from './company-manager/company-manager.module';
 import { JobApplicationService } from './job-application/job-application.service';
 import { JobApplicationResolver } from './job-application/job-application.resolver';
+import { NotificationModule } from './notification/notification.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ImageUploadModule } from './image-upload/image-upload.module';
+import { SupabaseModule } from './supabase/supabase.module';
+
 
 @Module({
   imports: [
@@ -34,6 +39,11 @@ import { JobApplicationResolver } from './job-application/job-application.resolv
     JobModule,
     CompanyModule,
     CompanyManagerModule
+    NotificationModule,
+    EventEmitterModule.forRoot({
+      wildcard: true,}),
+    ImageUploadModule,
+    SupabaseModule,
   ],
   controllers: [],
   providers: [JobApplicationService, JobApplicationResolver],
