@@ -2,13 +2,13 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { cn } from "@/lib/utils"
-import Aurora from "@/components/ui/Aurora"
+import { useState, useEffect } from "react"
+import { ArrowRight, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
+import { cn } from "../lib/utils"
+import Aurora from "./ui/Aurora"
 
 export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false)
@@ -21,6 +21,26 @@ export default function SignIn() {
     email: "",
     password: "",
   })
+  const [generalError, setGeneralError] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+
+  // Check for verification notification from signup
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const verificationSent = urlParams.get("verification_sent")
+    const email = urlParams.get("email")
+
+    if (verificationSent === "true" && email) {
+      setSuccessMessage(
+        `A verification email has been sent to ${email}. Please check your inbox and verify your email before signing in.`,
+      )
+      // Pre-fill the email field
+      setFormData((prev) => ({ ...prev, email }))
+
+      // Clean up the URL without refreshing the page
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -29,6 +49,11 @@ export default function SignIn() {
     // Clear errors when typing
     if (formErrors[name as keyof typeof formErrors]) {
       setFormErrors((prev) => ({ ...prev, [name]: "" }))
+    }
+
+    // Clear general error when typing
+    if (generalError) {
+      setGeneralError("")
     }
   }
 
@@ -59,13 +84,40 @@ export default function SignIn() {
     if (!validateForm()) return
 
     setIsLoading(true)
+    setGeneralError("")
 
-    // Simulate API call
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      // Here you would normally authenticate with your backend
-      console.log("Sign in successful", formData)
-      // Redirect or show success message
+      const backendUrl = import.meta.env.VITE_BACKEND_URL
+      const response = await fetch(`${backendUrl}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        // Handle specific error cases
+        if (
+          data.message &&
+          data.message.toLowerCase().includes("verified")
+        ) {
+          window.location.href = "/send-verification-email"
+          return
+        } 
+        else {
+          setGeneralError(data.message || "Login failed. Please try again.")
+        }
+        throw new Error(data.message || "Login failed")
+      }
+
+      localStorage.setItem("access_token", data.access_token)
+      window.location.href = "/home"
     } catch (error) {
       console.error("Sign in failed", error)
     } finally {
@@ -75,21 +127,33 @@ export default function SignIn() {
 
   return (
     <div className="flex min-h-screen w-full flex-col auth-gradient">
-    {/* Aurora background (behind everything) */}
-    <div className="absolute inset-0 -z-10">
-      <Aurora
-        colorStops={["#00FFB2", "#00C9FF", "#007C91", "#003B49"]}
-        blend={0.5}
-        amplitude={1.0}
-        speed={0.25}
-      />
-    </div>
+      {/* Aurora background (behind everything) */}
+      <div className="absolute inset-0 -z-10">
+        <Aurora colorStops={["#00FFB2", "#00C9FF", "#007C91", "#003B49"]} blend={0.5} amplitude={1.0} speed={0.25} />
+      </div>
       <div className="container flex flex-col items-center justify-center px-4 py-10 md:h-screen md:px-0">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-3xl font-bold tracking-tight text-white">Welcome back</h1>
             <p className="text-sm text-muted-foreground">Sign in to your INSAT PRO CLUB account</p>
           </div>
+
+          {/* Success message */}
+          {successMessage && (
+            <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-md flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+              <p className="text-sm text-green-200">{successMessage}</p>
+            </div>
+          )}
+
+          {/* General error message */}
+          {generalError && (
+            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-md flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
+              <p className="text-sm text-red-200">{generalError}</p>
+            </div>
+          )}
+
           <div className="grid gap-6">
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4">
@@ -121,10 +185,7 @@ export default function SignIn() {
                     <Label htmlFor="password" className="text-sm font-medium text-white">
                       Password
                     </Label>
-                    <a
-                      href="/forgot-password"
-                      className="text-xs text-primary hover:text-primary/90 transition-colors"
-                    >
+                    <a href="/forgot-password" className="text-xs text-primary hover:text-primary/90 transition-colors">
                       Forgot password?
                     </a>
                   </div>

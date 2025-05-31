@@ -8,6 +8,10 @@ import MessagesPage from './components/messages';
 import ContactPage from './components/contact-us';
 import NotFound from './components/404page';
 import AdminDashboard from './components/admin-dashboard';
+import EmailVerification from './components/verify-email';
+import ResetPassword from './components/reset-password';
+import ForgotPassword from './components/forgot-password';
+import ResendVerification from './components/resend-verification';
 
 function App() {
   return (
@@ -30,6 +34,27 @@ function App() {
           <Route
             path="/signup"
             element={<SignUp />}
+          />
+
+          {/* Email Verification Page */}
+          <Route
+            path="/verify-email"
+            element={<EmailVerification />}
+          />
+
+          <Route
+            path="/reset-password"
+            element={<ResetPassword />}
+          />
+
+          <Route
+            path="/forgot-password"
+            element={<ForgotPassword />}
+          />
+
+          <Route
+            path="/send-verification-email"
+            element={<ResendVerification />}
           />
 
           {/* Home Page */}
