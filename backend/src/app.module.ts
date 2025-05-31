@@ -38,7 +38,7 @@ import { SupabaseModule } from './supabase/supabase.module';
     CommentsModule,
     JobModule,
     CompanyModule,
-    CompanyManagerModule
+    CompanyManagerModule,
     NotificationModule,
     EventEmitterModule.forRoot({
       wildcard: true,}),

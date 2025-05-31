@@ -68,6 +68,27 @@ type Job {
   updatedAt: DateTime!
 }
 
+type CompanyType {
+  id: ID!
+  name: String!
+  description: String
+  website: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CompanyManagerType {
+  id: ID!
+  userId: String!
+  companyId: String!
+  role: ManagerRole!
+}
+
+enum ManagerRole {
+  EDITOR
+  ADMIN
+}
+
 type JobApplication {
   id: ID!
   userId: String!
@@ -92,6 +113,9 @@ type Query {
   jobs: [Job!]!
   job(id: String!): Job!
   jobsByCompany(companyId: String!): [Job!]!
+  Companies: [CompanyType!]!
+  Company(id: ID!): CompanyType!
+  listManagers(companyId: ID!): [CompanyManagerType!]!
 }
 
 type Mutation {
@@ -109,6 +133,11 @@ type Mutation {
   updateComment(id: ID!, updateCommentInput: UpdateCommentInput!): Comment!
   removeComment(id: ID!): Comment!
   createJob(createJobInput: CreateJobInput!): Job!
+  createCompany(input: CreateCompanyInput!): CompanyType!
+  updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
+  removeCompany(id: ID!): CompanyType!
+  addManager(input: CreateCompanyManagerInput!): CompanyManagerType!
+  removeManager(companyId: ID!, managerId: ID!): Boolean!
 }
 
 input ApplyJobInput {
@@ -154,4 +183,22 @@ input CreateJobInput {
   location: String
   salary: Float
   companyId: String!
+}
+
+input CreateCompanyInput {
+  name: String!
+  description: String
+  website: String
+}
+
+input UpdateCompanyInput {
+  name: String
+  description: String
+  website: String
+}
+
+input CreateCompanyManagerInput {
+  userId: String!
+  companyId: String!
+  role: ManagerRole!
 }
