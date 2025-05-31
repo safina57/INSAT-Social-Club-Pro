@@ -5,7 +5,10 @@ import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { Paginated } from 'src/common/factories/paginated.factory';
 
+const PaginatedUsers = Paginated(User);
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
@@ -16,9 +19,11 @@ export class UsersResolver {
   }
 
   @Roles(Role.ADMIN)
-  @Query(() => [User], { name: 'users' })
-  findAll() {
-    return this.usersService.findAll();
+  @Query(() => PaginatedUsers, { name: 'users' })
+  findAll(
+    @Args('paginationDto', { type: () => PaginationDto, nullable: true }) paginationDto?: PaginationDto,
+  ) {
+    return this.usersService.findAll(paginationDto?? { page: 1, limit: 10 });
   }
 
   @Query(() => User, { name: 'user' })

@@ -57,6 +57,33 @@ type User {
   comments: [Comment!]
 }
 
+type Meta {
+  total: Int!
+  page: Int!
+  lastPage: Int!
+  limit: Int!
+}
+
+type PaginatedUser {
+  results: [User!]
+  meta: Meta!
+}
+
+type PaginatedPost {
+  results: [Post!]
+  meta: Meta!
+}
+
+type Query {
+  users(paginationDto: PaginationDto): PaginatedUser!
+  user(id: ID!): User!
+  posts(paginationDto: PaginationDto): PaginatedPost!
+}
+
+input PaginationDto {
+  page: Int = 1
+  limit: Int = 10
+=======
 type Job {
   id: ID!
   title: String!

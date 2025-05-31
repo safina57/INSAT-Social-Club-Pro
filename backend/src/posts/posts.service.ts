@@ -14,6 +14,9 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { eventsPatterns } from 'src/common/events/events.patterns';
 import { ImageUploadService } from '../image-upload/image-upload.service';
 import { FileUpload } from 'graphql-upload/processRequest.mjs';
+import { paginate } from 'src/common/utils/paginate';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginatedResult } from 'src/common/types/paginated-result.type';
 
 @Injectable()
 export class PostsService extends BaseService<Post> {
@@ -50,17 +53,24 @@ export class PostsService extends BaseService<Post> {
     });
   }
 
-  async findAll(): Promise<Post[]> {
-    return await this.prisma.post.findMany({
-      include: {
-        author: true,
-        comments: {
-          include: {
-            author: true,
-          },
+  async findAll(paginationDto?: PaginationDto): Promise<PaginatedResult<Post>> {
+    const { page = 1, limit = 10 } = paginationDto ?? {};
+
+    return paginate<Post>(this.prisma.post, {
+      page,
+      limit,
+    include: {
+      author: true,
+      comments: {
+        include: {
+          author: true,
         },
       },
-    });
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
   }
 
   async updatePost(
