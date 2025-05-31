@@ -83,9 +83,47 @@ type Query {
 input PaginationDto {
   page: Int = 1
   limit: Int = 10
+=======
+type Job {
+  id: ID!
+  title: String!
+  description: String!
+  location: String
+  salary: Float
+  companyId: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type JobApplication {
+  id: ID!
+  userId: String!
+  jobId: String!
+  createdAt: DateTime!
+  status: ApplicationStatus!
+  decidedAt: DateTime
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+type Query {
+  myApplications: [JobApplication!]!
+  applicantsForJob(jobId: String!): [JobApplication!]!
+  users: [User!]!
+  user(id: ID!): User!
+  posts: [Post!]!
+  jobs: [Job!]!
+  job(id: String!): Job!
+  jobsByCompany(companyId: String!): [Job!]!
 }
 
 type Mutation {
+  applyToJob(input: ApplyJobInput!): JobApplication!
+  changeApplicationStatus(applicationId: String!, status: ApplicationStatus!): JobApplication!
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: ID!): User!
@@ -97,6 +135,11 @@ type Mutation {
   createComment(createCommentInput: CreateCommentInput!): Comment!
   updateComment(id: ID!, updateCommentInput: UpdateCommentInput!): Comment!
   removeComment(id: ID!): Comment!
+  createJob(createJobInput: CreateJobInput!): Job!
+}
+
+input ApplyJobInput {
+  jobId: String!
 }
 
 input CreateUserInput {
@@ -130,4 +173,12 @@ input CreateCommentInput {
 
 input UpdateCommentInput {
   content: String!
+}
+
+input CreateJobInput {
+  title: String!
+  description: String!
+  location: String
+  salary: Float
+  companyId: String!
 }

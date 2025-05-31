@@ -8,6 +8,7 @@ import MessagesPage from './components/messages';
 import ContactPage from './components/contact-us';
 import NotFound from './components/404page';
 import AdminDashboard from './components/admin-dashboard';
+import JobsPage from './components/jobs';
 
 function App() {
   return (
@@ -56,13 +57,19 @@ function App() {
             element={<AdminDashboard />}
           />
 
+          {/* Jobs Page */} 
+          <Route
+            path="/jobs"
+            element={<JobsPage />}
+          />
+
           {/* Catch-All Route */}
-        <Route
-          path="*"
-          element={
-            <NotFound />
-          }
-        />
+          <Route
+            path="*"
+            element={
+              <NotFound />
+            }
+          />
         </Routes>  
       </main>
     </Router>  

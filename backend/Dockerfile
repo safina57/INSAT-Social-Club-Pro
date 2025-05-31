@@ -1,19 +1,32 @@
-FROM node:18-alpine
+FROM node:20-alpine AS builder
 
-# Install OpenSSL (required for Prisma)
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl \
+    && apk add --no-cache python3 g++ make
 
 WORKDIR /app
 
+
 COPY package*.json ./
-RUN npm install
+
+RUN npm i
 
 COPY . .
 
-# Generate Prisma Client after copying code and installing all dependencies
 RUN npx prisma generate
 
-EXPOSE 3000
+RUN npm run build
 
-# Start in dev mode
-CMD ["npm", "run", "start:dev"]
+RUN npm prune --production
+
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/prisma ./prisma
+
+ENV NODE_ENV=production
+
+CMD ["npm", "run", "start:prod"]
