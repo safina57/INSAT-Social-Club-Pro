@@ -14,6 +14,10 @@ import { JWTAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from '@prisma/client';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { Paginated } from 'src/common/factories/paginated.factory';
+
+const paginatedCompanies = Paginated(CompanyType);
 
 @Resolver(() => CompanyType)
 export class CompanyResolver {
@@ -29,9 +33,11 @@ export class CompanyResolver {
   }
 
   @Public()
-  @Query(() => [CompanyType])
-  Companies() {
-    return this.companyService.findAll();
+  @Query(() => paginatedCompanies)
+  Companies
+  (@Args('paginationDto', { type: () => PaginationDto, nullable: true }) paginationDto?: PaginationDto,
+){
+    return this.companyService.findAll(paginationDto ?? {});
   }
 
   @Public()

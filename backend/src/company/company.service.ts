@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service'
 import { CreateCompanyInput } from './dto/create-company.input';
 import { UpdateCompanyInput } from './dto/update-company.input';
 import { ManagerRole } from '@prisma/client';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { paginate } from 'src/common/utils/paginate';
 
 @Injectable()
 export class CompanyService {
@@ -23,8 +25,13 @@ export class CompanyService {
     return company;
   }
 
-  async findAll() {
-    return this.prisma.company.findMany();
+  async findAll(paginationDto: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto ?? {};
+    return paginate(this.prisma.company, {
+    page,
+    limit,
+    orderBy: { createdAt: 'desc' }, 
+  });
   }
 
   async findOne(id: string) {
