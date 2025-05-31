@@ -17,4 +17,6 @@ export class CreateUserInput {
   @IsNotEmpty()
   @Field(() => String)
   password: string;
+  @Field(() => String, { nullable: true })
+  profilePhoto?: string; 
 }

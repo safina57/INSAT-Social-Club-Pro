@@ -8,4 +8,6 @@ export class UpdateUserInput extends PartialType(CreateUserInput) {
   @IsNotEmpty()
   @Field(() => ID)
   id: string;
+  @Field(() => String, { nullable: true })
+  profilePhoto?: string; 
 }
