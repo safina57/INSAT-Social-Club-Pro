@@ -11,6 +11,7 @@ import NotFound from './components/404page';
 import AdminDashboard from './components/admin-dashboard';
 import JobsPage from './components/jobs';
 import ProfilePage from './components/profile';
+import SearchPage from './components/search';
 
 function ProfilePageWrapper() {
   const { username } = useParams<{ username: string }>();
@@ -74,6 +75,12 @@ function App() {
           <Route
             path="/profile/:username"
             element={<ProfilePageWrapper />}
+          />
+
+          {/* Search Page */}
+          <Route
+            path="/search"
+            element={<SearchPage />}
           />
 
           {/* Catch-All Route */}
