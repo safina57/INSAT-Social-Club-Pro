@@ -63,6 +63,7 @@ model User {
   
   friends   User[]   @relation("UserFriends")
   friendOf  User[]   @relation("UserFriends")
+  profilePhoto String?
 
 }
 
