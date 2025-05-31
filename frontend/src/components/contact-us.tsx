@@ -12,6 +12,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, CheckCircle2, Mail, User, MessageSquare, HelpCircle } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
+import Aurora from "@/components/ui/Aurora"
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -66,8 +67,20 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen w-full aurora-gradient">
-      <Header />
+  <div className="relative min-h-screen w-full overflow-hidden">
+    {/* Aurora Background */}
+    <div className="absolute inset-0 -z-10">
+      <Aurora
+        colorStops={[
+          "#003B49", // Aqua blue
+          "#003B49", // Dark green
+        ]}
+        blend={0.2}
+        amplitude={1.2}
+        speed={0.5}
+      />
+    </div>
+    <Header />
       <div className="container mx-auto px-4 py-8 content-z-index">
         <div className="max-w-3xl mx-auto">
           <div className="rounded-xl bg-background/40 backdrop-blur-md p-6 md:p-8 shadow-lg border border-white/10">

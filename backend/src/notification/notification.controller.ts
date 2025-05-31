@@ -1,7 +1,7 @@
 import { Controller, Sse } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User, Role } from '@prisma/client';
-import { filter, fromEvent, fromEventPattern, map, Observable } from 'rxjs';
+import { filter, fromEventPattern, map, Observable } from 'rxjs';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { eventsPatterns } from 'src/common/events/events.patterns';
 
