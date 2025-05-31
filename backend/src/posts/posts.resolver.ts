@@ -8,6 +8,10 @@ import { PostsService } from './posts.service';
 import { FileUpload } from 'graphql-upload/processRequest.mjs';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 import { ImageValidationPipe } from '../image-upload/pipes/image-validation.pipe';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { Paginated } from 'src/common/factories/paginated.factory';
+
+const paginatedPosts = Paginated(Post)
 
 @Resolver(() => Post)
 export class PostsResolver {
@@ -26,10 +30,12 @@ export class PostsResolver {
   ) {
     return this.postsService.createPost(createPostInput, image, user.id);
   }
-
-  @Query(() => [Post], { name: 'posts' })
-  findAll() {
-    return this.postsService.findAll();
+  
+  @Query(() => paginatedPosts, { name: 'posts' })
+  findAll(
+    @Args('paginationDto', { type: () => PaginationDto, nullable: true }) paginationDto?: PaginationDto,
+  ) {
+    return this.postsService.findAll(paginationDto);
   }
 
   @Mutation(() => Post)
