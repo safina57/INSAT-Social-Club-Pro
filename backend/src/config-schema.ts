@@ -11,4 +11,6 @@ export const configSchema = Joi.object({
   SENDGRID_API_KEY: Joi.string().required(),
   SENDGRID_FROM_EMAIL: Joi.string().required(),
   FRONTEND_URL: Joi.string().required(),
+  SUPABASE_URL: Joi.string().uri().required(),
+  SUPABASE_KEY: Joi.string().required(),
 });

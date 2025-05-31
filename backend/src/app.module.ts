@@ -9,6 +9,8 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
+import { ImageUploadModule } from './image-upload/image-upload.module';
+import { SupabaseModule } from './supabase/supabase.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { CommentsModule } from './comments/comments.module';
     UsersModule,
     PostsModule,
     CommentsModule,
+    ImageUploadModule,
+    SupabaseModule,
   ],
   controllers: [],
   providers: [],

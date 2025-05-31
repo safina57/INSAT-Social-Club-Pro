@@ -10,20 +10,31 @@ import { BaseService } from 'src/common/services/base.service';
 import { CreatePostInput } from './dto/create-post.input';
 import { UpdatePostInput } from './dto/update-post.input';
 import { Role } from 'src/users/enums/role.enum';
+import { ImageUploadService } from '../image-upload/image-upload.service';
+import { FileUpload } from 'graphql-upload/processRequest.mjs';
 
 @Injectable()
 export class PostsService extends BaseService<Post> {
-  constructor(prisma: PrismaService) {
+  constructor(
+    prisma: PrismaService,
+    private readonly imageUploadService: ImageUploadService,
+  ) {
     super(prisma, 'post');
   }
 
   async createPost(
     createPostInput: CreatePostInput,
+    image: FileUpload | null,
     authorId: string,
   ): Promise<Post> {
+    let imageUrl: string | null = null;
+    if (image) {
+      imageUrl = await this.imageUploadService.uploadImage(image, 'posts');
+    }
     return await this.prisma.post.create({
       data: {
-        ...createPostInput,
+        content: createPostInput.content,
+        imageUrl,
         author: {
           connect: {
             id: authorId,
