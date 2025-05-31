@@ -6,13 +6,15 @@ import {
   Param,
   Patch,
   Delete,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { JWTAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { Public } from 'src/auth/decorators/public.decorator';
+import { User } from '@prisma/client';
 
 @Controller('companies')
 export class CompanyController {
@@ -20,15 +22,17 @@ export class CompanyController {
 
   @UseGuards(JWTAuthGuard)
   @Post()
-  create(@Body() createCompanyDto: CreateCompanyDto, @Req() req) {
-    return this.companyService.create(createCompanyDto, req.user.id);
+  create(@Body() createCompanyDto: CreateCompanyDto, @GetUser() user: User) {
+    return this.companyService.create(createCompanyDto, user.id);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.companyService.findAll();
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.companyService.findOne(id);
@@ -36,13 +40,13 @@ export class CompanyController {
 
   @UseGuards(JWTAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto, @Req() req) {
-    return this.companyService.update(id, updateCompanyDto, req.user.id);
+  update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto, @GetUser() user: User) {
+    return this.companyService.update(id, updateCompanyDto, user.id);
   }
 
   @UseGuards(JWTAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req) {
-    return this.companyService.remove(id, req.user.id);
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.companyService.remove(id, user.id);
   }
 }

@@ -1,7 +1,9 @@
-import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { JobService } from './job.service';
 import { Job } from './entities/job.entity';
 import { CreateJobInput } from './dto/create-job.input';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { User } from '@prisma/client';
 
 @Resolver(() => Job)
 export class JobResolver {
@@ -10,9 +12,9 @@ export class JobResolver {
   @Mutation(() => Job)
   createJob(
     @Args('createJobInput') createJobInput: CreateJobInput,
-    @Context() context
+    @GetUser() user: User
   ) {
-    const userId = context.req.user.id;
+    const userId = user.id;
     return this.jobService.create(createJobInput, userId);
   }
 

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
+import { ManagerRole } from '@prisma/client';
 
 @Injectable()
 export class CompanyService {
@@ -14,7 +15,7 @@ export class CompanyService {
         managers: {
           create: {
             userId,
-            role: 'ADMIN',
+            role: ManagerRole.ADMIN,
           },
         },
       },
