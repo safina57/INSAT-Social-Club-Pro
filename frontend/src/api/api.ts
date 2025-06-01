@@ -422,6 +422,29 @@ export const api = createApi({
       invalidatesTags: ["Post"],
     }),
 
+    sharePost: builder.mutation<
+      {
+        id: string;
+      },
+      string
+    >({
+      query: (postId) => ({
+        url: "/graphql",
+        method: "POST",
+        body: {
+          query: `
+            mutation SharePost($id: ID!) {
+              sharePost(id: $id) {
+                id
+              }
+            }
+          `,
+          variables: { id: postId },
+        },
+      }),
+      invalidatesTags: ["Post"],
+    }),
+
     /*
     =================
     COMMENTS MUTATIONS
@@ -468,5 +491,6 @@ export const {
   useLikePostMutation,
   useUnlikePostMutation,
   useDeletePostMutation,
+  useSharePostMutation,
   useCreateCommentMutation,
 } = api;

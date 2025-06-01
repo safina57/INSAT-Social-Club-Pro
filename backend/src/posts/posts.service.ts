@@ -251,4 +251,29 @@ export class PostsService extends BaseService<Post> {
       },
     });
   }
+
+  async sharePost(id: string, userId: string): Promise<Post> {
+    const post = await this.findOne(id);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    // Create a new post as a share
+    const sharedPost = await this.prisma.post.create({
+      data: {
+        content: post.content,
+        imageUrl: post.imageUrl,
+        author: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+      include: {
+        author: true,
+      },
+    });
+
+    return sharedPost;
+  }
 }

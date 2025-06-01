@@ -50,6 +50,7 @@ declare global {
     onLike: (postId: string) => void;
     onAddComment: (postId: string, commentText: string) => void;
     onDelete?: (postId: string) => void;
+    onShare?: (postId: string) => void;
   }
 }
 

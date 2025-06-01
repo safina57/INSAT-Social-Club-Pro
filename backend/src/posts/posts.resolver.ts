@@ -69,4 +69,9 @@ export class PostsResolver {
   ) {
     return this.postsService.unlikePost(id, user.id);
   }
+
+  @Mutation(() => Post)
+  sharePost(@Args('id', { type: () => ID }) id: string, @GetUser() user: User) {
+    return this.postsService.sharePost(id, user.id);
+  }
 }
