@@ -6,6 +6,12 @@ import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+  });
+
   app.use(
     graphqlUploadExpress({
       maxFileSize: 10000000, // 10 MB

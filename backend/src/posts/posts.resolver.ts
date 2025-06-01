@@ -11,7 +11,7 @@ import { ImageValidationPipe } from '../image-upload/pipes/image-validation.pipe
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Paginated } from 'src/common/factories/paginated.factory';
 
-const paginatedPosts = Paginated(Post)
+const paginatedPosts = Paginated(Post);
 
 @Resolver(() => Post)
 export class PostsResolver {
@@ -30,10 +30,11 @@ export class PostsResolver {
   ) {
     return this.postsService.createPost(createPostInput, image, user.id);
   }
-  
+
   @Query(() => paginatedPosts, { name: 'posts' })
   findAll(
-    @Args('paginationDto', { type: () => PaginationDto, nullable: true }) paginationDto?: PaginationDto,
+    @Args('paginationDto', { type: () => PaginationDto, nullable: true })
+    paginationDto?: PaginationDto,
   ) {
     return this.postsService.findAll(paginationDto);
   }

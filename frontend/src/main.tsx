@@ -3,13 +3,16 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css"; // Import Tailwind CSS
 import { AuthProvider } from "./context/AuthContext";
-import './styles/fonts.css';
-import './styles/globals.css';
+import "./styles/fonts.css";
+import "./styles/globals.css";
+import Providers from "./components/providers";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-<React.StrictMode>
-<AuthProvider>
-    <App />
-  </AuthProvider>
-</React.StrictMode>
+  <React.StrictMode>
+    <AuthProvider>
+      <Providers>
+        <App />
+      </Providers>
+    </AuthProvider>
+  </React.StrictMode>
 );

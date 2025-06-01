@@ -1,0 +1,435 @@
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { BaseQueryApi, FetchArgs } from "@reduxjs/toolkit/query";
+import { toast } from "sonner";
+
+const customBaseQuery = async (
+  args: string | FetchArgs,
+  api: BaseQueryApi,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  extraOptions: any
+) => {
+  const token = localStorage.getItem("token");
+
+  const baseQuery = fetchBaseQuery({
+    baseUrl: "http://localhost:3000",
+    credentials: "include",
+    prepareHeaders: (headers) => {
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      headers.set("Content-Type", "application/json");
+      return headers;
+    },
+  });
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: any = await baseQuery(args, api, extraOptions);
+    if (result.error) {
+      if (result.error.status === 401) {
+        localStorage.removeItem("token");
+        toast.error("Session expired. Please log in again.");
+
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        window.location.href = "/login";
+      } else {
+        const errorData = result.error.data;
+        const errorMessage =
+          errorData?.message ||
+          result.error.status.toString() ||
+          "An error occurred";
+        toast.error(`Error: ${errorMessage}`);
+      }
+    }
+
+    const isMutationRequest =
+      (args as FetchArgs).method && (args as FetchArgs).method !== "GET";
+    if (isMutationRequest) {
+      const toastMeta = extraOptions?.meta?.toast;
+
+      if (toastMeta) {
+        if (result.error && toastMeta.showError !== false) {
+          toast.error(toastMeta.errorMessage || "Something went wrong");
+        }
+
+        if (!result.error && toastMeta.showSuccess !== false) {
+          toast.success(toastMeta.successMessage || "Success!");
+        }
+      }
+      const successMessage = result.data?.message;
+      if (successMessage) toast.success(successMessage);
+    }
+
+    if (result.data) {
+      result.data = result.data.data;
+    } else if (
+      result.error?.status === 204 ||
+      result.meta?.response?.status === 24
+    ) {
+      return { data: null };
+    }
+    return result;
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
+    return { error: { status: "FETCH_ERROR", error: errorMessage } };
+  }
+};
+
+export const api = createApi({
+  baseQuery: customBaseQuery,
+  reducerPath: "api",
+  tagTypes: ["Post"],
+  endpoints: (builder) => ({
+    /*
+    =================
+    POSTS ENDPOINTS GRAPHQL
+    =================
+    */
+    getPosts: builder.query<
+      {
+        results: Array<{
+          id: string;
+          content: string;
+          imageUrl?: string;
+          createdAt: string;
+          updatedAt: string;
+          likesCount: number;
+          author: {
+            id: string;
+            username: string;
+            email: string;
+            role: string;
+          };
+          authorId: string;
+          comments: Array<{
+            id: string;
+            content: string;
+            createdAt: string;
+            updatedAt: string;
+            author: {
+              id: string;
+              username: string;
+              email: string;
+              role: string;
+            };
+            authorId: string;
+          }>;
+        }>;
+        meta: {
+          total: number;
+          page: number;
+          lastPage: number;
+          limit: number;
+        };
+      },
+      { page?: number; limit?: number }
+    >({
+      query: ({ page = 1, limit = 10 } = {}) => ({
+        url: "/graphql",
+        method: "POST",
+        body: {
+          query: `
+            query Posts($page: Int!, $limit: Int!) {
+              posts(paginationDto: { page: $page, limit: $limit }) {
+                results {
+                  id
+                  content
+                  imageUrl
+                  createdAt
+                  updatedAt
+                  likesCount
+                  author {
+                    id
+                    username
+                    email
+                    role
+                  }
+                  authorId
+                  comments {
+                    id
+                    content
+                    createdAt
+                    updatedAt
+                    author {
+                      id
+                      username
+                      email
+                      role
+                    }
+                    authorId
+                  }
+                }
+                meta {
+                  total
+                  page
+                  lastPage
+                  limit
+                }
+              }
+            }
+          `,
+          variables: { page, limit },
+        },
+      }),
+      providesTags: ["Post"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transformResponse: (response: { posts?: any }) =>
+        response.posts || {
+          results: [],
+          meta: { total: 0, page: 1, lastPage: 1, limit: 10 },
+        },
+    }),
+
+    /*
+    =================
+    POSTS MUTATIONS
+    =================
+    */
+    createPost: builder.mutation<
+      {
+        id: string;
+        content: string;
+        imageUrl?: string;
+        createdAt: string;
+        updatedAt: string;
+        likesCount: number;
+        author: {
+          id: string;
+          username: string;
+          email: string;
+          role: string;
+        };
+        authorId: string;
+      },
+      { content: string; image?: File }
+    >({
+      query: ({ content, image }) => {
+        if (image) {
+          // Handle file upload - you might need to adjust this based on your backend's file upload implementation
+          const formData = new FormData();
+          formData.append(
+            "operations",
+            JSON.stringify({
+              query: `
+              mutation CreatePost($createPostInput: CreatePostInput!, $image: Upload) {
+                createPost(createPostInput: $createPostInput, image: $image) {
+                  id
+                  content
+                  imageUrl
+                  createdAt
+                  updatedAt
+                  likesCount
+                  author {
+                    id
+                    username
+                    email
+                    role
+                  }
+                  authorId
+                }
+              }
+            `,
+              variables: { createPostInput: { content }, image: null },
+            })
+          );
+          formData.append("map", JSON.stringify({ "0": ["variables.image"] }));
+          formData.append("0", image);
+
+          return {
+            url: "/graphql",
+            method: "POST",
+            body: formData,
+            formData: true,
+          };
+        } else {
+          return {
+            url: "/graphql",
+            method: "POST",
+            body: {
+              query: `
+                mutation CreatePost($createPostInput: CreatePostInput!) {
+                  createPost(createPostInput: $createPostInput) {
+                    id
+                    content
+                    imageUrl
+                    createdAt
+                    updatedAt
+                    likesCount
+                    author {
+                      id
+                      username
+                      email
+                      role
+                    }
+                    authorId
+                  }
+                }
+              `,
+              variables: { createPostInput: { content } },
+            },
+          };
+        }
+      },
+      invalidatesTags: ["Post"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transformResponse: (response: any) => response.createPost,
+    }),
+
+    likePost: builder.mutation<
+      {
+        id: string;
+        content: string;
+        imageUrl?: string;
+        createdAt: string;
+        updatedAt: string;
+        likesCount: number;
+        author: {
+          id: string;
+          username: string;
+          email: string;
+          role: string;
+        };
+        authorId: string;
+      },
+      string
+    >({
+      query: (postId) => ({
+        url: "/graphql",
+        method: "POST",
+        body: {
+          query: `
+            mutation LikePost($id: ID!) {
+              likePost(id: $id) {
+                id
+                content
+                imageUrl
+                createdAt
+                updatedAt
+                likesCount
+                author {
+                  id
+                  username
+                  email
+                  role
+                }
+                authorId
+              }
+            }
+          `,
+          variables: { id: postId },
+        },
+      }),
+      invalidatesTags: ["Post"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transformResponse: (response: any) => response.likePost,
+    }),
+
+    unlikePost: builder.mutation<
+      {
+        id: string;
+        content: string;
+        imageUrl?: string;
+        createdAt: string;
+        updatedAt: string;
+        likesCount: number;
+        author: {
+          id: string;
+          username: string;
+          email: string;
+          role: string;
+        };
+        authorId: string;
+      },
+      string
+    >({
+      query: (postId) => ({
+        url: "/graphql",
+        method: "POST",
+        body: {
+          query: `
+            mutation UnlikePost($id: ID!) {
+              unlikePost(id: $id) {
+                id
+                content
+                imageUrl
+                createdAt
+                updatedAt
+                likesCount
+                author {
+                  id
+                  username
+                  email
+                  role
+                }
+                authorId
+              }
+            }
+          `,
+          variables: { id: postId },
+        },
+      }),
+      invalidatesTags: ["Post"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transformResponse: (response: any) => response.unlikePost,
+    }),
+
+    /*
+    =================
+    COMMENTS MUTATIONS
+    =================
+    */
+    createComment: builder.mutation<
+      {
+        id: string;
+        content: string;
+        createdAt: string;
+        updatedAt: string;
+        author: {
+          id: string;
+          username: string;
+          email: string;
+          role: string;
+        };
+        authorId: string;
+      },
+      { content: string; postId: string }
+    >({
+      query: ({ content, postId }) => ({
+        url: "/graphql",
+        method: "POST",
+        body: {
+          query: `
+            mutation CreateComment($createCommentInput: CreateCommentInput!) {
+              createComment(createCommentInput: $createCommentInput) {
+                id
+                content
+                createdAt
+                updatedAt
+                author {
+                  id
+                  username
+                  email
+                  role
+                }
+                authorId
+              }
+            }
+          `,
+          variables: { createCommentInput: { content, postId } },
+        },
+      }),
+      invalidatesTags: ["Post"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transformResponse: (response: any) => response.createComment,
+    }),
+  }),
+});
+
+export const {
+  useGetPostsQuery,
+  useCreatePostMutation,
+  useLikePostMutation,
+  useUnlikePostMutation,
+  useCreateCommentMutation,
+} = api;
