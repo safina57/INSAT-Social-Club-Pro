@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { NotificationsPanel } from "./notifications-panel";
 import { clearUser } from "@/state";
+import { useNotifications } from "@/context/NotificationsContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +35,7 @@ export function Header() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.global.user);
+  const { unreadCount } = useNotifications();
   const pathname = location.pathname;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -116,12 +118,13 @@ export function Header() {
               variant="ghost"
               className="flex flex-col items-center justify-center h-16 px-4 text-xs gap-1"
               onClick={() => setNotificationsOpen(!notificationsOpen)}
-            >
-              <div className="relative">
+            >              <div className="relative">
                 <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                  2
-                </span>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </div>
               <span>Notifications</span>
             </Button>

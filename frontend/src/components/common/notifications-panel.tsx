@@ -4,8 +4,9 @@ import { useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Bell, Check, Trash2, X } from "lucide-react"
+import { Bell, Check, Trash2, X, Wifi, WifiOff } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useNotifications } from "@/context/NotificationsContext"
 
 export interface Notification {
   id: string
@@ -26,36 +27,21 @@ interface NotificationsPanelProps {
 }
 
 export function NotificationsPanel({ isOpen, onClose }: NotificationsPanelProps) {
-  const [notifications, setNotifications] = useState<Notification[]>(SAMPLE_NOTIFICATIONS)
+  const {
+    notifications,
+    unreadCount,
+    isConnected,
+    error,
+    markAsRead,
+    markAllAsRead,
+    clearNotification,
+    clearAllNotifications,
+  } = useNotifications()
+  
   const [filter, setFilter] = useState<"all" | "unread">("all")
-
-  const unreadCount = notifications.filter((notification) => !notification.read).length
 
   const filteredNotifications =
     filter === "all" ? notifications : notifications.filter((notification) => !notification.read)
-
-  const markAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        read: true,
-      })),
-    )
-  }
-
-  const markAsRead = (id: string) => {
-    setNotifications(
-      notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
-    )
-  }
-
-  const clearNotification = (id: string) => {
-    setNotifications(notifications.filter((notification) => notification.id !== id))
-  }
-
-  const clearAllNotifications = () => {
-    setNotifications([])
-  }
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
@@ -99,15 +85,40 @@ export function NotificationsPanel({ isOpen, onClose }: NotificationsPanelProps)
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
           className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-xl bg-background/95 backdrop-blur-md shadow-lg border border-white/10 overflow-hidden z-50"
-        >
-          <div className="p-4 border-b border-white/10">
+        >          <div className="p-4 border-b border-white/10">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Notifications</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold">Notifications</h3>
+                {/* Connection status indicator */}
+                <div className={cn(
+                  "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
+                  isConnected ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
+                )}>
+                  {isConnected ? (
+                    <>
+                      <Wifi className="h-3 w-3" />
+                      <span>Live</span>
+                    </>
+                  ) : (
+                    <>
+                      <WifiOff className="h-3 w-3" />
+                      <span>Offline</span>
+                    </>
+                  )}
+                </div>
+              </div>
               <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
                 <X className="h-4 w-4" />
                 <span className="sr-only">Close</span>
               </Button>
             </div>
+            
+            {/* Error message */}
+            {error && (
+              <div className="mt-2 p-2 bg-red-500/20 text-red-400 text-xs rounded-md">
+                {error}
+              </div>
+            )}
             <div className="flex items-center justify-between mt-2">
               <div className="flex space-x-2">
                 <Button
@@ -229,66 +240,3 @@ export function NotificationsPanel({ isOpen, onClose }: NotificationsPanelProps)
     </AnimatePresence>
   )
 }
-
-const SAMPLE_NOTIFICATIONS: Notification[] = [
-  {
-    id: "notif-1",
-    type: "like",
-    user: {
-      name: "Sarah Chen",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    content: "liked your post about design systems",
-    timestamp: new Date(Date.now() - 300000).toISOString(),
-    read: false,
-    link: "/post/1",
-  },
-  {
-    id: "notif-2",
-    type: "comment",
-    user: {
-      name: "Alex Johnson",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    content: 'commented on your post: "This is really insightful!"',
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-    read: false,
-    link: "/post/1#comment-2",
-  },
-  {
-    id: "notif-3",
-    type: "message",
-    user: {
-      name: "Maya Patel",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    content: "sent you a message",
-    timestamp: new Date(Date.now() - 7200000).toISOString(),
-    read: true,
-    link: "/messages/user-3",
-  },
-  {
-    id: "notif-4",
-    type: "connection",
-    user: {
-      name: "Jordan Taylor",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    content: "accepted your connection request",
-    timestamp: new Date(Date.now() - 86400000).toISOString(),
-    read: true,
-    link: "/profile/user-5",
-  },
-  {
-    id: "notif-5",
-    type: "share",
-    user: {
-      name: "David Kim",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    content: "shared your post about microservices",
-    timestamp: new Date(Date.now() - 172800000).toISOString(),
-    read: true,
-    link: "/post/2",
-  },
-]

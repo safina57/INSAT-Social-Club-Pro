@@ -38,14 +38,19 @@ export class JobApplicationService {
       where: { companyId: application.job.companyId },
       include: { user: true },
     });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { username: true },
+    })
     for (const manager of managers) {
       this.eventEmitter.emit(eventsPatterns.NEW_JOB_APPLICATION, {
         type: eventsPatterns.NEW_JOB_APPLICATION,
         userId: manager.userId,
         fromUserId: userId,
+        senderName: user?.username,
         jobId: jobId,
         applicationId: application.id,
-        message: `A new application was submitted to your job "${application.job.title}"`,
+        message: `submitted an application to your job`,
       });
     
     }
