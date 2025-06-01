@@ -140,10 +140,15 @@ export default function PostCard({
 
         <Button
           variant="ghost"
-          className="rounded-none flex items-center justify-center space-x-2 hover:bg-primary/10"
+          className={cn(
+            "rounded-none flex items-center justify-center space-x-2 hover:bg-primary/10",
+            showComments && "text-primary bg-primary/5"
+          )}
           onClick={toggleComments}
         >
-          <MessageCircle className="h-4 w-4" />
+          <MessageCircle
+            className={cn("h-4 w-4", showComments && "fill-current")}
+          />
           <span>Comment</span>
         </Button>
 

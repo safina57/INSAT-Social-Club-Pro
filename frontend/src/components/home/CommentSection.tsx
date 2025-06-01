@@ -26,7 +26,7 @@ export default function CommentSection({
     }
   };
 
-  if (!showComments && post.comments!.length === 0) {
+  if (!showComments) {
     return null;
   }
 
