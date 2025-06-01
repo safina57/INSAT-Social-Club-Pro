@@ -5,6 +5,7 @@ import { ApplyJobInput } from "./dto/apply-job.input";
 import { ApplicationStatus } from "./enum/application-status.enum";
 import { GetUser } from "src/auth/decorators/get-user.decorator";
 import { User } from "@prisma/client";
+import { UpdateApplicationInput } from "./dto/update-application.input";
 
 @Resolver(() => JobApplication)
 export class JobApplicationResolver {
@@ -31,13 +32,13 @@ export class JobApplicationResolver {
   }
 
   @Mutation(() => JobApplication)
-changeApplicationStatus(
+  updateApplication(
   @Args('applicationId') applicationId: string,
-  @Args('status', { type: () => ApplicationStatus }) status: ApplicationStatus,
+  @Args('updatedApplication', { type: () => UpdateApplicationInput }) status: UpdateApplicationInput,
   @GetUser() user: User
 ) {
   const managerId = user.id;
-  return this.service.changeStatus(applicationId, status, managerId);
+  return this.service.changeStatus(applicationId, status.status, managerId);
 }
 
 }
