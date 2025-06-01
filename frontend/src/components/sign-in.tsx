@@ -19,6 +19,7 @@ import Aurora from "./ui/Aurora";
 import { useAppDispatch } from "../state/store";
 import { setUser } from "../state";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ export default function SignIn() {
   });
   const [generalError, setGeneralError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
+  const { login } = useAuth();
   // Check for verification notification from signup
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -124,9 +125,9 @@ export default function SignIn() {
         throw new Error(data.message || "Login failed");
       }
 
-      // Store the access token
-      localStorage.setItem("access_token", data.access_token);
+      await login(data.access_token);
 
+      var isAdmin = false;
       // Fetch current user data and set it in Redux
       try {
         const userResponse = await fetch(`${backendUrl}/graphql`, {
@@ -154,6 +155,9 @@ export default function SignIn() {
         if (userData.data?.currentuser) {
           // Set user data in Redux
           dispatch(setUser(userData.data.currentuser));
+          if (userData.data.currentuser.role === "ADMIN") {
+            isAdmin = true;
+          }
         }
       } catch (userError) {
         console.error("Failed to fetch user data:", userError);
@@ -161,7 +165,12 @@ export default function SignIn() {
       }
 
       // Redirect to home page
-      navigate("/home");
+      console.log(isAdmin);
+      if (isAdmin) {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/home");
+      }
     } catch (error) {
       console.error("Sign in failed", error);
     } finally {
