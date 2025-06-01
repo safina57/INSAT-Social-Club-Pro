@@ -14,7 +14,10 @@ import { eventsPatterns } from 'src/common/events/events.patterns';
 
 @Injectable()
 export class CommentsService extends BaseService<Comment> {
-  constructor(prisma: PrismaService, private readonly eventEmitter: EventEmitter2) {
+  constructor(
+    prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {
     super(prisma, 'comment');
   }
 
@@ -24,13 +27,13 @@ export class CommentsService extends BaseService<Comment> {
   ): Promise<Comment> {
     const { content, postId } = createCommentInput;
     const post = await this.prisma.post.findUnique({
-    where: { id: postId },
-    select: { authorId: true }, 
-  });
+      where: { id: postId },
+      select: { authorId: true },
+    });
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    const comment =  await this.prisma.comment.create({
+    const comment = await this.prisma.comment.create({
       data: {
         content,
         post: {
@@ -45,16 +48,22 @@ export class CommentsService extends BaseService<Comment> {
         },
       },
     });
-    
+
+    const author = await this.prisma.user.findUnique({
+      where: { id: authorId },
+      select: { username: true },
+    });
+
     this.eventEmitter.emit(eventsPatterns.POST_COMMENTED, {
-    type: eventsPatterns.POST_COMMENTED,
-    userId: post.authorId, 
-    authorId: authorId,           
-    postId: postId,               
-    commentId: comment.id,
-    message: `User ${authorId} commented on post ${postId}`,
-    commentContent: comment.content,
-  });
+      type: eventsPatterns.POST_COMMENTED,
+      userId: post.authorId,
+      authorId,
+      authorUsername: author?.username,
+      postId,
+      commentId: comment.id,
+      message: `commented on your post`,
+      commentContent: comment.content,
+    });
 
     return comment;
   }

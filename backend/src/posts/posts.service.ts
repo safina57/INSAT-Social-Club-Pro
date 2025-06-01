@@ -204,8 +204,10 @@ export class PostsService extends BaseService<Post> {
       type: eventsPatterns.POST_LIKED,
       userId: updatedPost.author.id,
       fromUserId: userId,
+      userName: updatedPost.author.username,
+      //avatar: updatedPost.author.profilePhoto,
       postId: updatedPost.id,
-      message: `Your post was liked by user ${userId}`,
+      message: `liked your post`,
     });
     return updatedPost;
   }
