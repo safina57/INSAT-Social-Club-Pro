@@ -45,11 +45,13 @@ export class UsersService extends BaseService<User> {
       'avatars',
     );
 
-    return this.prisma.user.update({
+    await this.prisma.user.update({
       where: { id: userId },
       data: {
         profilePhoto: url,
       },
     });
+
+    return this.findOne(userId);
   }
 }

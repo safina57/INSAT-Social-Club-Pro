@@ -13,6 +13,7 @@ import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { MailerService } from 'src/mailer/mailer.service';
 import { ImageUploadModule } from 'src/image-upload/image-upload.module';
+
 @Module({
   imports: [
     JwtModule.registerAsync({
