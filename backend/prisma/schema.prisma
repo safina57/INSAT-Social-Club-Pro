@@ -172,10 +172,20 @@ model Message {
   sender         User         @relation("MessageSender", fields: [senderId], references: [id])
 }
 
+enum Category {
+  General_Inquiry
+  Technical_Support
+  Feedback
+  Bug_Report
+  Feature_Request
+}
+
 model ContactReport {
   id        Int      @id @default(autoincrement())
   fullName  String
   email     String
+  subject   String
+  category  Category
   message   String
   createdAt DateTime @default(now())
 }
