@@ -57,7 +57,7 @@ export class CommentsService extends BaseService<Comment> {
     this.eventEmitter.emit(eventsPatterns.POST_COMMENTED, {
       type: eventsPatterns.POST_COMMENTED,
       userId: post.authorId,
-      authorId,
+      fromUserId: authorId,
       authorUsername: author?.username,
       postId,
       commentId: comment.id,

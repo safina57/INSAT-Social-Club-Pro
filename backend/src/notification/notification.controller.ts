@@ -28,7 +28,7 @@ export class NotificationController {
       }
     ).pipe(
       filter((event: any) => {
-        return user?.role === Role.ADMIN || event.userId === user?.id;
+        return user?.role === Role.ADMIN || event.userId === user?.id && event.fromUserId !== user?.id;
       }),
       map((event: any) => {
         const eventType = event.type;
