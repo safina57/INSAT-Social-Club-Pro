@@ -49,13 +49,19 @@ export class CommentsService extends BaseService<Comment> {
       },
     });
 
+    const author = await this.prisma.user.findUnique({
+      where: { id: authorId },
+      select: { username: true },
+    });
+
     this.eventEmitter.emit(eventsPatterns.POST_COMMENTED, {
       type: eventsPatterns.POST_COMMENTED,
       userId: post.authorId,
-      authorId: authorId,
-      postId: postId,
+      authorId,
+      authorUsername: author?.username,
+      postId,
       commentId: comment.id,
-      message: `User ${authorId} commented on post ${postId}`,
+      message: `commented on your post`,
       commentContent: comment.content,
     });
 
