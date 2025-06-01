@@ -180,6 +180,12 @@ enum Category {
   Feature_Request
 }
 
+enum Status{
+  Pending
+  Being_Treated 
+  Treated
+}
+
 model ContactReport {
   id        Int      @id @default(autoincrement())
   fullName  String
@@ -187,5 +193,6 @@ model ContactReport {
   subject   String
   category  Category
   message   String
+  status    Status   @default(Pending)
   createdAt DateTime @default(now())
 }
