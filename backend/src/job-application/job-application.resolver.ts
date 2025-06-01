@@ -2,7 +2,6 @@ import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { JobApplicationService } from "./job-application.service";
 import { JobApplication } from "./entities/job-application.entity";
 import { ApplyJobInput } from "./dto/apply-job.input";
-import { ApplicationStatus } from "./enum/application-status.enum";
 import { GetUser } from "src/auth/decorators/get-user.decorator";
 import { User } from "@prisma/client";
 import { UpdateApplicationInput } from "./dto/update-application.input";

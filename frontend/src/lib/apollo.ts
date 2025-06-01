@@ -7,8 +7,10 @@ const httpLink = createHttpLink({
   credentials: 'include', // Include credentials like RTK Query
 })
 
+console.log('Apollo Client - Backend URL:', import.meta.env.VITE_BACKEND_URL)
+
 const authLink = setContext((_, { headers }) => {
-  // Get the authentication token from local storage if it exists
+  // Get the authentication token from localStorage where it's actually stored
   const token = localStorage.getItem('access_token')
   
   console.log('Apollo Client - Token from localStorage:', token)
@@ -30,8 +32,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     })
   }
   if (networkError) {
-    console.error(`Network error: ${networkError}`)
-    // If it's a 401 error, redirect to login
+    console.error(`Network error: ${networkError}`)    // If it's a 401 error, redirect to login
     if ('statusCode' in networkError && networkError.statusCode === 401) {
       localStorage.removeItem('access_token')
       window.location.href = '/login'
