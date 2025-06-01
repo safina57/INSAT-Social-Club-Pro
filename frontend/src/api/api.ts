@@ -8,7 +8,7 @@ const customBaseQuery = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraOptions: any
 ) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("access_token");
 
   const baseQuery = fetchBaseQuery({
     baseUrl: "http://localhost:3000",
@@ -17,7 +17,6 @@ const customBaseQuery = async (
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
-      headers.set("Content-Type", "application/json");
       return headers;
     },
   });
@@ -26,7 +25,7 @@ const customBaseQuery = async (
     const result: any = await baseQuery(args, api, extraOptions);
     if (result.error) {
       if (result.error.status === 401) {
-        localStorage.removeItem("token");
+        localStorage.removeItem("access_token");
         toast.error("Session expired. Please log in again.");
 
         await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -208,6 +207,7 @@ export const api = createApi({
         if (image) {
           // Handle file upload - you might need to adjust this based on your backend's file upload implementation
           const formData = new FormData();
+
           formData.append(
             "operations",
             JSON.stringify({
@@ -215,18 +215,6 @@ export const api = createApi({
               mutation CreatePost($createPostInput: CreatePostInput!, $image: Upload) {
                 createPost(createPostInput: $createPostInput, image: $image) {
                   id
-                  content
-                  imageUrl
-                  createdAt
-                  updatedAt
-                  likesCount
-                  author {
-                    id
-                    username
-                    email
-                    role
-                  }
-                  authorId
                 }
               }
             `,
@@ -235,12 +223,14 @@ export const api = createApi({
           );
           formData.append("map", JSON.stringify({ "0": ["variables.image"] }));
           formData.append("0", image);
-
+          console.log("FormData:", formData);
           return {
             url: "/graphql",
             method: "POST",
             body: formData,
-            formData: true,
+            headers: {
+              "x-apollo-operation-name": "CreatePost",
+            },
           };
         } else {
           return {
