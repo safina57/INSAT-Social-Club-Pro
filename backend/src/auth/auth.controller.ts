@@ -61,4 +61,11 @@ export class AuthController {
   ): Promise<ForgotPasswordResponseDto> {
     return this.authService.resetPassword(token, newPassword);
   }
+
+  @Public()
+  @Post('resend-verification')
+  @HttpCode(HttpStatus.OK)
+  resendVerification(@Body('email') email: string): Promise<{ message: string }> {
+    return this.authService.resendVerificationEmail(email);
+  }
 }

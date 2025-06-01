@@ -12,11 +12,16 @@ import AdminDashboard from './components/admin-dashboard';
 import JobsPage from './components/jobs';
 import ProfilePage from './components/profile';
 import SearchPage from './components/search';
+import EmailVerification from './components/verify-email';
+import ResetPassword from './components/reset-password';
+import ForgotPassword from './components/forgot-password';
+import ResendVerification from './components/resend-verification';
 
 function ProfilePageWrapper() {
   const { username } = useParams<{ username: string }>();
   return <ProfilePage params={{ username: username || '' }} />;
 }
+
 
 function App() {
   return (
@@ -39,6 +44,27 @@ function App() {
           <Route
             path="/signup"
             element={<SignUp />}
+          />
+
+          {/* Email Verification Page */}
+          <Route
+            path="/verify-email"
+            element={<EmailVerification />}
+          />
+
+          <Route
+            path="/reset-password"
+            element={<ResetPassword />}
+          />
+
+          <Route
+            path="/forgot-password"
+            element={<ForgotPassword />}
+          />
+
+          <Route
+            path="/send-verification-email"
+            element={<ResendVerification />}
           />
 
           {/* Home Page */}

@@ -7,7 +7,6 @@ services:
       POSTGRES_PASSWORD: Sa77aLa3rithi
       POSTGRES_DB: ApplicationDB
     ports:
-      # Haouas bjah eli 5al9ek ma3adech tbadel port l pg
       - "5432:5432"
     volumes:
       - insat_social_club_data:/var/lib/postgresql/data

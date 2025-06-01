@@ -4,7 +4,13 @@ import { ValidationPipe } from '@nestjs/common';
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin: process.env.FRONTEND_URL,
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      credentials: true,
+    },
+  });
 
   app.use(
     graphqlUploadExpress({
