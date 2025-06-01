@@ -57,6 +57,12 @@ model User {
   // Add these two lines:
   conversations    Conversation[]   @relation("ConversationParticipants")
   sentMessages     Message[]        @relation("MessageSender")
+  
+  friends   User[]   @relation("UserFriends")
+  friendOf  User[]   @relation("UserFriends")
+  profilePhoto String?
+
+  
 }
 
 model Post {

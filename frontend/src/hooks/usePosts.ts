@@ -5,8 +5,9 @@ import {
   useUnlikePostMutation,
   useDeletePostMutation,
   useCreateCommentMutation,
+  useSharePostMutation,
   useGetPostsQuery,
-} from "@/api/api";
+} from "@/state/api";
 import { toast } from "sonner";
 
 interface PostsPaginationState {
@@ -197,6 +198,7 @@ export const usePosts = () => {
   const [unlikePostMutation] = useUnlikePostMutation();
   const [createCommentMutation] = useCreateCommentMutation();
   const [deletePostMutation] = useDeletePostMutation();
+  const [sharePostMutation] = useSharePostMutation();
 
   const createPost = useCallback(
     async (content: string, image?: File | null) => {
@@ -303,6 +305,22 @@ export const usePosts = () => {
     [deletePostMutation]
   );
 
+  const sharePost = useCallback(
+    async (postId: string) => {
+      try {
+        await sharePostMutation(postId).unwrap();
+
+        // Refresh posts after sharing to show the new shared post
+        refreshPosts();
+        toast.success("Post shared successfully!");
+      } catch (error) {
+        console.error("Error sharing post:", error);
+        toast.error("Failed to share post");
+      }
+    },
+    [sharePostMutation, refreshPosts]
+  );
+
   return {
     posts,
     setPosts,
@@ -315,5 +333,6 @@ export const usePosts = () => {
     loadMorePosts,
     refreshPosts,
     deletePost,
+    sharePost,
   };
 };

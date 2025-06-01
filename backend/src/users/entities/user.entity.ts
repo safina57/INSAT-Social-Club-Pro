@@ -43,4 +43,10 @@ export class User {
 
   @Field(() => [Comment], { nullable: true })
   comments?: Comment[] | null;
+
+  @Field(() => [User], { nullable: true })
+  friends?: User[] | null;
+
+  @Field(() => String, { nullable: true })
+  profilePhoto?: string | null;
 }

@@ -78,8 +78,32 @@ const customBaseQuery = async (
 export const api = createApi({
   baseQuery: customBaseQuery,
   reducerPath: "api",
-  tagTypes: ["Post"],
+  tagTypes: ["Post", "User"],
   endpoints: (builder) => ({
+    /*
+    =================
+    USER ENDPOINTS GRAPHQL
+    =================
+    */
+    getCurrentUser: builder.query({
+      query: () => ({
+        url: "/graphql",
+        method: "POST",
+        body: {
+          query: `
+            query Currentuser {
+              currentuser {
+                id
+                username
+                email
+                role
+              }
+            }
+          `,
+        },
+      }),
+      providesTags: ["User"],
+    }),
     /*
     =================
     POSTS ENDPOINTS GRAPHQL
@@ -422,6 +446,29 @@ export const api = createApi({
       invalidatesTags: ["Post"],
     }),
 
+    sharePost: builder.mutation<
+      {
+        id: string;
+      },
+      string
+    >({
+      query: (postId) => ({
+        url: "/graphql",
+        method: "POST",
+        body: {
+          query: `
+            mutation SharePost($id: ID!) {
+              sharePost(id: $id) {
+                id
+              }
+            }
+          `,
+          variables: { id: postId },
+        },
+      }),
+      invalidatesTags: ["Post"],
+    }),
+
     /*
     =================
     COMMENTS MUTATIONS
@@ -463,10 +510,12 @@ export const api = createApi({
 });
 
 export const {
+  useGetCurrentUserQuery,
   useGetPostsQuery,
   useCreatePostMutation,
   useLikePostMutation,
   useUnlikePostMutation,
   useDeletePostMutation,
+  useSharePostMutation,
   useCreateCommentMutation,
 } = api;

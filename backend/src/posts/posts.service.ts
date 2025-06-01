@@ -204,8 +204,10 @@ export class PostsService extends BaseService<Post> {
       type: eventsPatterns.POST_LIKED,
       userId: updatedPost.author.id,
       fromUserId: userId,
+      userName: updatedPost.author.username,
+      //avatar: updatedPost.author.profilePhoto,
       postId: updatedPost.id,
-      message: `Your post was liked by user ${userId}`,
+      message: `liked your post`,
     });
     return updatedPost;
   }
@@ -250,5 +252,30 @@ export class PostsService extends BaseService<Post> {
         comments: true,
       },
     });
+  }
+
+  async sharePost(id: string, userId: string): Promise<Post> {
+    const post = await this.findOne(id);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    // Create a new post as a share
+    const sharedPost = await this.prisma.post.create({
+      data: {
+        content: post.content,
+        imageUrl: post.imageUrl,
+        author: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+      include: {
+        author: true,
+      },
+    });
+
+    return sharedPost;
   }
 }

@@ -23,6 +23,7 @@ export default function PostCard({
   onLike,
   onDelete,
   onAddComment,
+  onShare,
 }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const currentUser = getCurrentUser();
@@ -155,6 +156,7 @@ export default function PostCard({
         <Button
           variant="ghost"
           className="rounded-none flex items-center justify-center space-x-2 hover:bg-primary/10"
+          onClick={() => onShare && onShare(post.id)}
         >
           <Share2 className="h-4 w-4" />
           <span>Share</span>

@@ -8,4 +8,5 @@ export class UpdateUserInput extends PartialType(CreateUserInput) {
   @IsNotEmpty()
   @Field(() => ID)
   id: string;
+
 }

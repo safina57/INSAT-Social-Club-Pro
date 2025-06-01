@@ -21,6 +21,9 @@ import EmailVerification from "./components/verify-email";
 import ResetPassword from "./components/reset-password";
 import ForgotPassword from "./components/forgot-password";
 import ResendVerification from "./components/resend-verification";
+import AuthInitializer from "./components/auth/AuthInitializer";
+import { RequireAuth } from './components/require-auth'
+import { RequireAdmin } from './components/require-admin'
 
 function ProfilePageWrapper() {
   const { username } = useParams<{ username: string }>();
@@ -30,6 +33,7 @@ function ProfilePageWrapper() {
 function App() {
   return (
     <Router>
+      <AuthInitializer />
       <main>
         <Routes>
           {/* Landing Page */}
@@ -54,23 +58,48 @@ function App() {
           />
 
           {/* Home Page */}
-          <Route path="/home" element={<HomePage />} />
+          <Route path="/home" element={
+            <RequireAuth>
+              <HomePage />
+            </RequireAuth>
+          } />
 
           {/* Messages Page */}
-          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/messages" element={
+            <RequireAuth>
+              <MessagesPage />
+            </RequireAuth>
+          } />
 
           {/* Contact Us Page */}
-          <Route path="/contact-us" element={<ContactPage />} />
+          <Route path="/contact-us" element={
+            <RequireAuth>
+              <ContactPage />
+            </RequireAuth>
+          } />
 
           {/* Admin Dashboard */}
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={
+            <RequireAuth>
+              <RequireAdmin>
+                <AdminDashboard />
+              </RequireAdmin>
+            </RequireAuth>
+          } />
 
           {/* Jobs Page */}
-          <Route path="/jobs" element={<JobsPage />} />
+          <Route path="/jobs" element={
+            <RequireAuth>
+              <JobsPage />
+            </RequireAuth>
+          } />
 
           {/* Profile Page */}
-          <Route path="/profile/:username" element={<ProfilePageWrapper />} />
-
+          <Route path="/profile/:username" element={
+            <RequireAuth>
+              <ProfilePageWrapper />
+            </RequireAuth>
+          } />
           {/* Search Page */}
           <Route path="/search" element={<SearchPage />} />
 
