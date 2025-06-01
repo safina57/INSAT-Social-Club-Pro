@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { BaseService } from 'src/common/services/base.service';
 import { FileUpload } from 'graphql-upload/processRequest.mjs';
 import { ImageUploadService } from '../image-upload/image-upload.service';
+
 @Injectable()
 export class UsersService extends BaseService<User> {
   constructor(
@@ -45,13 +46,11 @@ export class UsersService extends BaseService<User> {
       'avatars',
     );
 
-    await this.prisma.user.update({
+    return await this.prisma.user.update({
       where: { id: userId },
       data: {
         profilePhoto: url,
       },
     });
-
-    return this.findOne(userId);
   }
 }

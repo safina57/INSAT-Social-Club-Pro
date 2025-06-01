@@ -7,12 +7,12 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { HashingService } from './hashing/hashing.service';
 import { BcryptService } from './hashing/bcrypt.service';
-import { UsersService } from 'src/users/users.service';
 import { APP_GUARD } from '@nestjs/core';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { MailerService } from 'src/mailer/mailer.service';
 import { ImageUploadModule } from 'src/image-upload/image-upload.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -29,11 +29,11 @@ import { ImageUploadModule } from 'src/image-upload/image-upload.module';
     }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     ImageUploadModule,
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
-    UsersService,
     MailerService,
     JwtStrategy,
     {
