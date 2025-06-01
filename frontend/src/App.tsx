@@ -21,6 +21,7 @@ import EmailVerification from "./components/verify-email";
 import ResetPassword from "./components/reset-password";
 import ForgotPassword from "./components/forgot-password";
 import ResendVerification from "./components/resend-verification";
+import AuthInitializer from "./components/auth/AuthInitializer";
 
 function ProfilePageWrapper() {
   const { username } = useParams<{ username: string }>();
@@ -30,6 +31,7 @@ function ProfilePageWrapper() {
 function App() {
   return (
     <Router>
+      <AuthInitializer />
       <main>
         <Routes>
           {/* Landing Page */}
