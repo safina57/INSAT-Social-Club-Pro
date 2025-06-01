@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BaseService } from 'src/common/services/base.service';
-import { FileUpload } from 'graphql-upload';
+import { FileUpload } from 'graphql-upload/processRequest.mjs';
 import { ImageUploadService } from '../image-upload/image-upload.service';
 @Injectable()
 export class UsersService extends BaseService<User> {
   constructor(
-    prisma: PrismaService ,
-    private readonly imageUploadService: ImageUploadService) {
+    prisma: PrismaService,
+    private readonly imageUploadService: ImageUploadService,
+  ) {
     super(prisma, 'user');
   }
 
@@ -34,17 +35,14 @@ export class UsersService extends BaseService<User> {
         username: true,
         email: true,
         role: true,
-        profilePhoto: true, 
+        profilePhoto: true,
       },
     });
   }
-  async updateProfilePhoto(
-    userId: string,
-    file: FileUpload,
-  ): Promise<User> {
+  async updateProfilePhoto(userId: string, file: FileUpload): Promise<User> {
     const url: string = await this.imageUploadService.uploadImage(
       file,
-      'users',            
+      'users',
     );
 
     return this.prisma.user.update({
