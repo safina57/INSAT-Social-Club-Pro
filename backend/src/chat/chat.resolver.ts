@@ -4,6 +4,7 @@ import { SendMessageInput } from './dto/send-message.input';
 import { MessageEntity } from './entities/message.entity';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '@prisma/client';
+import { ConversationEntity } from './entities/conversation.entity';
 
 @Resolver(() => MessageEntity)
 export class ChatResolver {
@@ -23,5 +24,10 @@ export class ChatResolver {
     @Args('withUserId') withUserId: string,
   ) {
     return this.chatService.getMessagesBetweenUsers(user.id, withUserId);
+  }
+  
+  @Query(() => [ConversationEntity])
+  async getMyConversations(@GetUser() user: User) {
+    return this.chatService.getConversationsForUser(user.id);
   }
 }

@@ -56,4 +56,24 @@ export class ChatService {
       include: { sender: true },
     });
   }
+
+  async getConversationsForUser(userId: string) {
+    return this.prisma.conversation.findMany({
+        where: {
+        participants: {
+            some: { id: userId },
+        },
+        },
+        include: {
+        participants: true,
+        messages: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+        },
+        },
+        orderBy: {
+        updatedAt: 'desc',
+        },
+    });
+  }
 }
