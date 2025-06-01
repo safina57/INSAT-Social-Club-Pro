@@ -8,6 +8,8 @@ import { Role } from '@prisma/client';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Paginated } from 'src/common/factories/paginated.factory';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { GraphQLUpload, FileUpload } from 'graphql-upload';
+
 
 const PaginatedUsers = Paginated(User);
 @Resolver(() => User)
@@ -53,6 +55,13 @@ export class UsersResolver {
     @Args('friendId', { type: () => ID }) friendId: string,
   ) {
     return this.usersService.addFriend(userId, friendId);
+  }
+  @Mutation(() => User)
+  async uploadProfilePhoto(
+    @GetUser() user: User,
+    @Args({ name: 'file', type: () => GraphQLUpload }) file: FileUpload,
+  ): Promise<User> {
+    return this.usersService.updateProfilePhoto(user.id, file);
   }
   
 }
