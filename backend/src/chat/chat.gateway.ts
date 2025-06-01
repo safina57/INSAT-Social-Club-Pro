@@ -27,8 +27,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       client.data.user = payload;
-      client.join(payload.sub);
-      console.log(`User ${payload.sub} connected via socket`);
+      client.join(payload.id);
+      console.log(`User ${payload.id} connected via socket`);
     } catch (err) {
       console.log('Socket authentication failed');
       client.disconnect();
@@ -45,7 +45,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     payload: { recipientId: string; content: string },
     @ConnectedSocket() client: Socket,
   ) {
-    const senderId = client.data.user.sub;
+    const senderId = client.data.user.id;
+
+    if (!senderId) {
+      console.error('[Socket] Missing sender ID');
+      client.emit('error', 'Sender not authenticated');
+      return;
+    }
+
+    if (!payload.recipientId) {
+      console.error('[Socket] Missing recipient ID');
+      client.emit('error', 'Recipient ID required');
+      return;
+    }
+  
     const message = await this.chatService.sendMessage(
       senderId,
       payload.recipientId,
