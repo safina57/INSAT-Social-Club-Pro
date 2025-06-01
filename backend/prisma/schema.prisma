@@ -53,10 +53,9 @@ model User {
   companies        Company[]        @relation("CompanyEmployees")
   managedCompanies CompanyManager[]
   jobApplications  JobApplication[] @relation("JobApplications")
-  
-  // Add these two lines:
-  conversations    Conversation[]   @relation("ConversationParticipants")
-  sentMessages     Message[]        @relation("MessageSender")
+
+  conversations      Conversation[] @relation("ConversationParticipants")
+  messagesSent       Message[]     @relation("MessageSender")
 }
 
 model Post {
@@ -153,9 +152,17 @@ model JobApplication {
   @@unique([userId, jobId])
 }
 
+model ContactReport {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
 model Conversation {
   id             String     @id @default(uuid())
-  participants   User[]   @relation("ConversationParticipants")
+  participants   User[]     @relation("ConversationParticipants")
   messages       Message[]
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -170,12 +177,4 @@ model Message {
 
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   sender         User         @relation("MessageSender", fields: [senderId], references: [id])
-}
-
-model ContactReport {
-  id        Int      @id @default(autoincrement())
-  fullName  String
-  email     String
-  message   String
-  createdAt DateTime @default(now())
 }
