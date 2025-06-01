@@ -16,17 +16,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatTimestamp, getCurrentUser } from "@/lib/utils/postUtils";
-// import CommentSection from "./CommentSection";
+import CommentSection from "./CommentSection";
 
 export default function PostCard({
   post,
   onLike,
   onDelete,
-}: // onAddComment,
-// onLikeComment,
-// onAddReply,
-// onLikeReply,
-PostCardProps) {
+  onAddComment,
+}: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const currentUser = getCurrentUser();
   const isOwner = currentUser?.id === post.authorId;
@@ -160,14 +157,11 @@ PostCardProps) {
       </div>
 
       {/* Comments Section */}
-      {/* <CommentSection
+      <CommentSection
         post={post}
         onAddComment={onAddComment}
-        onLikeComment={onLikeComment}
-        onAddReply={onAddReply}
-        onLikeReply={onLikeReply}
         showComments={showComments}
-      /> */}
+      />
     </div>
   );
 }

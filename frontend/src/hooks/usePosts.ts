@@ -272,27 +272,11 @@ export const usePosts = () => {
       if (!commentText.trim()) return;
 
       try {
-        const result = await createCommentMutation({
+        await createCommentMutation({
           content: commentText,
           postId,
         }).unwrap();
 
-        // Transform API response to match frontend expectations
-        const newComment: CommentType = {
-          ...result,
-        };
-
-        setPosts((prevPosts) =>
-          prevPosts.map((post) => {
-            if (post.id === postId) {
-              return {
-                ...post,
-                comments: [...(post.comments || []), newComment],
-              };
-            }
-            return post;
-          })
-        );
         toast.success("Comment added successfully!");
       } catch (error) {
         console.error("Error adding comment:", error);
@@ -319,28 +303,6 @@ export const usePosts = () => {
     [deletePostMutation]
   );
 
-  // Legacy methods for backward compatibility (simplified implementations)
-  const likeComment = useCallback((postId: string, commentId: string) => {
-    // TODO: Implement comment liking if needed
-    console.log("Like comment:", postId, commentId);
-  }, []);
-
-  const addReply = useCallback(
-    (postId: string, commentId: string, replyText: string) => {
-      // TODO: Implement replies if needed
-      console.log("Add reply:", postId, commentId, replyText);
-    },
-    []
-  );
-
-  const likeReply = useCallback(
-    (postId: string, commentId: string, replyId: string) => {
-      // TODO: Implement reply liking if needed
-      console.log("Like reply:", postId, commentId, replyId);
-    },
-    []
-  );
-
   return {
     posts,
     setPosts,
@@ -350,9 +312,6 @@ export const usePosts = () => {
     createPost,
     likePost,
     addComment,
-    likeComment,
-    addReply,
-    likeReply,
     loadMorePosts,
     refreshPosts,
     deletePost,

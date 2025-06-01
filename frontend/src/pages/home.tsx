@@ -18,9 +18,6 @@ export default function HomePage() {
     createPost,
     likePost,
     addComment,
-    likeComment,
-    addReply,
-    likeReply,
     loadMorePosts,
     deletePost,
   } = usePosts();
@@ -94,9 +91,6 @@ export default function HomePage() {
                       post={post}
                       onLike={likePost}
                       onAddComment={addComment}
-                      onLikeComment={likeComment}
-                      onAddReply={addReply}
-                      onLikeReply={likeReply}
                       onDelete={deletePost}
                     />
                   ))}

@@ -451,16 +451,6 @@ export const api = createApi({
             mutation CreateComment($createCommentInput: CreateCommentInput!) {
               createComment(createCommentInput: $createCommentInput) {
                 id
-                content
-                createdAt
-                updatedAt
-                author {
-                  id
-                  username
-                  email
-                  role
-                }
-                authorId
               }
             }
           `,
@@ -468,8 +458,6 @@ export const api = createApi({
         },
       }),
       invalidatesTags: ["Post"],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      transformResponse: (response: any) => response.createComment,
     }),
   }),
 });
