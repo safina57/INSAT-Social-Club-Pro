@@ -74,7 +74,7 @@ model Post {
   likesCount Int      @default(0)
 
   authorId String
-  author   User   @relation(fields: [authorId], references: [id])
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   comments Comment[]
   likedBy  Like[]
@@ -87,10 +87,10 @@ model Comment {
   updatedAt DateTime @updatedAt
 
   postId String
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   authorId String
-  author   User   @relation(fields: [authorId], references: [id])
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model Like {
@@ -178,10 +178,27 @@ model Message {
   sender         User         @relation("MessageSender", fields: [senderId], references: [id])
 }
 
+enum Category {
+  General_Inquiry
+  Technical_Support
+  Feedback
+  Bug_Report
+  Feature_Request
+}
+
+enum Status{
+  Pending
+  Being_Treated 
+  Treated
+}
+
 model ContactReport {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   fullName  String
   email     String
+  subject   String
+  category  Category
   message   String
+  status    Status   @default(Pending)
   createdAt DateTime @default(now())
 }
