@@ -1,14 +1,16 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service'
-import { CreateCompanyDto } from './dto/create-company.dto';
-import { UpdateCompanyDto } from './dto/update-company.dto';
+import { CreateCompanyInput } from './dto/create-company.input';
+import { UpdateCompanyInput } from './dto/update-company.input';
 import { ManagerRole } from '@prisma/client';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { paginate } from 'src/common/utils/paginate';
 
 @Injectable()
 export class CompanyService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createCompanyDto: CreateCompanyDto, userId: string) {
+  async create(createCompanyDto: CreateCompanyInput, userId: string) {
     const company = await this.prisma.company.create({
       data: {
         ...createCompanyDto,
@@ -23,8 +25,13 @@ export class CompanyService {
     return company;
   }
 
-  async findAll() {
-    return this.prisma.company.findMany();
+  async findAll(paginationDto: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto ?? {};
+    return paginate(this.prisma.company, {
+    page,
+    limit,
+    orderBy: { createdAt: 'desc' }, 
+  });
   }
 
   async findOne(id: string) {
@@ -36,7 +43,7 @@ export class CompanyService {
     return company;
   }
 
-  async update(id: string, updateCompanyDto: UpdateCompanyDto, userId: string) {
+  async update(id: string, updateCompanyDto: UpdateCompanyInput, userId: string) {
     // Check if user is an ADMIN of the company
     const manager = await this.prisma.companyManager.findUnique({
       where: {

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { ManagerRole } from './enums/managerRole.enum';
+import { ManagerRole } from '@prisma/client';
 
 @Injectable()
 export class CompanyManagerService {

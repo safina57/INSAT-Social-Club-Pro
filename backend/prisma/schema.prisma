@@ -53,6 +53,10 @@ model User {
   companies        Company[]        @relation("CompanyEmployees")
   managedCompanies CompanyManager[]
   jobApplications  JobApplication[] @relation("JobApplications")
+  
+  // Add these two lines:
+  conversations    Conversation[]   @relation("ConversationParticipants")
+  sentMessages     Message[]        @relation("MessageSender")
 }
 
 model Post {
@@ -147,4 +151,23 @@ model JobApplication {
   job  Job  @relation(fields: [jobId], references: [id])
 
   @@unique([userId, jobId])
+}
+
+model Conversation {
+  id             String     @id @default(uuid())
+  participants   User[]   @relation("ConversationParticipants")
+  messages       Message[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String
+  createdAt      DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  sender         User         @relation("MessageSender", fields: [senderId], references: [id])
 }

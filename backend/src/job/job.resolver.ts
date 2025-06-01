@@ -4,7 +4,9 @@ import { Job } from './entities/job.entity';
 import { CreateJobInput } from './dto/create-job.input';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from '@prisma/client';
-
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { Paginated } from 'src/common/factories/paginated.factory';
+const paginatedJobs = Paginated(Job);
 @Resolver(() => Job)
 export class JobResolver {
   constructor(private readonly jobService: JobService) {}
@@ -18,9 +20,11 @@ export class JobResolver {
     return this.jobService.create(createJobInput, userId);
   }
 
-  @Query(() => [Job])
-  jobs() {
-    return this.jobService.findAll();
+  @Query(() => paginatedJobs)
+  jobs(
+    @Args('paginationDto', { type: () => PaginationDto, nullable: true }) paginationDto?: PaginationDto,
+  ) {
+    return this.jobService.findAll(paginationDto ?? {});
   }
 
   @Query(() => Job)
@@ -28,8 +32,11 @@ export class JobResolver {
     return this.jobService.findOne(id);
   }
 
-  @Query(() => [Job])
-  jobsByCompany(@Args('companyId') companyId: string) {
-    return this.jobService.findByCompany(companyId);
+  @Query(() => paginatedJobs)
+  jobsByCompany(
+    @Args('companyId') companyId: string,
+    @Args('paginationDto', { type: () => PaginationDto, nullable: true }) paginationDto?: PaginationDto,
+  ) {
+    return this.jobService.findByCompany(companyId, paginationDto);
   }
 }
