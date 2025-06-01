@@ -11,7 +11,7 @@ const customBaseQuery = async (
   const token = localStorage.getItem("access_token");
 
   const baseQuery = fetchBaseQuery({
-    baseUrl: "http://localhost:3000",
+    baseUrl: import.meta.env.VITE_BACKEND_URL,
     credentials: "include",
     prepareHeaders: (headers) => {
       if (token) {
