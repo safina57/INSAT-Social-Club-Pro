@@ -364,6 +364,24 @@ export const api = createApi({
       transformResponse: (response: any) => response.unlikePost,
     }),
 
+    deletePost: builder.mutation<{ id: string }, string>({
+      query: (postId) => ({
+        url: "/graphql",
+        method: "POST",
+        body: {
+          query: `
+            mutation RemovePost($id: ID!) {
+              removePost(id: $id) {
+                id
+              }
+            }
+          `,
+          variables: { id: postId },
+        },
+      }),
+      invalidatesTags: ["Post"],
+    }),
+
     /*
     =================
     COMMENTS MUTATIONS
@@ -421,5 +439,6 @@ export const {
   useCreatePostMutation,
   useLikePostMutation,
   useUnlikePostMutation,
+  useDeletePostMutation,
   useCreateCommentMutation,
 } = api;

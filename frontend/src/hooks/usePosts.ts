@@ -3,6 +3,7 @@ import {
   useCreatePostMutation,
   useLikePostMutation,
   useUnlikePostMutation,
+  useDeletePostMutation,
   useCreateCommentMutation,
   useGetPostsQuery,
 } from "@/api/api";
@@ -194,6 +195,7 @@ export const usePosts = () => {
   const [likePostMutation] = useLikePostMutation();
   const [unlikePostMutation] = useUnlikePostMutation();
   const [createCommentMutation] = useCreateCommentMutation();
+  const [deletePostMutation] = useDeletePostMutation();
 
   const createPost = useCallback(
     async (content: string, image?: File | null) => {
@@ -299,6 +301,23 @@ export const usePosts = () => {
     [createCommentMutation]
   );
 
+  const deletePost = useCallback(
+    async (postId: string) => {
+      try {
+        await deletePostMutation(postId).unwrap();
+
+        // Remove the post from the local state
+        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+
+        toast.success("Post deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting post:", error);
+        toast.error("Failed to delete post");
+      }
+    },
+    [deletePostMutation]
+  );
+
   // Legacy methods for backward compatibility (simplified implementations)
   const likeComment = useCallback((postId: string, commentId: string) => {
     // TODO: Implement comment liking if needed
@@ -335,5 +354,6 @@ export const usePosts = () => {
     likeReply,
     loadMorePosts,
     refreshPosts,
+    deletePost,
   };
 };

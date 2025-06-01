@@ -15,18 +15,21 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatTimestamp } from "@/lib/utils/postUtils";
+import { formatTimestamp, getCurrentUser } from "@/lib/utils/postUtils";
 // import CommentSection from "./CommentSection";
 
 export default function PostCard({
   post,
   onLike,
+  onDelete,
 }: // onAddComment,
 // onLikeComment,
 // onAddReply,
 // onLikeReply,
 PostCardProps) {
   const [showComments, setShowComments] = useState(false);
+  const currentUser = getCurrentUser();
+  const isOwner = currentUser?.id === post.authorId;
 
   const toggleComments = () => {
     setShowComments(!showComments);
@@ -72,8 +75,15 @@ PostCardProps) {
             className="bg-background/95 backdrop-blur-md border-white/10"
           >
             <DropdownMenuItem>Save post</DropdownMenuItem>
-            <DropdownMenuItem>Hide post</DropdownMenuItem>
             <DropdownMenuItem>Report</DropdownMenuItem>
+            {isOwner && onDelete && (
+              <DropdownMenuItem
+                onClick={() => onDelete(post.id)}
+                className="text-red-400 focus:text-red-300 focus:bg-red-500/10"
+              >
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

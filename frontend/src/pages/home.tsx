@@ -22,6 +22,7 @@ export default function HomePage() {
     addReply,
     likeReply,
     loadMorePosts,
+    deletePost,
   } = usePosts();
 
   // Set up infinite scroll
@@ -96,6 +97,7 @@ export default function HomePage() {
                       onLikeComment={likeComment}
                       onAddReply={addReply}
                       onLikeReply={likeReply}
+                      onDelete={deletePost}
                     />
                   ))}
 
