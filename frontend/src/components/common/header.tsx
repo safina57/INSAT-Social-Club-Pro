@@ -4,7 +4,7 @@ import type React from "react";
 
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAppSelector, useAppDispatch } from "@/state/store";
+import { useAppSelector } from "@/state/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationsPanel } from "./notifications-panel";
-import { clearUser } from "@/state";
 import { useNotifications } from "@/context/NotificationsContext";
 import {
   DropdownMenu,

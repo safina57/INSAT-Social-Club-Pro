@@ -73,9 +73,7 @@ function App() {
 
           {/* Contact Us Page */}
           <Route path="/contact-us" element={
-            <RequireAuth>
               <ContactPage />
-            </RequireAuth>
           } />
 
           {/* Admin Dashboard */}

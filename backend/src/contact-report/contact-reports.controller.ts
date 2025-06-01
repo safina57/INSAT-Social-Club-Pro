@@ -23,8 +23,7 @@ export class ContactReportsController {
     return this.contactReportsService.findAll();
   }
 
-  //@Roles(Role.ADMIN)
-  @Public()
+  @Roles(Role.ADMIN)
   @Delete(':id')
   async deleteContactReport(@Param('id') id: string): Promise<void> {
     return this.contactReportsService.deleteContactReport(id);
