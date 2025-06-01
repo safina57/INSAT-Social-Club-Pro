@@ -32,10 +32,7 @@ declare global {
     likesCount: number;
     authorId: string;
     comments?: CommentType[];
-    // Client-side properties for UI state
-    isLiked?: boolean;
-    timestamp?: string; // For backward compatibility
-    likes?: number; // For backward compatibility
+    isLiked: boolean;
   }
 
   // Legacy types for backward compatibility
@@ -52,9 +49,7 @@ declare global {
     post: Post;
     onLike: (postId: string) => void;
     onAddComment: (postId: string, commentText: string) => void;
-    onLikeComment?: (postId: string, commentId: string) => void;
-    onAddReply?: (postId: string, commentId: string, replyText: string) => void;
-    onLikeReply?: (postId: string, commentId: string, replyId: string) => void;
+    onDelete?: (postId: string) => void;
   }
 }
 

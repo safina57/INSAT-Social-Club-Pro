@@ -1,27 +1,31 @@
-import './index.css';
-import { useParams, BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import "./index.css";
+import {
+  useParams,
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from "react-router-dom";
 
-import LandingPage from './components/LandingPage';
-import SignIn from './components/sign-in';
-import SignUp from './components/sign-up';
-import HomePage from './components/home'; 
-import MessagesPage from './components/messages';
-import ContactPage from './components/contact-us';
-import NotFound from './components/404page';
-import AdminDashboard from './components/admin-dashboard';
-import JobsPage from './components/jobs';
-import ProfilePage from './components/profile';
-import SearchPage from './components/search';
-import EmailVerification from './components/verify-email';
-import ResetPassword from './components/reset-password';
-import ForgotPassword from './components/forgot-password';
-import ResendVerification from './components/resend-verification';
+import LandingPage from "./components/LandingPage";
+import SignIn from "./components/sign-in";
+import SignUp from "./components/sign-up";
+import HomePage from "./pages/home";
+import MessagesPage from "./components/messages";
+import ContactPage from "./components/contact-us";
+import NotFound from "./components/404page";
+import AdminDashboard from "./components/admin-dashboard";
+import JobsPage from "./components/jobs";
+import ProfilePage from "./components/profile";
+import SearchPage from "./components/search";
+import EmailVerification from "./components/verify-email";
+import ResetPassword from "./components/reset-password";
+import ForgotPassword from "./components/forgot-password";
+import ResendVerification from "./components/resend-verification";
 
 function ProfilePageWrapper() {
   const { username } = useParams<{ username: string }>();
-  return <ProfilePage params={{ username: username || '' }} />;
+  return <ProfilePage params={{ username: username || "" }} />;
 }
-
 
 function App() {
   return (
@@ -29,38 +33,20 @@ function App() {
       <main>
         <Routes>
           {/* Landing Page */}
-          <Route
-            path="/"
-            element={<LandingPage />}
-          />
+          <Route path="/" element={<LandingPage />} />
 
-          {/* Sign In Page */}  
-          <Route
-            path="/signin"
-            element={<SignIn />}
-          />
+          {/* Sign In Page */}
+          <Route path="/signin" element={<SignIn />} />
 
           {/* Sign Up Page */}
-          <Route
-            path="/signup"
-            element={<SignUp />}
-          />
+          <Route path="/signup" element={<SignUp />} />
 
           {/* Email Verification Page */}
-          <Route
-            path="/verify-email"
-            element={<EmailVerification />}
-          />
+          <Route path="/verify-email" element={<EmailVerification />} />
 
-          <Route
-            path="/reset-password"
-            element={<ResetPassword />}
-          />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
-          <Route
-            path="/forgot-password"
-            element={<ForgotPassword />}
-          />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           <Route
             path="/send-verification-email"
@@ -68,57 +54,31 @@ function App() {
           />
 
           {/* Home Page */}
-          <Route
-            path="/home"
-            element={<HomePage />}
-          />
-              
+          <Route path="/home" element={<HomePage />} />
+
           {/* Messages Page */}
-          <Route
-            path="/messages"
-            element={<MessagesPage />}
-          />
+          <Route path="/messages" element={<MessagesPage />} />
 
           {/* Contact Us Page */}
-          <Route
-            path="/contact-us"
-            element={<ContactPage />}
-          />
+          <Route path="/contact-us" element={<ContactPage />} />
 
           {/* Admin Dashboard */}
-          <Route
-            path="/admin/dashboard"
-            element={<AdminDashboard />}
-          />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-          {/* Jobs Page */} 
-          <Route
-            path="/jobs"
-            element={<JobsPage />}
-          />
+          {/* Jobs Page */}
+          <Route path="/jobs" element={<JobsPage />} />
 
           {/* Profile Page */}
-          <Route
-            path="/profile/:username"
-            element={<ProfilePageWrapper />}
-          />
+          <Route path="/profile/:username" element={<ProfilePageWrapper />} />
 
           {/* Search Page */}
-          <Route
-            path="/search"
-            element={<SearchPage />}
-          />
+          <Route path="/search" element={<SearchPage />} />
 
           {/* Catch-All Route */}
-          <Route
-            path="*"
-            element={
-              <NotFound />
-            }
-          />
-        </Routes>  
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </main>
-    </Router>  
+    </Router>
   );
-} 
+}
 export default App;

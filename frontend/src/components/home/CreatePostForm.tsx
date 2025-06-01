@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageIcon, LinkIcon, Trash2 } from "lucide-react";
+import { ImageIcon, Trash2 } from "lucide-react";
 
 interface CreatePostFormProps {
   onCreatePost: (content: string, image?: File | null) => void;
@@ -95,14 +95,6 @@ export default function CreatePostForm({ onCreatePost }: CreatePostFormProps) {
                 accept="image/*"
                 onChange={handleImageUpload}
               />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-              >
-                <LinkIcon className="mr-2 h-4 w-4" />
-                Link
-              </Button>
             </div>
             <Button
               className="glow-on-hover"

@@ -30,4 +30,7 @@ export class Post {
 
   @Field(() => [Comment], { nullable: true })
   comments?: Comment[] | null;
+
+  @Field(() => Boolean)
+  isLiked: boolean;
 }

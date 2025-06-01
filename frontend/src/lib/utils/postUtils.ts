@@ -1,3 +1,12 @@
+import { jwtDecode } from "jwt-decode";
+
+interface JwtPayload {
+  id: string;
+  role: string;
+  iat?: number;
+  exp?: number;
+}
+
 export const formatTimestamp = (timestamp: string): string => {
   const date = new Date(timestamp);
   const now = new Date();
@@ -14,9 +23,21 @@ export const formatTimestamp = (timestamp: string): string => {
   }
 };
 
-export const getCurrentUser = (): User => ({
-  id: "current-user",
-  name: "Current User",
-  avatar: "/placeholder.svg?height=40&width=40",
-  role: "Software Engineer",
-});
+// TODO: must be replaced with an API call to get the current user
+export const getCurrentUser = (): { id: string; role: string } | null => {
+  try {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      return null;
+    }
+
+    const decoded = jwtDecode<JwtPayload>(token);
+    return {
+      id: decoded.id,
+      role: decoded.role,
+    };
+  } catch (error) {
+    console.error("Error decoding JWT token:", error);
+    return null;
+  }
+};

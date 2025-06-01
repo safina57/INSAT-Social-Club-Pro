@@ -15,18 +15,18 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatTimestamp } from "@/lib/utils/postUtils";
-// import CommentSection from "./CommentSection";
+import { formatTimestamp, getCurrentUser } from "@/lib/utils/postUtils";
+import CommentSection from "./CommentSection";
 
 export default function PostCard({
   post,
   onLike,
-}: // onAddComment,
-// onLikeComment,
-// onAddReply,
-// onLikeReply,
-PostCardProps) {
+  onDelete,
+  onAddComment,
+}: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
+  const currentUser = getCurrentUser();
+  const isOwner = currentUser?.id === post.authorId;
 
   const toggleComments = () => {
     setShowComments(!showComments);
@@ -72,8 +72,15 @@ PostCardProps) {
             className="bg-background/95 backdrop-blur-md border-white/10"
           >
             <DropdownMenuItem>Save post</DropdownMenuItem>
-            <DropdownMenuItem>Hide post</DropdownMenuItem>
             <DropdownMenuItem>Report</DropdownMenuItem>
+            {isOwner && onDelete && (
+              <DropdownMenuItem
+                onClick={() => onDelete(post.id)}
+                className="text-red-400 focus:text-red-300 focus:bg-red-500/10"
+              >
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -133,10 +140,15 @@ PostCardProps) {
 
         <Button
           variant="ghost"
-          className="rounded-none flex items-center justify-center space-x-2 hover:bg-primary/10"
+          className={cn(
+            "rounded-none flex items-center justify-center space-x-2 hover:bg-primary/10",
+            showComments && "text-primary bg-primary/5"
+          )}
           onClick={toggleComments}
         >
-          <MessageCircle className="h-4 w-4" />
+          <MessageCircle
+            className={cn("h-4 w-4", showComments && "fill-current")}
+          />
           <span>Comment</span>
         </Button>
 
@@ -150,14 +162,11 @@ PostCardProps) {
       </div>
 
       {/* Comments Section */}
-      {/* <CommentSection
+      <CommentSection
         post={post}
         onAddComment={onAddComment}
-        onLikeComment={onLikeComment}
-        onAddReply={onAddReply}
-        onLikeReply={onLikeReply}
         showComments={showComments}
-      /> */}
+      />
     </div>
   );
 }

@@ -1,9 +1,8 @@
-import React from "react";
 import Aurora from "@/components/ui/Aurora";
 import { Header } from "@/components/common/header";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePosts } from "@/hooks/usePosts";
-import { useGetPostsQuery } from "@/api/api";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { TRENDING_TOPICS } from "@/data/sampleData";
 import CreatePostForm from "@/components/home/CreatePostForm";
 import PostCard from "@/components/home/PostCard";
@@ -13,32 +12,23 @@ import TrendingTopics from "@/components/home/TrendingTopics";
 export default function HomePage() {
   const {
     posts,
-    setPosts,
+    loading,
+    error,
+    pagination,
     createPost,
     likePost,
     addComment,
-    likeComment,
-    addReply,
-    likeReply,
+    loadMorePosts,
+    deletePost,
   } = usePosts();
 
-  // Fetch posts from API
-  const {
-    data: postsData,
-    isLoading,
-    error,
-  } = useGetPostsQuery({ page: 1, limit: 20 });
-
-  // Transform and set posts when data is loaded
-  React.useEffect(() => {
-    if (postsData?.results) {
-      const transformedPosts: Post[] = postsData.results.map((post) => ({
-        ...post,
-        isLiked: false, // TODO: Determine based on current user and likes data
-      }));
-      setPosts(transformedPosts);
-    }
-  }, [postsData, setPosts]);
+  // Set up infinite scroll
+  const { sentinelRef } = useInfiniteScroll({
+    hasNextPage: pagination.hasNextPage,
+    isFetchingNextPage: pagination.isLoadingMore,
+    fetchNextPage: loadMorePosts,
+    threshold: 200,
+  });
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
@@ -71,7 +61,7 @@ export default function HomePage() {
               {/* Posts Feed */}
               <ScrollArea className="h-[calc(100vh-220px)]">
                 <div className="space-y-6 pr-4">
-                  {isLoading && (
+                  {loading && posts.length === 0 && (
                     <div className="flex justify-center py-8">
                       <div className="text-muted-foreground">
                         Loading posts...
@@ -79,7 +69,7 @@ export default function HomePage() {
                     </div>
                   )}
 
-                  {error && (
+                  {error && posts.length === 0 && (
                     <div className="flex justify-center py-8">
                       <div className="text-red-500">
                         Failed to load posts. Please try again later.
@@ -87,7 +77,7 @@ export default function HomePage() {
                     </div>
                   )}
 
-                  {!isLoading && !error && posts.length === 0 && (
+                  {!loading && !error && posts.length === 0 && (
                     <div className="flex justify-center py-8">
                       <div className="text-muted-foreground">
                         No posts yet. Create the first one!
@@ -95,19 +85,36 @@ export default function HomePage() {
                     </div>
                   )}
 
-                  {!isLoading &&
-                    !error &&
-                    posts.map((post) => (
-                      <PostCard
-                        key={post.id}
-                        post={post}
-                        onLike={likePost}
-                        onAddComment={addComment}
-                        onLikeComment={likeComment}
-                        onAddReply={addReply}
-                        onLikeReply={likeReply}
-                      />
-                    ))}
+                  {posts.map((post) => (
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      onLike={likePost}
+                      onAddComment={addComment}
+                      onDelete={deletePost}
+                    />
+                  ))}
+
+                  {/* Infinite scroll sentinel */}
+                  <div ref={sentinelRef} className="h-4" />
+
+                  {/* Loading more indicator */}
+                  {pagination.isLoadingMore && (
+                    <div className="flex justify-center py-4">
+                      <div className="text-muted-foreground">
+                        Loading more posts...
+                      </div>
+                    </div>
+                  )}
+
+                  {/* End of posts indicator */}
+                  {!pagination.hasNextPage && posts.length > 0 && (
+                    <div className="flex justify-center py-4">
+                      <div className="text-muted-foreground text-sm">
+                        You've reached the end!
+                      </div>
+                    </div>
+                  )}
                 </div>
               </ScrollArea>
             </div>

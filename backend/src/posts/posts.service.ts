@@ -4,7 +4,7 @@ import {
   NotFoundException,
   ConflictException, // Added ConflictException
 } from '@nestjs/common';
-import { Post, User } from '@prisma/client';
+import { Post, User, Like } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BaseService } from 'src/common/services/base.service';
 import { CreatePostInput } from './dto/create-post.input';
@@ -17,6 +17,25 @@ import { FileUpload } from 'graphql-upload/processRequest.mjs';
 import { paginate } from 'src/common/utils/paginate';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PaginatedResult } from 'src/common/types/paginated-result.type';
+
+// Define types for Prisma results
+type PostWithAuthorAndComments = Post & {
+  author: User;
+  comments: Array<{
+    id: string;
+    content: string;
+    createdAt: Date;
+    updatedAt: Date;
+    postId: string;
+    authorId: string;
+    author: User;
+  }>;
+  likedBy?: Pick<Like, 'userId'>[];
+};
+
+type PostWithIsLiked = Omit<PostWithAuthorAndComments, 'likedBy'> & {
+  isLiked: boolean;
+};
 
 @Injectable()
 export class PostsService extends BaseService<Post> {
@@ -53,10 +72,13 @@ export class PostsService extends BaseService<Post> {
     });
   }
 
-  async findAll(paginationDto?: PaginationDto): Promise<PaginatedResult<Post>> {
+  async findAll(
+    paginationDto?: PaginationDto,
+    userId?: string,
+  ): Promise<PaginatedResult<PostWithIsLiked>> {
     const { page = 1, limit = 10 } = paginationDto ?? {};
 
-    return paginate<Post>(this.prisma.post, {
+    const result = await paginate<PostWithAuthorAndComments>(this.prisma.post, {
       page,
       limit,
       include: {
@@ -66,11 +88,39 @@ export class PostsService extends BaseService<Post> {
             author: true,
           },
         },
+        ...(userId && {
+          likedBy: {
+            where: {
+              userId,
+            },
+            select: {
+              userId: true,
+            },
+          },
+        }),
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
+
+    // Transform posts to include isLiked field
+    const transformedPosts: PostWithIsLiked[] = result.results.map((post) => {
+      const isLiked = userId && post.likedBy ? post.likedBy.length > 0 : false;
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { likedBy, ...postWithoutLikedBy } = post;
+
+      return {
+        ...postWithoutLikedBy,
+        isLiked,
+      } as PostWithIsLiked;
+    });
+
+    return {
+      ...result,
+      results: transformedPosts,
+    };
   }
 
   async updatePost(
