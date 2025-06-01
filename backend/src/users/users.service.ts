@@ -14,7 +14,7 @@ export class UsersService extends BaseService<User> {
     super(prisma, 'user');
   }
 
-  async addFriend(userId: string, friendId: string): Promise<User> {
+  async addFriend(userId: string, friendId: string) {
     return this.prisma.user.update({
       where: { id: userId },
       data: {

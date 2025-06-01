@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { Role } from '@prisma/client';
+import { Role } from '../enums/role.enum';
 import { Comment } from '../../comments/entities/comment.entity';
 import { Post } from 'src/posts/entities/post.entity';
 
