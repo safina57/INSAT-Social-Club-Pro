@@ -94,6 +94,7 @@ export const api = createApi({
           createdAt: string;
           updatedAt: string;
           likesCount: number;
+          isLiked: boolean;
           author: {
             id: string;
             username: string;
@@ -314,6 +315,25 @@ export const api = createApi({
       invalidatesTags: ["Post"],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       transformResponse: (response: any) => response.likePost,
+      async onQueryStarted(postId, { dispatch, queryFulfilled }) {
+        const commonParams = { page: 1, limit: 10 };
+        const patches = dispatch(
+          api.util.updateQueryData("getPosts", commonParams, (draft) => {
+            const post = draft.results.find((p) => p.id === postId);
+            if (post) {
+              post.likesCount += 1;
+              post.isLiked = true;
+            }
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          // Revert optimistic update
+          patches.undo();
+        }
+      },
     }),
 
     unlikePost: builder.mutation<
@@ -363,6 +383,25 @@ export const api = createApi({
       invalidatesTags: ["Post"],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       transformResponse: (response: any) => response.unlikePost,
+      async onQueryStarted(postId, { dispatch, queryFulfilled }) {
+        const commonParams = { page: 1, limit: 10 };
+        const patches = dispatch(
+          api.util.updateQueryData("getPosts", commonParams, (draft) => {
+            const post = draft.results.find((p) => p.id === postId);
+            if (post) {
+              post.likesCount -= 1;
+              post.isLiked = false;
+            }
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          // Revert optimistic update
+          patches.undo();
+        }
+      },
     }),
 
     deletePost: builder.mutation<{ id: string }, string>({
