@@ -231,7 +231,7 @@ export const useSSENotifications = (): UseSSENotificationsReturn => {
       }
 
       const fetchEventSource = new FetchEventSource(
-        'http://localhost:3001/notification/events',
+        'http://localhost:3000/notification/events',
         {
           headers: {
             'Authorization': `Bearer ${token}`,
