@@ -12,6 +12,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { MailerService } from 'src/mailer/mailer.service';
+import { UsersModule } from 'src/users/users.module';
+
 @Module({
   imports: [
     JwtModule.registerAsync({
@@ -26,6 +28,7 @@ import { MailerService } from 'src/mailer/mailer.service';
       }),
     }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    UsersModule, 
   ],
   controllers: [AuthController],
   providers: [

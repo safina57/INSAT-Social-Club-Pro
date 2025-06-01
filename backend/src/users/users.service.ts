@@ -39,24 +39,17 @@ export class UsersService extends BaseService<User> {
       },
     });
   }
-  async updateProfilePhoto(userId: string, file: FileUpload): Promise<User> {
-    const url: string = await this.imageUploadService.uploadImage(
-      file,
-      'users',
-    );
+  async updateProfilePhoto(
+    userId: string,
+    file: FileUpload,
+  ): Promise<User> {
+    const url = await this.imageUploadService.uploadImage(file, 'users');
 
-    return this.prisma.user.update({
+    await this.prisma.user.update({
       where: { id: userId },
-      data: {
-        profilePhoto: url,
-      },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        role: true,
-        profilePhoto: true,
-      },
+      data: { profilePhoto: url },
     });
+
+    return this.findOne(userId);
   }
 }

@@ -6,9 +6,10 @@ import { ImageUploadModule } from '../image-upload/image-upload.module';
 
 @Module({
   imports: [
-    PrismaModule,       
-    ImageUploadModule, 
+    PrismaModule,        
+    ImageUploadModule,   
   ],
   providers: [UsersResolver, UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}
