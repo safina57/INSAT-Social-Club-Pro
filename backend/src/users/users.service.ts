@@ -8,4 +8,16 @@ export class UsersService extends BaseService<User> {
   constructor(prisma: PrismaService) {
     super(prisma, 'user');
   }
+
+  getCurrentUser(id: string){
+    return this.prisma['user'].findUnique({
+      where: { id },
+      select: {
+      id: true,
+      username: true,
+      email: true,
+      role: true,
+      },
+    });
+  }
 }

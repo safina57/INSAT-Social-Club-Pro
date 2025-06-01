@@ -7,6 +7,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Paginated } from 'src/common/factories/paginated.factory';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
 
 const PaginatedUsers = Paginated(User);
 @Resolver(() => User)
@@ -16,6 +17,12 @@ export class UsersResolver {
   @Mutation(() => User)
   createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
     return this.usersService.create(createUserInput);
+  }
+
+  @Query(() => User, {name: 'currentuser'})
+  getCurrentUser(
+  @GetUser() user: User ) {
+    return this.usersService.getCurrentUser(user.id);
   }
 
   @Roles(Role.ADMIN)
