@@ -35,8 +35,9 @@ export class PostsResolver {
   findAll(
     @Args('paginationDto', { type: () => PaginationDto, nullable: true })
     paginationDto?: PaginationDto,
+    @GetUser() user?: User,
   ) {
-    return this.postsService.findAll(paginationDto);
+    return this.postsService.findAll(paginationDto, user?.id);
   }
 
   @Mutation(() => Post)

@@ -138,6 +138,7 @@ export const api = createApi({
                   createdAt
                   updatedAt
                   likesCount
+                  isLiked
                   author {
                     id
                     username

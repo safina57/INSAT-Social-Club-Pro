@@ -46,6 +46,7 @@ export const usePosts = () => {
           createdAt: string;
           updatedAt: string;
           likesCount: number;
+          isLiked: boolean;
           author: {
             id: string;
             username: string;
@@ -56,7 +57,6 @@ export const usePosts = () => {
           comments: CommentType[];
         }) => ({
           ...post,
-          isLiked: false, // TODO: Determine based on current user and likes data
         })
       );
       setPosts(transformedPosts);
@@ -103,6 +103,7 @@ export const usePosts = () => {
                   createdAt
                   updatedAt
                   likesCount
+                  isLiked
                   author {
                     id
                     username
@@ -149,6 +150,7 @@ export const usePosts = () => {
             createdAt: string;
             updatedAt: string;
             likesCount: number;
+            isLiked: boolean;
             author: {
               id: string;
               username: string;
@@ -159,7 +161,6 @@ export const usePosts = () => {
             comments: CommentType[];
           }) => ({
             ...post,
-            isLiked: false,
           })
         );
 

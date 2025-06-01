@@ -32,10 +32,7 @@ declare global {
     likesCount: number;
     authorId: string;
     comments?: CommentType[];
-    // Client-side properties for UI state
-    isLiked?: boolean;
-    timestamp?: string; // For backward compatibility
-    likes?: number; // For backward compatibility
+    isLiked: boolean;
   }
 
   // Legacy types for backward compatibility
