@@ -20,6 +20,7 @@ import { ImageUploadModule } from './image-upload/image-upload.module';
 import { SupabaseModule } from './supabase/supabase.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ChatModule } from './chat/chat.module';
+import { ContactReportsModule } from './contact-report/contact-reports.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { ChatModule } from './chat/chat.module';
     SupabaseModule,
     DashboardModule,
     ChatModule,
+    ContactReportsModule,
   ],
   controllers: [],
   providers: [JobApplicationService, JobApplicationResolver],

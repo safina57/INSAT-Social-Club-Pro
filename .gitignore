@@ -66,3 +66,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 .vscode
 
 backend/src/schema.gql
+backend/prisma/migrations
