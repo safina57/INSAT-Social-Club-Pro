@@ -1,10 +1,15 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { ApplicationStatus } from "./enum/application-status.enum";
+import { eventsPatterns } from "src/common/events/events.patterns";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 @Injectable()
 export class JobApplicationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2, 
+  ) {}
 
   async apply(jobId: string, userId: string) {
     const existing = await this.prisma.jobApplication.findUnique({
@@ -14,13 +19,38 @@ export class JobApplicationService {
     if (existing) {
       throw new ConflictException('Already applied to this job.');
     }
-
-    return this.prisma.jobApplication.create({
+    const application = await this.prisma.jobApplication.create({
       data: {
         job: { connect: { id: jobId } },
         user: { connect: { id: userId } },
       },
+      include: {
+        job: {
+          select: {
+            title: true,
+            companyId: true,
+          },
+        },
+      },
     });
+    
+    const managers = await this.prisma.companyManager.findMany({
+      where: { companyId: application.job.companyId },
+      include: { user: true },
+    });
+    for (const manager of managers) {
+      this.eventEmitter.emit(eventsPatterns.NEW_JOB_APPLICATION, {
+        type: eventsPatterns.NEW_JOB_APPLICATION,
+        userId: manager.userId,
+        fromUserId: userId,
+        jobId: jobId,
+        applicationId: application.id,
+        message: `A new application was submitted to your job "${application.job.title}"`,
+      });
+    
+    }
+
+    return application;
   }
 
   getApplicationsByUser(userId: string) {
@@ -59,13 +89,25 @@ export class JobApplicationService {
     throw new ForbiddenException('You are not a manager of this company');
   }
 
-  return this.prisma.jobApplication.update({
+  const updatedApplication = await  this.prisma.jobApplication.update({
     where: { id: applicationId },
     data: {
       status,
       decidedAt: new Date(),
     },
   });
+
+  this.eventEmitter.emit(eventsPatterns.APPLICATION_STATUS_CHANGED, {
+    type: eventsPatterns.APPLICATION_STATUS_CHANGED,
+    userId: application.userId, 
+    fromUserId: managerId,        
+    applicationId: application.id,
+    jobId: application.job.id,
+    status,
+    message: `Your application for job "${application.job.title}" was ${status.toLowerCase()} by a manager.`,
+  });
+
+  return updatedApplication;
 }
 
 }
