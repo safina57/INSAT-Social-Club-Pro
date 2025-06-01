@@ -187,7 +187,7 @@ enum Status{
 }
 
 model ContactReport {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   fullName  String
   email     String
   subject   String

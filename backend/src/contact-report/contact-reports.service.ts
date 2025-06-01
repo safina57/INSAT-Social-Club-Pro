@@ -4,6 +4,7 @@ import { MailerService } from '../mailer/mailer.service';
 import { ConfigService } from '@nestjs/config';
 import { CreateContactReportDto } from './dto/create-contact-report.dto';
 import { ContactReport } from './entities/contact-report.entity';
+import { UpdateContactReportDto } from './dto/update-contact-report.dto';
 
 @Injectable()
 export class ContactReportsService {
@@ -38,9 +39,16 @@ export class ContactReportsService {
     return this.prisma.contactReport.findMany();
   }
 
-  async deleteContactReport(id: number): Promise<void> {
+  async deleteContactReport(id: string): Promise<void> {
     await this.prisma.contactReport.delete({
       where: { id },
+    });
+  }
+
+  async updateContactReport(id: string, updateContactReportInput: UpdateContactReportDto): Promise<ContactReport> {
+    return this.prisma.contactReport.update({
+      where: { id },
+      data: updateContactReportInput,
     });
   }
 }

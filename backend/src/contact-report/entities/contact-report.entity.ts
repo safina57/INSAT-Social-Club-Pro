@@ -1,7 +1,7 @@
 import { Category } from '@prisma/client';
 
 export class ContactReport {
-  id: number;
+  id: string;
   fullName: string;
   email: string;
   subject: string;
