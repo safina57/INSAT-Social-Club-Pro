@@ -6,13 +6,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Header } from "@/components/common/header"
-import { Search, Send, ChevronLeft, Filter, MessageSquare, Wifi, WifiOff } from "lucide-react"
+import { Search, Send, ChevronLeft, MessageSquare, Wifi, WifiOff } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { GET_MY_CONVERSATIONS, GET_MESSAGES } from "@/graphql/queries/chat"
 import { socketService } from "@/lib/socket"
 import { Badge } from "@/components/ui/badge"
+import Aurora from "@/components/ui/Aurora"
 
 interface User {
   id: string
@@ -229,7 +229,19 @@ export default function MessagesPage() {
 
   if (!userToken) {
     return (
-      <div className="min-h-screen w-full aurora-gradient">
+    <div className="relative min-h-screen w-full overflow-hidden">
+      {/* Aurora Background */}
+      <div className="absolute inset-0 -z-10">
+        <Aurora
+          colorStops={[
+            "#003B49", // Aqua blue
+            "#003B49", // Dark green
+          ]}
+          blend={0.2}
+          amplitude={1.2}
+          speed={0.5}
+        />
+      </div>
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-3xl font-bold mb-4">Authentication Required</h1>
@@ -241,7 +253,19 @@ export default function MessagesPage() {
 
   if (conversationsError) {
     return (
-      <div className="min-h-screen w-full aurora-gradient">
+    <div className="relative min-h-screen w-full overflow-hidden">
+      {/* Aurora Background */}
+      <div className="absolute inset-0 -z-10">
+        <Aurora
+          colorStops={[
+            "#003B49", // Aqua blue
+            "#003B49", // Dark green
+          ]}
+          blend={0.2}
+          amplitude={1.2}
+          speed={0.5}
+        />
+      </div>
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-3xl font-bold mb-4">Error Loading Messages</h1>
@@ -252,7 +276,19 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="min-h-screen w-full aurora-gradient">
+  <div className="relative min-h-screen w-full overflow-hidden">
+    {/* Aurora Background */}
+    <div className="absolute inset-0 -z-10">
+      <Aurora
+        colorStops={[
+          "#003B49", // Aqua blue
+          "#003B49", // Dark green
+        ]}
+        blend={0.2}
+        amplitude={1.2}
+        speed={0.5}
+      />
+    </div>
       <Header />
       <div className="container mx-auto px-0 py-4 content-z-index">
         <div className="rounded-xl bg-background/40 backdrop-blur-md border border-white/10 overflow-hidden h-[calc(100vh-8rem)]">
@@ -288,24 +324,6 @@ export default function MessagesPage() {
                     />
                   </div>
                 </div>
-
-                <Tabs defaultValue="all" className="px-4 pt-4">
-                  <TabsList className="w-full bg-secondary/50">
-                    <TabsTrigger value="all" className="flex-1">
-                      All
-                    </TabsTrigger>
-                    <TabsTrigger value="unread" className="flex-1">
-                      Unread
-                    </TabsTrigger>
-                  </TabsList>
-                  <div className="flex items-center justify-between my-3">
-                    <p className="text-sm text-muted-foreground">Recent messages</p>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Filter className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </Tabs>
-
                 <ScrollArea className="flex-1">
                   <div className="px-2 py-2">
                     {conversationsLoading ? (
