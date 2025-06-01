@@ -60,7 +60,7 @@ export class UsersResolver {
   async uploadProfilePhoto(
     @GetUser() user: User,
     @Args({ name: 'file', type: () => GraphQLUpload }) file: FileUpload,
-  ): Promise<User> {
+  ) {
     return this.usersService.updateProfilePhoto(user.id, file);
   }
 }

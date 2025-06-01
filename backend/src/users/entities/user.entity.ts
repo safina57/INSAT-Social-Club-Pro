@@ -48,5 +48,5 @@ export class User {
   friends?: User[] | null;
 
   @Field(() => String, { nullable: true })
-  profilePhoto?: string | null; 
+  profilePhoto?: string | null;
 }

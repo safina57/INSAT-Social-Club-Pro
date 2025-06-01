@@ -32,12 +32,14 @@ scalar DateTime
 type Post {
   id: ID!
   content: String!
+  imageUrl: String
   createdAt: DateTime!
   updatedAt: DateTime!
   likesCount: Float!
   author: Author!
   authorId: String!
   comments: [Comment!]
+  isLiked: Boolean!
 }
 
 type User {
@@ -55,27 +57,173 @@ type User {
   posts: [Post!]
   comments: [Comment!]
   friends: [User!]
+  profilePhoto: String
+}
+
+type Meta {
+  total: Int!
+  page: Int!
+  lastPage: Int!
+  limit: Int!
+}
+
+type PaginatedUser {
+  results: [User!]
+  meta: Meta!
+}
+
+type PaginatedPost {
+  results: [Post!]
+  meta: Meta!
+}
+
+type Job {
+  id: ID!
+  title: String!
+  description: String!
+  location: String
+  salary: Float
+  companyId: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PaginatedJob {
+  results: [Job!]
+  meta: Meta!
+}
+
+type CompanyType {
+  id: ID!
+  name: String!
+  description: String
+  website: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PaginatedCompanyType {
+  results: [CompanyType!]
+  meta: Meta!
+}
+
+type CompanyManagerType {
+  id: ID!
+  userId: String!
+  companyId: String!
+  role: ManagerRole!
+}
+
+enum ManagerRole {
+  EDITOR
+  ADMIN
+}
+
+type JobApplication {
+  id: ID!
+  userId: String!
+  jobId: String!
+  createdAt: DateTime!
+  status: ApplicationStatus!
+  decidedAt: DateTime
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+type ApplicationsByStatus {
+  PENDING: Int!
+  ACCEPTED: Int!
+  REJECTED: Int!
+}
+
+type TimeFrameData {
+  date: String!
+  count: Int!
+}
+
+type DashboardAnalytics {
+  totalUsers: Int!
+  totalCompanies: Int!
+  totalJobs: Int!
+  totalApplications: Int!
+  totalPosts: Int!
+  applicationsByStatus: ApplicationsByStatus!
+  userSignupsPerTimeFrame: [TimeFrameData!]!
+  postsPerTimeFrame: [TimeFrameData!]!
+}
+
+type ContactReport {
+  id: Int!
+  fullName: String!
+  email: String!
+  message: String!
+  createdAt: DateTime!
 }
 
 type Query {
-  users: [User!]!
+  myApplications: [JobApplication!]!
+  applicantsForJob(jobId: String!): [JobApplication!]!
+  currentuser: User!
+  users(paginationDto: PaginationDto): PaginatedUser!
   user(id: ID!): User!
-  posts: [Post!]!
+  posts(paginationDto: PaginationDto): PaginatedPost!
+  jobs(paginationDto: PaginationDto): PaginatedJob!
+  job(id: String!): Job!
+  jobsByCompany(companyId: String!, paginationDto: PaginationDto): PaginatedJob!
+  Companies(paginationDto: PaginationDto): PaginatedCompanyType!
+  Company(id: ID!): CompanyType!
+  listManagers(companyId: ID!): [CompanyManagerType!]!
+  dashboardAnalytics(timeframe: TimeFrame!): DashboardAnalytics!
+  contactReports: [ContactReport!]!
+}
+
+input PaginationDto {
+  page: Int = 1
+  limit: Int = 10
+}
+
+enum TimeFrame {
+  DAY
+  WEEK
+  MONTH
 }
 
 type Mutation {
+  applyToJob(input: ApplyJobInput!): JobApplication!
+  updateApplication(applicationId: String!, updatedApplication: UpdateApplicationInput!): JobApplication!
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: ID!): User!
   addFriend(userId: ID!, friendId: ID!): User!
-  createPost(createPostInput: CreatePostInput!): Post!
+  uploadProfilePhoto(file: Upload!): User!
+  createPost(createPostInput: CreatePostInput!, image: Upload): Post!
   updatePost(id: ID!, updatePostInput: UpdatePostInput!): Post!
   removePost(id: ID!): Post!
   likePost(id: ID!): Post!
   unlikePost(id: ID!): Post!
+  sharePost(id: ID!): Post!
   createComment(createCommentInput: CreateCommentInput!): Comment!
   updateComment(id: ID!, updateCommentInput: UpdateCommentInput!): Comment!
   removeComment(id: ID!): Comment!
+  createJob(createJobInput: CreateJobInput!): Job!
+  createCompany(input: CreateCompanyInput!): CompanyType!
+  updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
+  removeCompany(id: ID!): CompanyType!
+  addManager(input: CreateCompanyManagerInput!): CompanyManagerType!
+  removeManager(companyId: ID!, managerId: ID!): Boolean!
+  createContactReport(input: CreateContactReportInput!): ContactReport!
+}
+
+input ApplyJobInput {
+  jobId: String!
+}
+
+input UpdateApplicationInput {
+  status: String!
 }
 
 input CreateUserInput {
@@ -90,6 +238,9 @@ input UpdateUserInput {
   password: String
   id: ID!
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 input CreatePostInput {
   content: String!
@@ -106,4 +257,36 @@ input CreateCommentInput {
 
 input UpdateCommentInput {
   content: String!
+}
+
+input CreateJobInput {
+  title: String!
+  description: String!
+  location: String
+  salary: Float
+  companyId: String!
+}
+
+input CreateCompanyInput {
+  name: String!
+  description: String
+  website: String
+}
+
+input UpdateCompanyInput {
+  name: String
+  description: String
+  website: String
+}
+
+input CreateCompanyManagerInput {
+  userId: String!
+  companyId: String!
+  role: ManagerRole!
+}
+
+input CreateContactReportInput {
+  fullName: String!
+  email: String!
+  message: String!
 }
