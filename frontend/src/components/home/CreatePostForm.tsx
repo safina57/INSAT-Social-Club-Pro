@@ -3,12 +3,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageIcon, Trash2 } from "lucide-react";
+import { useAppSelector } from "@/state/store";
 
 interface CreatePostFormProps {
   onCreatePost: (content: string, image?: File | null) => void;
 }
 
 export default function CreatePostForm({ onCreatePost }: CreatePostFormProps) {
+  const user = useAppSelector((state) => state.global.user);
   const [newPostText, setNewPostText] = useState("");
   const [newPostImage, setNewPostImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -41,6 +43,11 @@ export default function CreatePostForm({ onCreatePost }: CreatePostFormProps) {
     }
   };
 
+  // Get user initials for avatar fallback
+  const getUserInitials = (username: string) => {
+    return username.toUpperCase().slice(0, 2);
+  };
+
   return (
     <div className="rounded-xl bg-background/40 backdrop-blur-md p-4 shadow-lg border border-white/10">
       <div className="flex items-start space-x-4">
@@ -49,7 +56,9 @@ export default function CreatePostForm({ onCreatePost }: CreatePostFormProps) {
             src="/placeholder.svg?height=40&width=40"
             alt="Current User"
           />
-          <AvatarFallback>CU</AvatarFallback>
+          <AvatarFallback>
+            {user ? getUserInitials(user.username) : "U"}
+          </AvatarFallback>
         </Avatar>
         <div className="flex-1 space-y-4">
           <Textarea

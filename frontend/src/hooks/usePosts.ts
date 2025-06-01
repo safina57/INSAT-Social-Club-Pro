@@ -7,7 +7,7 @@ import {
   useCreateCommentMutation,
   useSharePostMutation,
   useGetPostsQuery,
-} from "@/api/api";
+} from "@/state/api";
 import { toast } from "sonner";
 
 interface PostsPaginationState {
