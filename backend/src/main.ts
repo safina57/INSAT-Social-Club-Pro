@@ -12,6 +12,12 @@ async function bootstrap() {
     },
   });
 
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+  });
+
   app.use(
     graphqlUploadExpress({
       maxFileSize: 10000000, // 10 MB

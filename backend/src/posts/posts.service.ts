@@ -23,7 +23,7 @@ export class PostsService extends BaseService<Post> {
   constructor(
     prisma: PrismaService,
     private readonly imageUploadService: ImageUploadService,
-    private readonly eventEmitter: EventEmitter2
+    private readonly eventEmitter: EventEmitter2,
   ) {
     super(prisma, 'post');
   }
@@ -59,18 +59,18 @@ export class PostsService extends BaseService<Post> {
     return paginate<Post>(this.prisma.post, {
       page,
       limit,
-    include: {
-      author: true,
-      comments: {
-        include: {
-          author: true,
+      include: {
+        author: true,
+        comments: {
+          include: {
+            author: true,
+          },
         },
       },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   async updatePost(
@@ -138,7 +138,7 @@ export class PostsService extends BaseService<Post> {
       },
     });
 
-    const updatedPost= await this.prisma.post.update({
+    const updatedPost = await this.prisma.post.update({
       where: { id },
       data: {
         likesCount: {
@@ -152,8 +152,8 @@ export class PostsService extends BaseService<Post> {
     });
     this.eventEmitter.emit(eventsPatterns.POST_LIKED, {
       type: eventsPatterns.POST_LIKED,
-      userId: updatedPost.author.id, 
-      fromUserId: userId,            
+      userId: updatedPost.author.id,
+      fromUserId: userId,
       postId: updatedPost.id,
       message: `Your post was liked by user ${userId}`,
     });
