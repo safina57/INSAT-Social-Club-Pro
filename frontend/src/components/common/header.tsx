@@ -28,11 +28,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/context/AuthContext";
 
 export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const { logout } = useAuth();
   const user = useAppSelector((state) => state.global.user);
   const pathname = location.pathname;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -50,9 +51,8 @@ export function Header() {
     console.log("Searching for:", searchQuery);
   };
 
-  const handleLogout = () => {
-    dispatch(clearUser());
-    localStorage.removeItem("access_token");
+  const handleLogout = async () => {
+    await logout();
     navigate("/signin");
   };
 

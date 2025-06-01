@@ -1,59 +1,38 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import Cookies from 'js-cookie';
+import { useAppDispatch, useAppSelector } from '@/state/store';
+import { clearUser } from '@/state';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (token: string, role: string) => void;
+  login: (token: string) => void;
   logout: () => void;
-  setRole: (role: string) => void;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!Cookies.get('accessToken'));
-  const [isAdmin, setIsAdmin] = useState<boolean>(Cookies.get('userRole') === 'admin');
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(state => state.global.user);
+  const isAuthenticated = Boolean(user);
+  const isAdmin = user?.role === 'ADMIN';
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setIsAuthenticated(!!Cookies.get('accessToken'));
-    setIsAdmin(Cookies.get('userRole') === 'admin');
-  }, []);
-  
-  const login = (token: string, role: string) => {
-    Cookies.set('accessToken', token, { 
-      path: '/', 
-      secure: false,  
-      sameSite: 'Strict', 
-      expires: 1  
-    });
-  
-    Cookies.set('userRole', role, { 
-      path: '/', 
-      secure: false,  
-      sameSite: 'Strict', 
-      expires: 1  
-    });
-  
-    setIsAuthenticated(true);
-    setIsAdmin(role === 'admin');
+  useEffect(() => { setLoading(false); }, []);
+
+  const login = (token: string) => {
+    localStorage.setItem('access_token', token);
+
   };
-  
 
   const logout = () => {
-    Cookies.remove('accessToken');
-    Cookies.remove('userRole');
-    setIsAuthenticated(false);
-    setIsAdmin(false);
-  };
-
-  const setRole = (role: string) => {
-    Cookies.set('userRole', role, { path: '/', secure: false, sameSite: 'Lax' });
-    setIsAdmin(role === 'admin');
+    localStorage.removeItem('access_token');
+    dispatch(clearUser());
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isAdmin, login, logout, setRole }}>
+    <AuthContext.Provider value={{ isAuthenticated, isAdmin, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
