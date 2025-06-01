@@ -52,8 +52,8 @@ export function Header() {
 
   const handleLogout = () => {
     dispatch(clearUser());
-    localStorage.removeItem("token");
-    navigate("/sign-in");
+    localStorage.removeItem("access_token");
+    navigate("/signin");
   };
 
   // Get user initials for avatar fallback
