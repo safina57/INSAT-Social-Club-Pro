@@ -7,10 +7,8 @@ export const GET_MY_CONVERSATIONS = gql`
       participants {
         id
         username
-        avatar
-        status
       }
-      messages(orderBy: { createdAt: desc }, take: 1) {
+      messages {
         content
         senderId
         createdAt
@@ -20,12 +18,12 @@ export const GET_MY_CONVERSATIONS = gql`
 `
 
 export const GET_MESSAGES = gql`
-    query GetMessages($withUserId: String!) {
+  query GetMessages($withUserId: String!) {
     getMessages(withUserId: $withUserId) {
-        id
-        content
-        senderId
-        createdAt
+      id
+      content
+      senderId
+      createdAt
     }
- }
+  }
 `

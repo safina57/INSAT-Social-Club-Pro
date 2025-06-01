@@ -5,7 +5,10 @@ import { MessageEntity } from './entities/message.entity';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '@prisma/client';
 import { ConversationEntity } from './entities/conversation.entity';
+import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { UseGuards } from '@nestjs/common';
 
+@UseGuards(JWTAuthGuard)
 @Resolver(() => MessageEntity)
 export class ChatResolver {
   constructor(private readonly chatService: ChatService) {}
