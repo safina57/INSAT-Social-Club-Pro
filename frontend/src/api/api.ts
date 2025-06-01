@@ -176,7 +176,7 @@ export const api = createApi({
       providesTags: ["Post"],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       transformResponse: (response: { posts?: any }) =>
-        response.posts || {
+        response.posts ?? {
           results: [],
           meta: { total: 0, page: 1, lastPage: 1, limit: 10 },
         },
