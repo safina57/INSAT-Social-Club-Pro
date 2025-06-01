@@ -4,7 +4,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { api } from "./api";
 import { Provider } from "react-redux";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import { useRef } from "react";
+import { useState } from "react";
 
 /* REDUX STORE */
 const rootReducer = combineReducers({
@@ -45,10 +45,10 @@ export default function StoreProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const storeRef = useRef<AppStore>(null);
-  if (!storeRef.current) {
-    storeRef.current = makeStore();
-    setupListeners(storeRef.current.dispatch);
-  }
-  return <Provider store={storeRef.current}>{children}</Provider>;
+  const [store] = useState(() => {
+    const s = makeStore();
+    setupListeners(s.dispatch);
+    return s;
+  });
+  return <Provider store={store}>{children}</Provider>;
 }
