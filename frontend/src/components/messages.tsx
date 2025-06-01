@@ -120,12 +120,27 @@ export default function MessagesPage() {
     }
   }, [])
 
+  // GraphQL queries
+  const {
+    data: conversationsData,
+    loading: conversationsLoading,
+    error: conversationsError,
+    refetch: refetchConversations,
+  } = useQuery(GET_MY_CONVERSATIONS, {
+    skip: !userToken,
+  })
+
+  const conversations: Conversation[] = conversationsData?.getMyConversations || []
+
+  const otherUserId = conversations
+    ?.find((c) => c.id === activeConversation)
+    ?.participants.find((p) => p.id !== currentUserId)?.id || null;
+
   const {
     data: messagesData,
     loading: messagesLoading,
-    refetch: refetchMessages,
   } = useQuery(GET_MESSAGES, {
-    variables: { withUserId: activeConversation },
+    variables: { withUserId: otherUserId },
     skip: !activeConversation || !userToken,
     context: {
       headers: {
@@ -145,17 +160,6 @@ export default function MessagesPage() {
     setLocalMessages([])
   }, [activeConversation])
 
-  // GraphQL queries
-  const {
-    data: conversationsData,
-    loading: conversationsLoading,
-    error: conversationsError,
-    refetch: refetchConversations,
-  } = useQuery(GET_MY_CONVERSATIONS, {
-    skip: !userToken,
-  })
-
-  const conversations: Conversation[] = conversationsData?.getMyConversations || []
   const serverMessages: Message[] = messagesData?.getMessages || []
 
   // Combine server messages with local messages, removing duplicates
