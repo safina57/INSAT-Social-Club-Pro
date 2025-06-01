@@ -37,4 +37,10 @@ export class ContactReportsService {
   async findAll(): Promise<ContactReport[]> {
     return this.prisma.contactReport.findMany();
   }
+
+  async deleteContactReport(id: number): Promise<void> {
+    await this.prisma.contactReport.delete({
+      where: { id },
+    });
+  }
 }

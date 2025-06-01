@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body, Delete } from '@nestjs/common';
 import { ContactReportsService } from './contact-reports.service';
 import { CreateContactReportDto } from './dto/create-contact-report.dto';
 import { ContactReport } from './entities/contact-report.entity';
@@ -20,5 +20,11 @@ export class ContactReportsController {
   @Get()
   async getContactReports(): Promise<ContactReport[]> {
     return this.contactReportsService.findAll();
+  }
+
+  @Roles(Role.ADMIN)
+  @Delete(':id')
+  async deleteContactReport(@Body('id') id: number): Promise<void> {
+    return this.contactReportsService.deleteContactReport(id);
   }
 }
