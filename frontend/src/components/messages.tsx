@@ -5,20 +5,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Header } from "@/components/common/header"
 import {
   Search,
   Send,
-  Paperclip,
   Smile,
-  MoreVertical,
-  Phone,
-  Video,
   ChevronLeft,
   Check,
   Clock,
-  Filter,
   MessageSquare,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -26,7 +20,7 @@ import Aurora from "@/components/ui/Aurora"
 
 export default function MessagesPage() {
   const [activeConversation, setActiveConversation] = useState<string | null>(null)
-  const [conversations, setConversations] = useState<Conversation[]>(SAMPLE_CONVERSATIONS)
+  const [conversations, setConversations] = useState<Conversation[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [isMobileView, setIsMobileView] = useState(false)
@@ -200,26 +194,6 @@ export default function MessagesPage() {
                   </div>
                 </div>
 
-                <Tabs defaultValue="all" className="px-4 pt-4">
-                  <TabsList className="w-full bg-secondary/50">
-                    <TabsTrigger value="all" className="flex-1">
-                      All
-                    </TabsTrigger>
-                    <TabsTrigger value="unread" className="flex-1">
-                      Unread
-                    </TabsTrigger>
-                    <TabsTrigger value="archived" className="flex-1">
-                      Archived
-                    </TabsTrigger>
-                  </TabsList>
-                  <div className="flex items-center justify-between my-3">
-                    <p className="text-sm text-muted-foreground">Recent messages</p>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Filter className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </Tabs>
-
                 <ScrollArea className="flex-1">
                   <div className="px-2 py-2">
                     {filteredConversations.map((conversation) => (
@@ -330,17 +304,6 @@ export default function MessagesPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Button variant="ghost" size="icon" className="h-9 w-9">
-                      <Phone className="h-5 w-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-9 w-9">
-                      <Video className="h-5 w-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-9 w-9">
-                      <MoreVertical className="h-5 w-5" />
-                    </Button>
-                  </div>
                 </div>
 
                 {/* Messages */}
@@ -417,9 +380,6 @@ export default function MessagesPage() {
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
                           <Smile className="h-5 w-5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                          <Paperclip className="h-5 w-5" />
-                        </Button>
                       </div>
                     </div>
                     <Button
@@ -478,199 +438,3 @@ interface Conversation {
   muted: boolean
   typing?: boolean
 }
-
-// Sample Data
-const SAMPLE_CONVERSATIONS: Conversation[] = [
-  {
-    id: "conv-1",
-    user: {
-      id: "user-1",
-      name: "Sarah Chen",
-      avatar: "/placeholder.svg?height=48&width=48",
-      status: "online",
-    },
-    messages: [
-      {
-        id: "msg-1",
-        content: "Hi there! How's the project coming along?",
-        timestamp: new Date(Date.now() - 3600000).toISOString(),
-        sender: "user-1",
-        status: "read",
-      },
-      {
-        id: "msg-2",
-        content: "It's going well! I just finished the initial designs.",
-        timestamp: new Date(Date.now() - 3500000).toISOString(),
-        sender: "me",
-        status: "read",
-      },
-      {
-        id: "msg-3",
-        content: "That's great to hear! Can you share them with me?",
-        timestamp: new Date(Date.now() - 3400000).toISOString(),
-        sender: "user-1",
-        status: "read",
-      },
-      {
-        id: "msg-4",
-        content: "Sure, I'll send them over in a bit. I just need to make a few tweaks.",
-        timestamp: new Date(Date.now() - 3300000).toISOString(),
-        sender: "me",
-        status: "read",
-      },
-      {
-        id: "msg-5",
-        content: "Perfect! I'm looking forward to seeing them.",
-        timestamp: new Date(Date.now() - 3200000).toISOString(),
-        sender: "user-1",
-        status: "read",
-      },
-    ],
-    lastMessage: "Perfect! I'm looking forward to seeing them.",
-    lastMessageTime: new Date(Date.now() - 3200000).toISOString(),
-    unread: false,
-    unreadCount: 0,
-    muted: false,
-  },
-  {
-    id: "conv-2",
-    user: {
-      id: "user-2",
-      name: "Alex Johnson",
-      avatar: "/placeholder.svg?height=48&width=48",
-      status: "offline",
-    },
-    messages: [
-      {
-        id: "msg-6",
-        content: "Hey, did you get a chance to review the proposal?",
-        timestamp: new Date(Date.now() - 86400000).toISOString(),
-        sender: "user-2",
-        status: "read",
-      },
-      {
-        id: "msg-7",
-        content: "Not yet, I'll take a look at it tomorrow morning.",
-        timestamp: new Date(Date.now() - 82800000).toISOString(),
-        sender: "me",
-        status: "read",
-      },
-      {
-        id: "msg-8",
-        content: "No problem. Let me know if you have any questions!",
-        timestamp: new Date(Date.now() - 82700000).toISOString(),
-        sender: "user-2",
-        status: "read",
-      },
-    ],
-    lastMessage: "No problem. Let me know if you have any questions!",
-    lastMessageTime: new Date(Date.now() - 82700000).toISOString(),
-    unread: false,
-    unreadCount: 0,
-    muted: true,
-  },
-  {
-    id: "conv-3",
-    user: {
-      id: "user-3",
-      name: "Maya Patel",
-      avatar: "/placeholder.svg?height=48&width=48",
-      status: "online",
-    },
-    messages: [
-      {
-        id: "msg-9",
-        content: "I just sent you an invitation to the team meeting tomorrow at 10 AM.",
-        timestamp: new Date(Date.now() - 7200000).toISOString(),
-        sender: "user-3",
-        status: "read",
-      },
-      {
-        id: "msg-10",
-        content: "Thanks! I'll be there.",
-        timestamp: new Date(Date.now() - 7100000).toISOString(),
-        sender: "me",
-        status: "read",
-      },
-      {
-        id: "msg-11",
-        content: "Great! Don't forget to prepare your weekly update.",
-        timestamp: new Date(Date.now() - 7000000).toISOString(),
-        sender: "user-3",
-        status: "delivered",
-      },
-      {
-        id: "msg-12",
-        content: "Also, can you share the latest user research findings?",
-        timestamp: new Date(Date.now() - 6900000).toISOString(),
-        sender: "user-3",
-        status: "delivered",
-      },
-    ],
-    lastMessage: "Also, can you share the latest user research findings?",
-    lastMessageTime: new Date(Date.now() - 6900000).toISOString(),
-    unread: true,
-    unreadCount: 2,
-    muted: false,
-  },
-  {
-    id: "conv-4",
-    user: {
-      id: "user-4",
-      name: "David Kim",
-      avatar: "/placeholder.svg?height=48&width=48",
-      status: "away",
-    },
-    messages: [
-      {
-        id: "msg-13",
-        content: "Do you have time for a quick call today?",
-        timestamp: new Date(Date.now() - 172800000).toISOString(),
-        sender: "user-4",
-        status: "read",
-      },
-      {
-        id: "msg-14",
-        content: "Sure, I'm free between 2-4 PM. Does that work for you?",
-        timestamp: new Date(Date.now() - 172700000).toISOString(),
-        sender: "me",
-        status: "read",
-      },
-    ],
-    lastMessage: "Sure, I'm free between 2-4 PM. Does that work for you?",
-    lastMessageTime: new Date(Date.now() - 172700000).toISOString(),
-    unread: false,
-    unreadCount: 0,
-    muted: false,
-  },
-  {
-    id: "conv-5",
-    user: {
-      id: "user-5",
-      name: "Jordan Taylor",
-      avatar: "/placeholder.svg?height=48&width=48",
-      status: "offline",
-    },
-    messages: [
-      {
-        id: "msg-15",
-        content: "Hey, I just pushed the latest code changes. Can you review them when you get a chance?",
-        timestamp: new Date(Date.now() - 259200000).toISOString(),
-        sender: "user-5",
-        status: "read",
-      },
-      {
-        id: "msg-16",
-        content: "I'll take a look at it this afternoon.",
-        timestamp: new Date(Date.now() - 259100000).toISOString(),
-        sender: "me",
-        status: "read",
-      },
-    ],
-    lastMessage: "I'll take a look at it this afternoon.",
-    lastMessageTime: new Date(Date.now() - 259100000).toISOString(),
-    unread: false,
-    unreadCount: 0,
-    muted: false,
-  },
-]
