@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailerService } from '../mailer/mailer.service';
 import { ConfigService } from '@nestjs/config';
-import { CreateContactReportInput } from './dto/create-contact-report.input';
+import { CreateContactReportDto } from './dto/create-contact-report.dto';
 import { ContactReport } from './entities/contact-report.entity';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class ContactReportsService {
     private configService: ConfigService,
   ) {}
 
-  async create(createContactReportInput: CreateContactReportInput): Promise<ContactReport> {
+  async create(createContactReportInput: CreateContactReportDto): Promise<ContactReport> {
     const contactReport = await this.prisma.contactReport.create({ data: createContactReportInput });
     const adminEmail = this.configService.get<string>('ADMIN_EMAIL');
 
