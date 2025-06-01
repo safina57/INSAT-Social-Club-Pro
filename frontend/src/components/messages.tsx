@@ -22,6 +22,7 @@ import {
   MessageSquare,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import Aurora from "@/components/ui/Aurora"
 
 export default function MessagesPage() {
   const [activeConversation, setActiveConversation] = useState<string | null>(null)
@@ -165,7 +166,19 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="min-h-screen w-full aurora-gradient">
+  <div className="relative min-h-screen w-full overflow-hidden">
+    {/* Aurora Background */}
+    <div className="absolute inset-0 -z-10">
+      <Aurora
+        colorStops={[
+          "#003B49", // Aqua blue
+          "#003B49", // Dark green
+        ]}
+        blend={0.2}
+        amplitude={1.2}
+        speed={0.5}
+      />
+    </div>
       <Header />
       <div className="container mx-auto px-0 py-4 content-z-index">
         <div className="rounded-xl bg-background/40 backdrop-blur-md border border-white/10 overflow-hidden h-[calc(100vh-8rem)]">
