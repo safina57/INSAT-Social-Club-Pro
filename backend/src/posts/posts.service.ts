@@ -200,12 +200,17 @@ export class PostsService extends BaseService<Post> {
         comments: true,
       },
     });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId }});
+
     this.eventEmitter.emit(eventsPatterns.POST_LIKED, {
       type: eventsPatterns.POST_LIKED,
       userId: updatedPost.author.id,
       fromUserId: userId,
+      senderName: user?.username,
+      senderAvatar: user?.profilePhoto,
       postId: updatedPost.id,
-      message: `Your post was liked by user ${userId}`,
+      message: `liked your post`,
     });
     return updatedPost;
   }
@@ -272,6 +277,16 @@ export class PostsService extends BaseService<Post> {
       include: {
         author: true,
       },
+    });
+    
+    this.eventEmitter.emit(eventsPatterns.POST_SHARED, {
+      type: eventsPatterns.POST_SHARED,
+      userId: post.authorId,
+      fromUserId: sharedPost.author.id,
+      senderName: sharedPost.author.username,
+      senderAvatar: sharedPost.author.profilePhoto,
+      postId: sharedPost.id,
+      message: `shared your post`,
     });
 
     return sharedPost;

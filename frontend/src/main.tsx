@@ -9,10 +9,10 @@ import Providers from "./components/providers";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <AuthProvider>
-      <Providers>
+    <Providers>
+      <AuthProvider>
         <App />
-      </Providers>
-    </AuthProvider>
+      </AuthProvider>
+    </Providers>
   </React.StrictMode>
 );

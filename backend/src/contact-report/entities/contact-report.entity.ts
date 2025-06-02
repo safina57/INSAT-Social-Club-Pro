@@ -1,19 +1,13 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { Category, Status } from '@prisma/client';
 
-@ObjectType()
 export class ContactReport {
-  @Field(() => Int)
-  id: number;
-
-  @Field()
+  id: string;
   fullName: string;
-
-  @Field()
   email: string;
-
-  @Field()
+  subject: string;
+  category: Category;
   message: string;
-
-  @Field()
+  status: Status
   createdAt: Date;
 }
+

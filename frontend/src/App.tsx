@@ -21,15 +21,23 @@ import EmailVerification from "./components/verify-email";
 import ResetPassword from "./components/reset-password";
 import ForgotPassword from "./components/forgot-password";
 import ResendVerification from "./components/resend-verification";
+import AuthInitializer from "./components/auth/AuthInitializer";
+import CreateJobPage from "./pages/CreateJobPage";
+import JobManagementPage from "./pages/JobManagementPage";
+import { JobApplicantsPage } from "./components/jobs/JobApplicantsPage";
+import { RequireAuth } from './components/require-auth'
+import { RequireAdmin } from './components/require-admin'
+import AdminReports from "./components/admin/reports";
 
 function ProfilePageWrapper() {
   const { username } = useParams<{ username: string }>();
-  return <ProfilePage params={{ username: username || "" }} />;
+  return <ProfilePage params={{ username: username ?? "" }} />;
 }
 
 function App() {
   return (
     <Router>
+      <AuthInitializer />
       <main>
         <Routes>
           {/* Landing Page */}
@@ -54,23 +62,69 @@ function App() {
           />
 
           {/* Home Page */}
-          <Route path="/home" element={<HomePage />} />
+          <Route path="/home" element={
+            <RequireAuth>
+              <HomePage />
+            </RequireAuth>
+          } />
 
           {/* Messages Page */}
-          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/messages" element={
+            <RequireAuth>
+              <MessagesPage />
+            </RequireAuth>
+          } />
 
           {/* Contact Us Page */}
-          <Route path="/contact-us" element={<ContactPage />} />
+          <Route path="/contact-us" element={
+              <ContactPage />
+          } />
 
           {/* Admin Dashboard */}
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={
+            <RequireAdmin>
+              <AdminDashboard />
+            </RequireAdmin>
+          } />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/reports" element={
+            <RequireAdmin>
+              <AdminReports />
+            </RequireAdmin>
+          } />
 
+          {/* Admin Dashboard */}
           {/* Jobs Page */}
-          <Route path="/jobs" element={<JobsPage />} />
+          <Route path="/jobs" element={
+            <RequireAuth>
+              <JobsPage />
+            </RequireAuth>
+          } />          {/* Create Job Page */}
+          <Route path="/jobs/create" element={
+            <RequireAuth>
+              <CreateJobPage />
+            </RequireAuth>
+          } />          {/* Job Management Dashboard */}
+          <Route path="/jobs/manage" element={
+            <RequireAuth>
+              <JobManagementPage />
+            </RequireAuth>
+          } />
+
+          {/* Job Applicants Page */}
+          <Route path="/jobs/:jobId/applicants" element={
+            <RequireAuth>
+              <JobApplicantsPage />
+            </RequireAuth>
+          } />
 
           {/* Profile Page */}
-          <Route path="/profile/:username" element={<ProfilePageWrapper />} />
-
+          <Route path="/profile/:username" element={
+            <RequireAuth>
+              <ProfilePageWrapper />
+            </RequireAuth>
+          } />
           {/* Search Page */}
           <Route path="/search" element={<SearchPage />} />
 

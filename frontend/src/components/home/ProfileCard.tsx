@@ -1,8 +1,16 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useAppSelector } from "@/state/store";
 
 export default function ProfileCard() {
+  const user = useAppSelector((state) => state.global.user);
+
+  // Get user initials for avatar fallback
+  const getUserInitials = (username: string) => {
+    return username.toUpperCase().slice(0, 2);
+  };
+
   return (
     <div className="rounded-xl bg-background/40 backdrop-blur-md p-6 shadow-lg border border-white/10 sticky top-8">
       <div className="flex flex-col items-center text-center">
@@ -10,16 +18,20 @@ export default function ProfileCard() {
           <Avatar className="h-20 w-20 border-4 border-primary/50">
             <AvatarImage
               src="/placeholder.svg?height=80&width=80"
-              alt="Current User"
+              alt={user?.username || "User"}
             />
-            <AvatarFallback>CU</AvatarFallback>
+            <AvatarFallback>
+              {user ? getUserInitials(user.username) : "U"}
+            </AvatarFallback>
           </Avatar>
           <div className="absolute -bottom-1 -right-1 rounded-full bg-primary p-1">
             <div className="h-3 w-3 rounded-full bg-background" />
           </div>
         </div>
-        <h3 className="mt-4 text-xl font-bold">Current User</h3>
-        <p className="text-sm text-muted-foreground">Software Engineer</p>
+        <h3 className="mt-4 text-xl font-bold">{user?.username || "User"}</h3>
+        <p className="text-sm text-muted-foreground">
+          {user?.role || "Member"}
+        </p>
 
         <div className="mt-6 w-full space-y-4">
           <div className="grid grid-cols-3 gap-4 text-center">

@@ -2,6 +2,7 @@ import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { Role } from '../enums/role.enum';
 import { Comment } from '../../comments/entities/comment.entity';
 import { Post } from 'src/posts/entities/post.entity';
+import { FriendRequest } from './friend-request.entity';
 
 @ObjectType()
 export class User {
@@ -43,4 +44,15 @@ export class User {
 
   @Field(() => [Comment], { nullable: true })
   comments?: Comment[] | null;
+  @Field(() => [User], { nullable: true })
+  friends?: User[] | null;
+
+  @Field(() => [FriendRequest], { nullable: true })
+  sentFriendRequests?: FriendRequest[] | null;
+
+  @Field(() => [FriendRequest], { nullable: true })
+  receivedFriendRequests?: FriendRequest[] | null;
+
+  @Field(() => String, { nullable: true })
+  profilePhoto?: string | null;
 }

@@ -223,3 +223,28 @@ model Message {
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   sender         User         @relation("MessageSender", fields: [senderId], references: [id])
 }
+
+enum Category {
+  General_Inquiry
+  Technical_Support
+  Feedback
+  Bug_Report
+  Feature_Request
+}
+
+enum Status {
+  Pending
+  Being_Treated 
+  Treated
+}
+
+model ContactReport {
+  id        String   @id @default(uuid())
+  fullName  String
+  email     String
+  subject   String
+  category  Category
+  message   String
+  status    Status   @default(Pending)
+  createdAt DateTime @default(now())
+}
