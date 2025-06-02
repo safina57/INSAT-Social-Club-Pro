@@ -159,6 +159,39 @@ export const api = createApi({
           posts: [],
         },
     }),
+
+    uploadProfilePhoto: builder.mutation<
+      { profilePhoto: string },
+      { file: File }
+    >({
+      query: ({ file }) => {
+        const formData = new FormData();
+        formData.append(
+          "operations",
+          JSON.stringify({
+            query: `
+            mutation UploadProfilePhoto($file: Upload!) {
+              uploadProfilePhoto(file: $file) {
+                profilePhoto
+              }
+            }
+          `,
+            variables: { file: null },
+          })
+        );
+        formData.append("map", JSON.stringify({ "0": ["variables.file"] }));
+        formData.append("0", file);
+        return {
+          url: "/graphql",
+          method: "POST",
+          body: formData,
+          headers: {
+            "x-apollo-operation-name": "UploadProfilePhoto",
+          },
+        };
+      },
+      invalidatesTags: ["User"],
+    }),
     /*
     =================
     POSTS ENDPOINTS GRAPHQL
@@ -569,6 +602,7 @@ export const api = createApi({
 export const {
   useGetCurrentUserQuery,
   useGetUserByIdQuery,
+  useUploadProfilePhotoMutation,
   useGetPostsQuery,
   useCreatePostMutation,
   useLikePostMutation,
