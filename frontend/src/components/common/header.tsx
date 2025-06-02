@@ -13,6 +13,7 @@ import {
   Home,
   MessageSquare,
   Search,
+  Briefcase,
   Menu,
   X,
   LogOut,
@@ -44,6 +45,7 @@ export function Header() {
   const navItems = [
     { name: "Home", href: "/home", icon: Home },
     { name: "Messages", href: "/messages", icon: MessageSquare },
+    { name: "Jobs", href: "/jobs", icon: Briefcase}
   ];
 
   const handleSearch = (e: React.FormEvent) => {
@@ -165,7 +167,6 @@ export function Header() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
