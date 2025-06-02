@@ -1,0 +1,9 @@
+export { ProfileHeader } from "./ProfileHeader";
+export { ProfileInfo } from "./ProfileInfo";
+export { PostCard } from "./PostCard";
+export { PostsTab } from "./PostsTab";
+export { AboutTab } from "./AboutTab";
+export { ExperienceTab } from "./ExperienceTab";
+export { EducationTab } from "./EducationTab";
+export { SkillsTab } from "./SkillsTab";
+export { RecommendationsAndConnections } from "./RecommendationsAndConnections";

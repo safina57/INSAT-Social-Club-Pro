@@ -14,6 +14,15 @@ export class UsersService extends BaseService<User> {
     super(prisma, 'user');
   }
 
+  async getUserById(id: string) {
+    console.log('Finding user with ID:', id);
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        posts: true,
+      },
+    });
+  }
   async addFriend(userId: string, friendId: string) {
     return this.prisma.user.update({
       where: { id: userId },

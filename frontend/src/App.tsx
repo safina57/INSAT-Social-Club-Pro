@@ -15,19 +15,19 @@ import ContactPage from "./components/contact-us";
 import NotFound from "./components/404page";
 import AdminDashboard from "./components/admin-dashboard";
 import JobsPage from "./components/jobs";
-import ProfilePage from "./components/profile";
 import SearchPage from "./components/search";
 import EmailVerification from "./components/verify-email";
 import ResetPassword from "./components/reset-password";
 import ForgotPassword from "./components/forgot-password";
 import ResendVerification from "./components/resend-verification";
 import AuthInitializer from "./components/auth/AuthInitializer";
-import { RequireAuth } from './components/require-auth'
-import { RequireAdmin } from './components/require-admin'
+import { RequireAuth } from "./components/require-auth";
+import { RequireAdmin } from "./components/require-admin";
+import ProfilePage from "./pages/profile";
 
 function ProfilePageWrapper() {
-  const { username } = useParams<{ username: string }>();
-  return <ProfilePage params={{ username: username || "" }} />;
+  const { id } = useParams<{ id: string }>();
+  return <ProfilePage params={{ id: id || "" }} />;
 }
 
 function App() {
@@ -58,48 +58,66 @@ function App() {
           />
 
           {/* Home Page */}
-          <Route path="/home" element={
-            <RequireAuth>
-              <HomePage />
-            </RequireAuth>
-          } />
+          <Route
+            path="/home"
+            element={
+              <RequireAuth>
+                <HomePage />
+              </RequireAuth>
+            }
+          />
 
           {/* Messages Page */}
-          <Route path="/messages" element={
-            <RequireAuth>
-              <MessagesPage />
-            </RequireAuth>
-          } />
+          <Route
+            path="/messages"
+            element={
+              <RequireAuth>
+                <MessagesPage />
+              </RequireAuth>
+            }
+          />
 
           {/* Contact Us Page */}
-          <Route path="/contact-us" element={
-            <RequireAuth>
-              <ContactPage />
-            </RequireAuth>
-          } />
+          <Route
+            path="/contact-us"
+            element={
+              <RequireAuth>
+                <ContactPage />
+              </RequireAuth>
+            }
+          />
 
           {/* Admin Dashboard */}
-          <Route path="/admin/dashboard" element={
-            <RequireAuth>
-              <RequireAdmin>
-                <AdminDashboard />
-              </RequireAdmin>
-            </RequireAuth>
-          } />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <RequireAuth>
+                <RequireAdmin>
+                  <AdminDashboard />
+                </RequireAdmin>
+              </RequireAuth>
+            }
+          />
 
           {/* Jobs Page */}
-          <Route path="/jobs" element={
-            <RequireAuth>
-              <JobsPage />
-            </RequireAuth>
-          } />
+          <Route
+            path="/jobs"
+            element={
+              <RequireAuth>
+                <JobsPage />
+              </RequireAuth>
+            }
+          />
 
           {/* Profile Page */}
-          <Route path="/profile/:username" element={
-            <RequireAuth>
-              <ProfilePageWrapper />
-            </RequireAuth>
-          } />
+          <Route
+            path="/profile/:id"
+            element={
+              <RequireAuth>
+                <ProfilePageWrapper />
+              </RequireAuth>
+            }
+          />
           {/* Search Page */}
           <Route path="/search" element={<SearchPage />} />
 

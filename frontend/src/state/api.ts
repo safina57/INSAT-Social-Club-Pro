@@ -102,7 +102,61 @@ export const api = createApi({
           `,
         },
       }),
-      providesTags: ["User"],
+      providesTags: (result) =>
+        result ? [{ type: "User", id: result.id }] : ["User"],
+    }),
+    getUserById: builder.query<
+      {
+        id: string;
+        username: string;
+        email: string;
+        role: string;
+        profilePhoto?: string;
+        posts: Post[];
+      },
+      string
+    >({
+      query: (id) => ({
+        url: "/graphql",
+        method: "POST",
+        body: {
+          query: `
+            query User($id: ID!) {
+              user(id: $id) {
+                id  
+                username
+                email
+                role
+                profilePhoto
+                posts {
+                  id
+                  content
+                  imageUrl
+                  createdAt
+                  updatedAt
+                  likesCount
+                  authorId
+                  
+                  
+                }
+              }
+            }
+          `,
+          variables: { id },
+        },
+      }),
+      providesTags: (result, id) =>
+        result ? [{ type: "User", id: id }] : ["User"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transformResponse: (response: { user?: any }) =>
+        response.user ?? {
+          id: "",
+          username: "",
+          email: "",
+          role: "",
+          profilePhoto: undefined,
+          posts: [],
+        },
     }),
     /*
     =================
@@ -511,6 +565,7 @@ export const api = createApi({
 
 export const {
   useGetCurrentUserQuery,
+  useGetUserByIdQuery,
   useGetPostsQuery,
   useCreatePostMutation,
   useLikePostMutation,

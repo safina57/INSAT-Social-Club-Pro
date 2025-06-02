@@ -205,7 +205,7 @@ export class PostsService extends BaseService<Post> {
       userId: updatedPost.author.id,
       fromUserId: userId,
       userName: updatedPost.author.username,
-      //avatar: updatedPost.author.profilePhoto,
+      senderAvatar: updatedPost.author.profilePhoto,
       postId: updatedPost.id,
       message: `liked your post`,
     });
