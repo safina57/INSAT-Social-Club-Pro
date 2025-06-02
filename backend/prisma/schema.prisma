@@ -220,7 +220,7 @@ model Message {
   content        String
   createdAt      DateTime     @default(now())
 
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
-  sender         User         @relation("MessageSender", fields: [senderId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
 }
 

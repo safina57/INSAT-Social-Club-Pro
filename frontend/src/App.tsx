@@ -28,6 +28,7 @@ import CreateJobPage from "./pages/CreateJobPage";
 import JobManagementPage from "./pages/JobManagementPage";
 import { JobApplicantsPage } from "./components/jobs/JobApplicantsPage";
 import AdminReports from "./components/admin/reports";
+import AdminUsers from "./components/admin/users";
 
 function ProfilePageWrapper() {
   const { id } = useParams<{ id: string }>();
@@ -89,6 +90,14 @@ function App() {
             element={
               <RequireAdmin>
                 <AdminReports />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <RequireAdmin>
+                <AdminUsers />
               </RequireAdmin>
             }
           />
