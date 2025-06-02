@@ -14,6 +14,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useAppSelector } from "@/state/store";
+import { useNavigate } from "react-router-dom";
 import type { User } from "@/types/profile";
 
 interface ProfileHeaderProps {
@@ -22,7 +23,12 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ user }: ProfileHeaderProps) {
   const currentUser = useAppSelector((state) => state.global.user);
+  const navigate = useNavigate();
   const isOwnProfile = currentUser?.id === user.id;
+
+  const handleEditProfile = () => {
+    navigate("/profile/edit");
+  };
 
   return (
     <div className="relative mb-2">
@@ -40,7 +46,12 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
         {isOwnProfile ? (
           // Buttons for own profile
           <>
-            <Button variant="outline" size="sm" className="h-9">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9"
+              onClick={handleEditProfile}
+            >
               <Edit className="mr-2 h-4 w-4" />
               Edit Profile
             </Button>
