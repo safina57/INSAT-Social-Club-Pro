@@ -15,10 +15,104 @@ export class UsersService extends BaseService<User> {
     private readonly eventEmitter: EventEmitter2, 
   ) {
     super(prisma, 'user');
-  }
+  }  async addFriend(userId: string, friendId: string) {
+    // Check if users are already friends
+    const existingFriendship = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+        friends: {
+          some: { id: friendId }
+        }
+      }
+    });
 
-  async addFriend(userId: string, friendId: string) {
-    const friendRequest = this.prisma.user.update({
+    if (existingFriendship) {
+      throw new Error('Users are already friends');
+    }
+
+    // Check if there's already a pending friend request
+    const existingRequest = await this.prisma.friendRequest.findFirst({
+      where: {
+        OR: [
+          { senderId: userId, receiverId: friendId },
+          { senderId: friendId, receiverId: userId }
+        ],
+        status: 'PENDING'
+      }
+    });
+
+    if (existingRequest) {
+      throw new Error('Friend request already exists');
+    }
+
+    // Create the friend request
+    const friendRequest = await this.prisma.friendRequest.create({
+      data: {
+        senderId: userId,
+        receiverId: friendId,
+        status: 'PENDING'
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            profilePhoto: true
+          }
+        },
+        receiver: {
+          select: {
+            id: true,
+            username: true,
+            profilePhoto: true
+          }
+        }
+      }
+    });
+
+    // Emit friend request sent event
+    this.eventEmitter.emit(eventsPatterns.FRIEND_REQUEST_SENT, {
+      type: eventsPatterns.FRIEND_REQUEST_SENT,
+      userId: friendId,
+      fromUserId: userId,
+      senderName: friendRequest.sender.username,
+      senderAvatar: friendRequest.sender.profilePhoto,
+      message: "has sent you a friend request",
+    });
+
+    return friendRequest;
+  }
+  async acceptFriendRequest(userId: string, friendId: string) {
+    // Find the pending friend request
+    const friendRequest = await this.prisma.friendRequest.findFirst({
+      where: {
+        senderId: friendId,
+        receiverId: userId,
+        status: 'PENDING'
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            profilePhoto: true
+          }
+        }
+      }
+    });
+
+    if (!friendRequest) {
+      throw new Error('No pending friend request found');
+    }
+
+    // Update the friend request status to ACCEPTED
+    await this.prisma.friendRequest.update({
+      where: { id: friendRequest.id },
+      data: { status: 'ACCEPTED' }
+    });
+
+    // Create bidirectional friendship
+    const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: {
         friends: {
@@ -29,16 +123,137 @@ export class UsersService extends BaseService<User> {
         friends: true,
       },
     });
-    const sender = await this.getCurrentUser(userId);
-    this.eventEmitter.emit(eventsPatterns.FRIEND_REQUEST_SENT, {
-      type: eventsPatterns.FRIEND_REQUEST_SENT,
+
+    // Also connect the friend back to user for bidirectional relationship
+    await this.prisma.user.update({
+      where: { id: friendId },
+      data: {
+        friends: {
+          connect: { id: userId },
+        },
+      },
+    });
+
+    const accepter = await this.getCurrentUser(userId);
+    
+    // Emit friend request accepted event
+    this.eventEmitter.emit(eventsPatterns.FRIEND_REQUEST_ACCEPTED, {
+      type: eventsPatterns.FRIEND_REQUEST_ACCEPTED,
       userId: friendId,
       fromUserId: userId,
-      senderName: sender?.username,
-      senderAvatar: sender?.profilePhoto,
-      message:"has sent you a friend request",
+      accepterName: accepter?.username,
+      accepterAvatar: accepter?.profilePhoto,
+      message: "has accepted your friend request",
     });
-    return friendRequest;
+
+    return updatedUser;
+  }
+
+  async rejectFriendRequest(userId: string, friendId: string) {
+    // Find the pending friend request
+    const friendRequest = await this.prisma.friendRequest.findFirst({
+      where: {
+        senderId: friendId,
+        receiverId: userId,
+        status: 'PENDING'
+      }
+    });
+
+    if (!friendRequest) {
+      throw new Error('No pending friend request found');
+    }
+
+    // Update the friend request status to REJECTED
+    return await this.prisma.friendRequest.update({
+      where: { id: friendRequest.id },
+      data: { status: 'REJECTED' }
+    });
+  }
+
+  async getPendingFriendRequests(userId: string) {
+    return await this.prisma.friendRequest.findMany({
+      where: {
+        receiverId: userId,
+        status: 'PENDING'
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            profilePhoto: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+  }
+
+  async getSentFriendRequests(userId: string) {
+    return await this.prisma.friendRequest.findMany({
+      where: {
+        senderId: userId,
+        status: 'PENDING'
+      },
+      include: {
+        receiver: {
+          select: {
+            id: true,
+            username: true,
+            profilePhoto: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+  }
+  async cancelFriendRequest(userId: string, friendId: string) {
+    // Find the pending friend request sent by the user
+    const friendRequest = await this.prisma.friendRequest.findFirst({
+      where: {
+        senderId: userId,
+        receiverId: friendId,
+        status: 'PENDING'
+      }
+    });
+
+    if (!friendRequest) {
+      throw new Error('No pending friend request found');
+    }
+
+    // Delete the friend request
+    await this.prisma.friendRequest.delete({
+      where: { id: friendRequest.id }
+    });
+
+    return { success: true, message: 'Friend request cancelled successfully' };
+  }
+
+  async removeFriend(userId: string, friendId: string) {
+    // Remove the bidirectional friendship
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        friends: {
+          disconnect: { id: friendId }
+        }
+      }
+    });
+
+    await this.prisma.user.update({
+      where: { id: friendId },
+      data: {
+        friends: {
+          disconnect: { id: userId }
+        }
+      }
+    });
+
+    return { success: true, message: 'Friend removed successfully' };
   }
 
   getCurrentUser(id: string) {
