@@ -24,6 +24,7 @@ import ResendVerification from "./components/resend-verification";
 import AuthInitializer from "./components/auth/AuthInitializer";
 import { RequireAuth } from './components/require-auth'
 import { RequireAdmin } from './components/require-admin'
+import AdminReports from "./components/admin/reports";
 
 function ProfilePageWrapper() {
   const { username } = useParams<{ username: string }>();
@@ -78,13 +79,19 @@ function App() {
 
           {/* Admin Dashboard */}
           <Route path="/admin/dashboard" element={
-            <RequireAuth>
-              <RequireAdmin>
-                <AdminDashboard />
-              </RequireAdmin>
-            </RequireAuth>
+            <RequireAdmin>
+              <AdminDashboard />
+            </RequireAdmin>
+          } />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/reports" element={
+            <RequireAdmin>
+              <AdminReports />
+            </RequireAdmin>
           } />
 
+          {/* Admin Dashboard */}
           {/* Jobs Page */}
           <Route path="/jobs" element={
             <RequireAuth>
