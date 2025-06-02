@@ -1,8 +1,11 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import Aurora from "@/components/ui/Aurora"
 import { Header } from "@/components/common/header"
+import { Button } from "@/components/ui/button"
+import { Plus, Settings } from "lucide-react"
 import { Job, JobFilters } from "@/types/job"
 import { useJobs, jobService } from "@/services/jobService"
 import { SAMPLE_JOBS } from "@/data/sampleJobs"
@@ -12,6 +15,7 @@ import { JobList } from "@/components/jobs/JobList"
 import { JobDetails } from "@/components/jobs/JobDetails"
 
 export default function JobsPage() {
+  const navigate = useNavigate()
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [activeTab, setActiveTab] = useState("all")
   const [filters, setFilters] = useState<JobFilters>({
@@ -45,9 +49,15 @@ export default function JobsPage() {
     // Refetch with current filters
     refetch()
   }
-
   const handleJobClick = (job: Job) => {
     setSelectedJob(job)
+  }
+  const handleCreateJob = () => {
+    navigate("/jobs/create")
+  }
+
+  const handleManageJobs = () => {
+    navigate("/jobs/manage")
   }
   const resetFilters = () => {
     setFilters({
@@ -64,11 +74,15 @@ export default function JobsPage() {
   const updateSearchQuery = (query: string) => {
     setFilters(prev => ({ ...prev, searchQuery: query }))
   }  // Get jobs from API response and transform them, or use sample data as fallback
-  const allJobs = data?.jobs?.results 
-    ? data.jobs.results.map(jobService.transformJob) 
-    : (error && error.message.includes('Unauthorized')) 
-      ? SAMPLE_JOBS 
-      : []
+  const allJobs = (() => {
+    if (data?.jobs?.results) {
+      return data.jobs.results.map(jobService.transformJob)
+    }
+    if (error?.message?.includes('Unauthorized')) {
+      return SAMPLE_JOBS
+    }
+    return []
+  })()
   
   // Apply client-side filtering
   const baseFilteredJobs = jobService.filterJobs(allJobs, filters)
@@ -81,7 +95,7 @@ export default function JobsPage() {
       case "recent": {
         const recentDate = new Date()
         recentDate.setDate(recentDate.getDate() - 7)
-        return new Date(job.postedDate || job.createdAt) >= recentDate
+        return new Date(job.postedDate ?? job.createdAt) >= recentDate
       }
       case "urgent":
         return job.urgent
@@ -151,10 +165,28 @@ export default function JobsPage() {
           blend={0.2}
           amplitude={1.2}
           speed={0.5}
-        />
-      </div>
+        />      </div>
       <Header />
-      <div className="container mx-auto px-4 py-8 content-z-index">
+      <div className="container mx-auto px-4 py-8 content-z-index">        {/* Page Header with Create Job Button */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold">Job Opportunities</h1>
+            <p className="text-muted-foreground mt-1">
+              Discover your next career opportunity
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={handleManageJobs} variant="outline" className="gap-2">
+              <Settings className="h-4 w-4" />
+              Manage Jobs
+            </Button>
+            <Button onClick={handleCreateJob} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Post a Job
+            </Button>
+          </div>
+        </div>
+        
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Column - Filters */}
           <div className="w-full lg:w-[300px]">
