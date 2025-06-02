@@ -35,16 +35,11 @@ export const GET_APPLICANTS_FOR_JOB = gql`
       createdAt
       status
       decidedAt
-      appliedAt
-      coverLetter
-      resume
       user {
         id
-        firstName
-        lastName
+        username
         email
-        phone
-        avatar
+        profilePhoto
       }
     }
   }
