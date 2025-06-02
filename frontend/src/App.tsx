@@ -31,6 +31,8 @@ import { JobApplicantsPage } from "./components/jobs/JobApplicantsPage";
 import AdminReports from "./components/admin/reports";
 import CompaniesPage from "./components/companies";
 import CompanyDetailPage from "./components/companyDetails";
+import CreateCompanyPage from "./pages/newCompany";
+import EditCompanyPage from "./pages/editCompany";
 
 function ProfilePageWrapper() {
   const { id } = useParams<{ id: string }>();
@@ -40,6 +42,11 @@ function ProfilePageWrapper() {
 function CompanyDetailsWrapper() {
   const { id } = useParams<{ id: string }>();
   return <CompanyDetailPage params={{ id: id || "" }} />;
+}
+
+function EditCompanyWrapper() {
+  const { id } = useParams<{ id: string }>();
+  return <EditCompanyPage params={{ id: id || "" }} />;
 }
 
 function App() {
@@ -157,7 +164,6 @@ function App() {
           />
           {/* Search Page */}
           <Route path="/search" element={<SearchPage />} />
-
           {/* Companies Page */}
           <Route
             path="/companies"
@@ -166,8 +172,7 @@ function App() {
                 <CompaniesPage />
               </RequireAuth>
             }
-          /> 
-
+          />
           {/* Company Detail Page */}
           <Route
             path="/companies/:companyId"
@@ -175,9 +180,26 @@ function App() {
               <RequireAuth>
                 <CompanyDetailsWrapper />
               </RequireAuth>
-            } 
+            }
           />
-
+          {/* New Company Page */}
+          <Route
+            path="/companies/new"
+            element={
+              <RequireAuth>
+                <CreateCompanyPage />
+              </RequireAuth>
+            }
+          />
+          {/* Edit Company Page */}
+          <Route
+            path="/companies/:id/edit"
+            element={
+              <RequireAuth>
+                <EditCompanyWrapper />
+              </RequireAuth>
+            }
+          />
           {/* Catch-All Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
