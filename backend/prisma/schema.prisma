@@ -29,6 +29,12 @@ enum ApplicationStatus {
   REJECTED
 }
 
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 //
 // MODELS
 //
@@ -53,9 +59,31 @@ model User {
   companies        Company[]        @relation("CompanyEmployees")
   managedCompanies CompanyManager[]
   jobApplications  JobApplication[] @relation("JobApplications")
-
+  
   conversations      Conversation[] @relation("ConversationParticipants")
   messagesSent       Message[]     @relation("MessageSender")
+  
+  friends   User[]   @relation("UserFriends")
+  friendOf  User[]   @relation("UserFriends")
+
+  sentFriendRequests     FriendRequest[] @relation("FriendRequestSender")
+  receivedFriendRequests FriendRequest[] @relation("FriendRequestReceiver")
+  profilePhoto String?
+
+  
+}
+model FriendRequest {
+  id         String              @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     FriendRequestStatus @default(PENDING)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  sender   User @relation("FriendRequestSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("FriendRequestReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
 }
 
 model Post {
@@ -67,7 +95,7 @@ model Post {
   likesCount Int      @default(0)
 
   authorId String
-  author   User   @relation(fields: [authorId], references: [id])
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   comments Comment[]
   likedBy  Like[]
@@ -80,10 +108,10 @@ model Comment {
   updatedAt DateTime @updatedAt
 
   postId String
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   authorId String
-  author   User   @relation(fields: [authorId], references: [id])
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model Like {
@@ -152,11 +180,28 @@ model JobApplication {
   @@unique([userId, jobId])
 }
 
+enum Category {
+  General_Inquiry
+  Technical_Support
+  Feedback
+  Bug_Report
+  Feature_Request
+}
+
+enum Status {
+  Pending
+  Being_Treated 
+  Treated
+}
+
 model ContactReport {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   fullName  String
   email     String
+  subject   String
+  category  Category
   message   String
+  status    Status   @default(Pending)
   createdAt DateTime @default(now())
 }
 

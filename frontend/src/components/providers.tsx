@@ -1,5 +1,5 @@
 "use client";
-import StoreProvider from "@/api/redux";
+import StoreProvider from "@/state/redux";
 import { apolloClient } from "@/lib/apollo";
 import { ApolloProvider } from "@apollo/client";
 import React from "react";
