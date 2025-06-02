@@ -24,11 +24,6 @@ export function AdminSidebar() {
       href: "/admin/users",
     },
     {
-      title: "Companies Table",
-      icon: <FileText className="h-5 w-5" />,
-      href: "/admin/content",
-    },
-    {
       title: "Reports",
       icon: <MessageSquare className="h-5 w-5" />,
       href: "/admin/reports",
