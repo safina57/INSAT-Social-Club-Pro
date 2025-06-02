@@ -264,6 +264,7 @@ export class UsersService extends BaseService<User> {
         username: true,
         email: true,
         role: true,
+        friends: true,
         profilePhoto: true,
       },
     });
