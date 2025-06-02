@@ -1,5 +1,6 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { ApplicationStatus } from "../enum/application-status.enum";
+import { User } from "../../users/entities/user.entity";
 
 @ObjectType()
 export class JobApplication {
@@ -20,4 +21,7 @@ export class JobApplication {
 
   @Field({ nullable: true })
   decidedAt?: Date;
+
+  @Field(() => User, { nullable: true })
+  user?: User;
 }
