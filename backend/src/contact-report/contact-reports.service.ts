@@ -5,6 +5,8 @@ import { ConfigService } from '@nestjs/config';
 import { CreateContactReportDto } from './dto/create-contact-report.dto';
 import { ContactReport } from './entities/contact-report.entity';
 import { UpdateContactReportDto } from './dto/update-contact-report.dto';
+import { FilterContactReportsDto } from './dto/contact-report-filer.dto';
+import { paginate } from 'src/common/utils/paginate';
 
 @Injectable()
 export class ContactReportsService {
@@ -35,8 +37,32 @@ export class ContactReportsService {
     return contactReport;
   }
 
-  async findAll(): Promise<ContactReport[]> {
-    return this.prisma.contactReport.findMany();
+  async findAll(filter: FilterContactReportsDto) {
+    const { page = 1, limit = 10, status, category, searchTerm } = filter;
+    const where: any = {};
+    if (status && status !== 'all') where.status = status;
+    if (category && category !== 'all') where.category = category;
+    if (searchTerm) {
+      where.OR = [
+        { subject:  { contains: searchTerm, mode: 'insensitive' } },
+      ];
+    }
+    return paginate<ContactReport>(this.prisma.contactReport, {
+      page,
+      limit,
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getStatistics() {
+    const [ total, pending, beingTreated, treated ] = await Promise.all([
+      this.prisma.contactReport.count(),
+      this.prisma.contactReport.count({ where: { status: 'Pending' } }),
+      this.prisma.contactReport.count({ where: { status: 'Being_Treated' } }),
+      this.prisma.contactReport.count({ where: { status: 'Treated' } }),
+    ]);
+    return { total, pending, beingTreated, treated };
   }
 
   async deleteContactReport(id: string): Promise<void> {

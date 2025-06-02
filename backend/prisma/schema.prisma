@@ -208,7 +208,7 @@ enum Category {
   Feature_Request
 }
 
-enum Status{
+enum Status {
   Pending
   Being_Treated 
   Treated

@@ -27,6 +27,7 @@ import JobManagementPage from "./pages/JobManagementPage";
 import { JobApplicantsPage } from "./components/jobs/JobApplicantsPage";
 import { RequireAuth } from './components/require-auth'
 import { RequireAdmin } from './components/require-admin'
+import AdminReports from "./components/admin/reports";
 
 function ProfilePageWrapper() {
   const { username } = useParams<{ username: string }>();
@@ -76,19 +77,25 @@ function App() {
 
           {/* Contact Us Page */}
           <Route path="/contact-us" element={
-            <RequireAuth>
               <ContactPage />
-            </RequireAuth>
           } />
 
           {/* Admin Dashboard */}
           <Route path="/admin/dashboard" element={
-            <RequireAuth>
-              <RequireAdmin>
-                <AdminDashboard />
-              </RequireAdmin>
-            </RequireAuth>
-          } />          {/* Jobs Page */}
+            <RequireAdmin>
+              <AdminDashboard />
+            </RequireAdmin>
+          } />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/reports" element={
+            <RequireAdmin>
+              <AdminReports />
+            </RequireAdmin>
+          } />
+
+          {/* Admin Dashboard */}
+          {/* Jobs Page */}
           <Route path="/jobs" element={
             <RequireAuth>
               <JobsPage />

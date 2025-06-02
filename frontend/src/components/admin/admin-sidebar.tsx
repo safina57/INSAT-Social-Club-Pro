@@ -2,14 +2,10 @@
 
 import { useState } from "react"
 import { useLocation } from "react-router-dom"
-import {
-  LayoutDashboard,
-  Users,
-  FileText,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { LayoutDashboard, Users, FileText, MessageSquare } from "lucide-react"
+import { cn } from "../../lib/utils"
+import { Button } from "../ui/button"
+import { ScrollArea } from "../ui/scroll-area"
 
 export function AdminSidebar() {
   const location = useLocation()
@@ -32,7 +28,11 @@ export function AdminSidebar() {
       icon: <FileText className="h-5 w-5" />,
       href: "/admin/content",
     },
-
+    {
+      title: "Reports",
+      icon: <MessageSquare className="h-5 w-5" />,
+      href: "/admin/reports",
+    },
   ]
 
   return (

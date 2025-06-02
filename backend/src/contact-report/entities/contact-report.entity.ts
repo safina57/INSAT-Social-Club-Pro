@@ -1,4 +1,4 @@
-import { Category } from '@prisma/client';
+import { Category, Status } from '@prisma/client';
 
 export class ContactReport {
   id: string;
@@ -7,5 +7,7 @@ export class ContactReport {
   subject: string;
   category: Category;
   message: string;
+  status: Status
   createdAt: Date;
 }
+
