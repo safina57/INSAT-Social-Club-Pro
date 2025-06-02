@@ -2,13 +2,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useAppSelector } from "@/state/store";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfileCard() {
   const user = useAppSelector((state) => state.global.user);
+  const navigate = useNavigate();
 
   // Get user initials for avatar fallback
   const getUserInitials = (username: string) => {
     return username.toUpperCase().slice(0, 2);
+  };
+
+  // Handle navigation to profile page
+  const handleViewProfile = () => {
+    if (user?.id) {
+      navigate(`/profile/${user.id}`);
+    }
   };
 
   return (
@@ -17,7 +26,7 @@ export default function ProfileCard() {
         <div className="relative">
           <Avatar className="h-20 w-20 border-4 border-primary/50">
             <AvatarImage
-              src="/placeholder.svg?height=80&width=80"
+              src={user?.profilePhoto || "/default-avatar.png"}
               alt={user?.username || "User"}
             />
             <AvatarFallback>
@@ -51,7 +60,11 @@ export default function ProfileCard() {
 
           <Separator />
 
-          <Button variant="outline" className="w-full">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleViewProfile}
+          >
             View Profile
           </Button>
         </div>

@@ -5,6 +5,7 @@ interface User {
   username: string;
   role: string;
   email: string;
+  profilePhoto?: string;
 }
 
 interface InitialStateTypes {

@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatTimestamp, getCurrentUser } from "@/lib/utils/postUtils";
 import CommentSection from "./CommentSection";
+import { AvatarImage } from "@radix-ui/react-avatar";
 
 export default function PostCard({
   post,
@@ -39,10 +40,10 @@ export default function PostCard({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Avatar className="h-10 w-10 border-2 border-primary/50">
-            {/* <AvatarImage
-              src={post.author.avatar || "/placeholder.svg"}
+            <AvatarImage
+              src={post.author.profilePhoto || "/placeholder.svg"}
               alt={post.author.username}
-            /> */}
+            />
             <AvatarFallback>
               {post.author.username.slice(0, 2).toUpperCase()}
             </AvatarFallback>

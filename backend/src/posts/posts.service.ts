@@ -201,7 +201,8 @@ export class PostsService extends BaseService<Post> {
       },
     });
     const user = await this.prisma.user.findUnique({
-      where: { id: userId }});
+      where: { id: userId },
+    });
 
     this.eventEmitter.emit(eventsPatterns.POST_LIKED, {
       type: eventsPatterns.POST_LIKED,
@@ -278,7 +279,7 @@ export class PostsService extends BaseService<Post> {
         author: true,
       },
     });
-    
+
     this.eventEmitter.emit(eventsPatterns.POST_SHARED, {
       type: eventsPatterns.POST_SHARED,
       userId: post.authorId,

@@ -14,4 +14,7 @@ export class Author {
 
   @Field(() => Role)
   role: Role;
+
+  @Field(() => String, { nullable: true })
+  profilePhoto?: string | null;
 }

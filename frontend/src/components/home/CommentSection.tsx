@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Send } from "lucide-react";
 import { formatTimestamp } from "@/lib/utils/postUtils";
+import { useAppSelector } from "@/state/store";
 
 interface CommentSectionProps {
   post: Post;
@@ -18,6 +19,7 @@ export default function CommentSection({
   showComments,
 }: CommentSectionProps) {
   const [newComment, setNewComment] = useState("");
+  const user = useAppSelector((state) => state.global.user);
 
   const handleSubmitComment = () => {
     if (newComment.trim()) {
@@ -38,7 +40,7 @@ export default function CommentSection({
       <div className="flex items-start space-x-3">
         <Avatar className="h-8 w-8">
           <AvatarImage
-            src="/placeholder.svg?height=32&width=32"
+            src={user!.profilePhoto || "/placeholder.svg"}
             alt="Current User"
           />
           <AvatarFallback>CU</AvatarFallback>
@@ -70,10 +72,10 @@ export default function CommentSection({
               {/* Comment */}
               <div className="flex items-start space-x-3">
                 <Avatar className="h-8 w-8">
-                  {/* <AvatarImage
-                    src={comment.author.avatar || "/placeholder.svg"}
-                    alt={comment.author.name}
-                  /> */}
+                  <AvatarImage
+                    src={comment.author.profilePhoto || "/placeholder.svg"}
+                    alt={comment.author.username}
+                  />
                   <AvatarFallback>
                     {comment.author.username.slice(0, 2).toUpperCase()}
                   </AvatarFallback>

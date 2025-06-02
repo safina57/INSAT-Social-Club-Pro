@@ -12,18 +12,29 @@ export class UsersService extends BaseService<User> {
   constructor(
     prisma: PrismaService,
     private readonly imageUploadService: ImageUploadService,
-    private readonly eventEmitter: EventEmitter2, 
+    private readonly eventEmitter: EventEmitter2,
   ) {
     super(prisma, 'user');
-  }  async addFriend(userId: string, friendId: string) {
+  }
+
+  async getUserById(id: string) {
+    console.log('Finding user with ID:', id);
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        posts: true,
+      },
+    });
+  }
+  async addFriend(userId: string, friendId: string) {
     // Check if users are already friends
     const existingFriendship = await this.prisma.user.findFirst({
       where: {
         id: userId,
         friends: {
-          some: { id: friendId }
-        }
-      }
+          some: { id: friendId },
+        },
+      },
     });
 
     if (existingFriendship) {
@@ -35,10 +46,10 @@ export class UsersService extends BaseService<User> {
       where: {
         OR: [
           { senderId: userId, receiverId: friendId },
-          { senderId: friendId, receiverId: userId }
+          { senderId: friendId, receiverId: userId },
         ],
-        status: 'PENDING'
-      }
+        status: 'PENDING',
+      },
     });
 
     if (existingRequest) {
@@ -50,24 +61,24 @@ export class UsersService extends BaseService<User> {
       data: {
         senderId: userId,
         receiverId: friendId,
-        status: 'PENDING'
+        status: 'PENDING',
       },
       include: {
         sender: {
           select: {
             id: true,
             username: true,
-            profilePhoto: true
-          }
+            profilePhoto: true,
+          },
         },
         receiver: {
           select: {
             id: true,
             username: true,
-            profilePhoto: true
-          }
-        }
-      }
+            profilePhoto: true,
+          },
+        },
+      },
     });
 
     // Emit friend request sent event
@@ -77,7 +88,7 @@ export class UsersService extends BaseService<User> {
       fromUserId: userId,
       senderName: friendRequest.sender.username,
       senderAvatar: friendRequest.sender.profilePhoto,
-      message: "has sent you a friend request",
+      message: 'has sent you a friend request',
     });
 
     return friendRequest;
@@ -88,17 +99,17 @@ export class UsersService extends BaseService<User> {
       where: {
         senderId: friendId,
         receiverId: userId,
-        status: 'PENDING'
+        status: 'PENDING',
       },
       include: {
         sender: {
           select: {
             id: true,
             username: true,
-            profilePhoto: true
-          }
-        }
-      }
+            profilePhoto: true,
+          },
+        },
+      },
     });
 
     if (!friendRequest) {
@@ -108,7 +119,7 @@ export class UsersService extends BaseService<User> {
     // Update the friend request status to ACCEPTED
     await this.prisma.friendRequest.update({
       where: { id: friendRequest.id },
-      data: { status: 'ACCEPTED' }
+      data: { status: 'ACCEPTED' },
     });
 
     // Create bidirectional friendship
@@ -135,7 +146,7 @@ export class UsersService extends BaseService<User> {
     });
 
     const accepter = await this.getCurrentUser(userId);
-    
+
     // Emit friend request accepted event
     this.eventEmitter.emit(eventsPatterns.FRIEND_REQUEST_ACCEPTED, {
       type: eventsPatterns.FRIEND_REQUEST_ACCEPTED,
@@ -143,7 +154,7 @@ export class UsersService extends BaseService<User> {
       fromUserId: userId,
       senderName: accepter?.username,
       senderAvatar: accepter?.profilePhoto,
-      message: "has accepted your friend request",
+      message: 'has accepted your friend request',
     });
 
     return updatedUser;
@@ -155,8 +166,8 @@ export class UsersService extends BaseService<User> {
       where: {
         senderId: friendId,
         receiverId: userId,
-        status: 'PENDING'
-      }
+        status: 'PENDING',
+      },
     });
 
     if (!friendRequest) {
@@ -166,7 +177,7 @@ export class UsersService extends BaseService<User> {
     // Update the friend request status to REJECTED
     return await this.prisma.friendRequest.update({
       where: { id: friendRequest.id },
-      data: { status: 'REJECTED' }
+      data: { status: 'REJECTED' },
     });
   }
 
@@ -174,20 +185,20 @@ export class UsersService extends BaseService<User> {
     return await this.prisma.friendRequest.findMany({
       where: {
         receiverId: userId,
-        status: 'PENDING'
+        status: 'PENDING',
       },
       include: {
         sender: {
           select: {
             id: true,
             username: true,
-            profilePhoto: true
-          }
-        }
+            profilePhoto: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
   }
 
@@ -195,20 +206,20 @@ export class UsersService extends BaseService<User> {
     return await this.prisma.friendRequest.findMany({
       where: {
         senderId: userId,
-        status: 'PENDING'
+        status: 'PENDING',
       },
       include: {
         receiver: {
           select: {
             id: true,
             username: true,
-            profilePhoto: true
-          }
-        }
+            profilePhoto: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
   }
   async cancelFriendRequest(userId: string, friendId: string) {
@@ -217,8 +228,8 @@ export class UsersService extends BaseService<User> {
       where: {
         senderId: userId,
         receiverId: friendId,
-        status: 'PENDING'
-      }
+        status: 'PENDING',
+      },
     });
 
     if (!friendRequest) {
@@ -227,7 +238,7 @@ export class UsersService extends BaseService<User> {
 
     // Delete the friend request
     await this.prisma.friendRequest.delete({
-      where: { id: friendRequest.id }
+      where: { id: friendRequest.id },
     });
 
     return { success: true, message: 'Friend request cancelled successfully' };
@@ -239,18 +250,18 @@ export class UsersService extends BaseService<User> {
       where: { id: userId },
       data: {
         friends: {
-          disconnect: { id: friendId }
-        }
-      }
+          disconnect: { id: friendId },
+        },
+      },
     });
 
     await this.prisma.user.update({
       where: { id: friendId },
       data: {
         friends: {
-          disconnect: { id: userId }
-        }
-      }
+          disconnect: { id: userId },
+        },
+      },
     });
 
     return { success: true, message: 'Friend removed successfully' };
