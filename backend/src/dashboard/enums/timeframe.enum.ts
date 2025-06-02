@@ -1,11 +1,11 @@
-import { registerEnumType } from "@nestjs/graphql";
+import { registerEnumType } from '@nestjs/graphql';
 
 export enum TimeFrame {
-    DAY,
-    WEEK,
-    MONTH
+  DAY,
+  WEEK,
+  MONTH,
 }
 
-registerEnumType (TimeFrame, {
-    name: "TimeFrame"
+registerEnumType(TimeFrame, {
+  name: 'TimeFrame',
 });

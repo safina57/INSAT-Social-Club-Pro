@@ -11,8 +11,16 @@ import { TimeFrame } from './enums/timeframe.enum';
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getDashboardStats(timeFrame: TimeFrame = TimeFrame.DAY): Promise<DashboardStats> {
-    const [totalUsers, totalCompanies, totalJobs, totalApplications, totalPosts] = await Promise.all([
+  async getDashboardStats(
+    timeFrame: TimeFrame = TimeFrame.DAY,
+  ): Promise<DashboardStats> {
+    const [
+      totalUsers,
+      totalCompanies,
+      totalJobs,
+      totalApplications,
+      totalPosts,
+    ] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.company.count(),
       this.prisma.job.count(),
@@ -29,10 +37,13 @@ export class DashboardService {
       PENDING: 0,
       ACCEPTED: 0,
       REJECTED: 0,
-      ...Object.fromEntries(statuses.map(s => [s.status, s._count]))
+      ...Object.fromEntries(statuses.map((s) => [s.status, s._count])),
     };
 
-    const userSignups = await RawDataUtil.getUserSignups(this.prisma, timeFrame);
+    const userSignups = await RawDataUtil.getUserSignups(
+      this.prisma,
+      timeFrame,
+    );
 
     return {
       totalUsers,
@@ -49,7 +60,9 @@ export class DashboardService {
     return RawDataUtil.getPostsPerTimeFrame(this.prisma, timeFrame);
   }
 
-  async getAnalytics(timeFrame: TimeFrame = TimeFrame.DAY): Promise<DashboardAnalytics> {
+  async getAnalytics(
+    timeFrame: TimeFrame = TimeFrame.DAY,
+  ): Promise<DashboardAnalytics> {
     const [dashboardStats, postsPerTimeFrame] = await Promise.all([
       this.getDashboardStats(timeFrame),
       this.getPostsPerTimeFrame(timeFrame),

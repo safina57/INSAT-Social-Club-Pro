@@ -7,7 +7,6 @@ export class ContactReport {
   subject: string;
   category: Category;
   message: string;
-  status: Status
+  status: Status;
   createdAt: Date;
 }
-

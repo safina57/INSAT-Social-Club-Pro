@@ -5,9 +5,9 @@ import { TimeFrame } from '../enums/timeframe.enum';
 
 export class RawDataUtil {
   static async getDataPerTimeFrame(
-    prisma: PrismaService, 
+    prisma: PrismaService,
     timeFrame: TimeFrame,
-    tableName: string
+    tableName: string,
   ) {
     const { format, limit, interval } = TimeFrameUtil.getConfig(timeFrame);
 
@@ -28,7 +28,10 @@ export class RawDataUtil {
     return this.getDataPerTimeFrame(prisma, timeFrame, 'User');
   }
 
-  static async getPostsPerTimeFrame(prisma: PrismaService, timeFrame: TimeFrame) {
+  static async getPostsPerTimeFrame(
+    prisma: PrismaService,
+    timeFrame: TimeFrame,
+  ) {
     return this.getDataPerTimeFrame(prisma, timeFrame, 'Post');
   }
 }

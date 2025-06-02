@@ -7,7 +7,7 @@ export async function paginate<T>(
     orderBy?: any;
     include?: any;
     select?: any;
-  }
+  },
 ): Promise<{
   results: T[];
   meta: {

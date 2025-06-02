@@ -51,7 +51,8 @@ export class UsersResolver {
   @Mutation(() => User)
   removeUser(@Args('id', { type: () => ID }) id: string) {
     return this.usersService.remove(id);
-  }  @Mutation(() => FriendRequest)
+  }
+  @Mutation(() => FriendRequest)
   addFriend(
     @GetUser() user: User,
     @Args('friendId', { type: () => ID }) friendId: string,

@@ -1,5 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service'
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateCompanyInput } from './dto/create-company.input';
 import { UpdateCompanyInput } from './dto/update-company.input';
 import { ManagerRole } from '@prisma/client';
@@ -28,10 +32,10 @@ export class CompanyService {
   async findAll(paginationDto: PaginationDto) {
     const { page = 1, limit = 10 } = paginationDto ?? {};
     return paginate(this.prisma.company, {
-    page,
-    limit,
-    orderBy: { createdAt: 'desc' }, 
-  });
+      page,
+      limit,
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async findOne(id: string) {
@@ -43,7 +47,11 @@ export class CompanyService {
     return company;
   }
 
-  async update(id: string, updateCompanyDto: UpdateCompanyInput, userId: string) {
+  async update(
+    id: string,
+    updateCompanyDto: UpdateCompanyInput,
+    userId: string,
+  ) {
     // Check if user is an ADMIN of the company
     const manager = await this.prisma.companyManager.findUnique({
       where: {
@@ -54,7 +62,9 @@ export class CompanyService {
       },
     });
     if (!manager) {
-      throw new ForbiddenException('You do not have permission to update this company');
+      throw new ForbiddenException(
+        'You do not have permission to update this company',
+      );
     }
 
     return this.prisma.company.update({
@@ -62,8 +72,6 @@ export class CompanyService {
       data: updateCompanyDto,
     });
   }
-
-
 
   async remove(id: string, userId: string) {
     // Only ADMIN can delete
@@ -76,7 +84,9 @@ export class CompanyService {
       },
     });
     if (!manager || manager.role !== 'ADMIN') {
-      throw new ForbiddenException('You do not have permission to delete this company');
+      throw new ForbiddenException(
+        'You do not have permission to delete this company',
+      );
     }
 
     return this.prisma.company.delete({

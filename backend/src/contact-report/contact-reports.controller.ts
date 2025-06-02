@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Body, Delete, Put, Query, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Delete,
+  Put,
+  Query,
+  Param,
+} from '@nestjs/common';
 import { ContactReportsService } from './contact-reports.service';
 import { CreateContactReportDto } from './dto/create-contact-report.dto';
 import { ContactReport } from './entities/contact-report.entity';
@@ -9,19 +18,22 @@ import { UpdateContactReportDto } from './dto/update-contact-report.dto';
 import { FilterContactReportsDto } from './dto/contact-report-filer.dto';
 import { PaginatedContactReportsDto } from './entities/paginated-contact-report.entity';
 
-
 @Controller('contact-reports')
 export class ContactReportsController {
   constructor(private contactReportsService: ContactReportsService) {}
   @Public()
   @Post()
-  async createContactReport(@Body() input: CreateContactReportDto): Promise<ContactReport> {
+  async createContactReport(
+    @Body() input: CreateContactReportDto,
+  ): Promise<ContactReport> {
     return this.contactReportsService.create(input);
   }
 
   @Roles(Role.ADMIN)
   @Get()
-  async getContactReports(@Query() filter: FilterContactReportsDto): Promise<PaginatedContactReportsDto> {
+  async getContactReports(
+    @Query() filter: FilterContactReportsDto,
+  ): Promise<PaginatedContactReportsDto> {
     return this.contactReportsService.findAll(filter);
   }
 
@@ -43,6 +55,9 @@ export class ContactReportsController {
     @Param('id') id: string,
     @Body() updateContactReportInput: UpdateContactReportDto,
   ): Promise<ContactReport> {
-    return this.contactReportsService.updateContactReport(id, updateContactReportInput);
+    return this.contactReportsService.updateContactReport(
+      id,
+      updateContactReportInput,
+    );
   }
 }

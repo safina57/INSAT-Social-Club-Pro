@@ -1,3 +1,3 @@
 export class VerifyResponseDto {
-    message: string;
+  message: string;
 }

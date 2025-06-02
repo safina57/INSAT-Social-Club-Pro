@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ManagerRole } from '@prisma/client';
 
@@ -6,7 +11,12 @@ import { ManagerRole } from '@prisma/client';
 export class CompanyManagerService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async addManager(userIdToAssign: string, companyId: string, role: ManagerRole, currentUserId: string) {
+  async addManager(
+    userIdToAssign: string,
+    companyId: string,
+    role: ManagerRole,
+    currentUserId: string,
+  ) {
     // Check if currentUserId is ADMIN of company
     const currentManager = await this.prisma.companyManager.findUnique({
       where: {
@@ -17,12 +27,17 @@ export class CompanyManagerService {
       },
     });
     if (!currentManager || currentManager.role !== 'ADMIN') {
-      throw new ForbiddenException('You do not have permission to assign managers to this company');
+      throw new ForbiddenException(
+        'You do not have permission to assign managers to this company',
+      );
     }
 
     // Check if user to assign exists
-    const userToAssign = await this.prisma.user.findUnique({ where: { id: userIdToAssign } });
-    if (!userToAssign) throw new NotFoundException('User to assign as manager not found');
+    const userToAssign = await this.prisma.user.findUnique({
+      where: { id: userIdToAssign },
+    });
+    if (!userToAssign)
+      throw new NotFoundException('User to assign as manager not found');
 
     // Check if already assigned
     const existing = await this.prisma.companyManager.findUnique({
@@ -33,7 +48,8 @@ export class CompanyManagerService {
         },
       },
     });
-    if (existing) throw new ConflictException('User is already a manager of this company');
+    if (existing)
+      throw new ConflictException('User is already a manager of this company');
 
     // Assign user as manager
     return this.prisma.companyManager.create({
@@ -45,7 +61,11 @@ export class CompanyManagerService {
     });
   }
 
-  async removeManager(userIdToRemove: string, companyId: string, currentUserId: string) {
+  async removeManager(
+    userIdToRemove: string,
+    companyId: string,
+    currentUserId: string,
+  ) {
     // Only ADMIN can remove managers
     const currentManager = await this.prisma.companyManager.findUnique({
       where: {
@@ -56,7 +76,9 @@ export class CompanyManagerService {
       },
     });
     if (!currentManager || currentManager.role !== 'ADMIN') {
-      throw new ForbiddenException('You do not have permission to remove managers from this company');
+      throw new ForbiddenException(
+        'You do not have permission to remove managers from this company',
+      );
     }
 
     // Check if manager to remove exists
@@ -85,7 +107,12 @@ export class CompanyManagerService {
     });
   }
 
-  async updateManager(managerId: string, companyId: string, role: ManagerRole, currentUserId: string) {
+  async updateManager(
+    managerId: string,
+    companyId: string,
+    role: ManagerRole,
+    currentUserId: string,
+  ) {
     // Only ADMIN can update managers
     const currentManager = await this.prisma.companyManager.findUnique({
       where: {
@@ -96,7 +123,9 @@ export class CompanyManagerService {
       },
     });
     if (!currentManager || currentManager.role !== 'ADMIN') {
-      throw new ForbiddenException('You do not have permission to update managers in this company');
+      throw new ForbiddenException(
+        'You do not have permission to update managers in this company',
+      );
     }
 
     // Check if manager to update exists
@@ -110,13 +139,15 @@ export class CompanyManagerService {
     // Prevent updating yourself to non-ADMIN role if you're the only ADMIN
     if (managerToUpdate.userId === currentUserId && role !== 'ADMIN') {
       const adminCount = await this.prisma.companyManager.count({
-        where: { 
+        where: {
           companyId,
-          role: 'ADMIN'
+          role: 'ADMIN',
         },
       });
       if (adminCount <= 1) {
-        throw new ForbiddenException('Cannot change your role as you are the only admin of this company');
+        throw new ForbiddenException(
+          'Cannot change your role as you are the only admin of this company',
+        );
       }
     }
 

@@ -16,21 +16,31 @@ export class ContactReportsService {
     private configService: ConfigService,
   ) {}
 
-  async create(createContactReportInput: CreateContactReportDto): Promise<ContactReport> {
-    const contactReport = await this.prisma.contactReport.create({ data: createContactReportInput });
+  async create(
+    createContactReportInput: CreateContactReportDto,
+  ): Promise<ContactReport> {
+    const contactReport = await this.prisma.contactReport.create({
+      data: createContactReportInput,
+    });
     const adminEmail = this.configService.get<string>('ADMIN_EMAIL');
 
     if (!adminEmail) {
-      console.error('ADMIN_EMAIL is not defined in environment variables. Skipping email notification.');
+      console.error(
+        'ADMIN_EMAIL is not defined in environment variables. Skipping email notification.',
+      );
     } else {
       try {
         await this.mailerService.sendMail(
           adminEmail,
           'New Contact Report Submitted',
-          `<p>Dear Admin,</p><p>A new contact report has been submitted.</p><p>Report ID: ${contactReport.id}</p><p>Submitted by: ${contactReport.fullName} (${contactReport.email})</p><p>Please log in to the admin dashboard to view the full message.</p><p>Best regards,<br>INSAT Social Club Pro Team</p>`
+          `<p>Dear Admin,</p><p>A new contact report has been submitted.</p><p>Report ID: ${contactReport.id}</p><p>Submitted by: ${contactReport.fullName} (${contactReport.email})</p><p>Please log in to the admin dashboard to view the full message.</p><p>Best regards,<br>INSAT Social Club Pro Team</p>`,
         );
       } catch (error) {
-        console.error('Failed to send email notification:', error.message, error.stack);
+        console.error(
+          'Failed to send email notification:',
+          error.message,
+          error.stack,
+        );
       }
     }
 
@@ -43,9 +53,7 @@ export class ContactReportsService {
     if (status && status !== 'all') where.status = status;
     if (category && category !== 'all') where.category = category;
     if (searchTerm) {
-      where.OR = [
-        { subject:  { contains: searchTerm, mode: 'insensitive' } },
-      ];
+      where.OR = [{ subject: { contains: searchTerm, mode: 'insensitive' } }];
     }
     return paginate<ContactReport>(this.prisma.contactReport, {
       page,
@@ -56,7 +64,7 @@ export class ContactReportsService {
   }
 
   async getStatistics() {
-    const [ total, pending, beingTreated, treated ] = await Promise.all([
+    const [total, pending, beingTreated, treated] = await Promise.all([
       this.prisma.contactReport.count(),
       this.prisma.contactReport.count({ where: { status: 'Pending' } }),
       this.prisma.contactReport.count({ where: { status: 'Being_Treated' } }),
@@ -71,7 +79,10 @@ export class ContactReportsService {
     });
   }
 
-  async updateContactReport(id: string, updateContactReportInput: UpdateContactReportDto): Promise<ContactReport> {
+  async updateContactReport(
+    id: string,
+    updateContactReportInput: UpdateContactReportDto,
+  ): Promise<ContactReport> {
     return this.prisma.contactReport.update({
       where: { id },
       data: updateContactReportInput,

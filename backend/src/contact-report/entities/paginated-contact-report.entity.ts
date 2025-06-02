@@ -1,4 +1,4 @@
-import { ContactReport } from "@prisma/client";
+import { ContactReport } from '@prisma/client';
 
 export class PaginatedContactReportsDto {
   results: ContactReport[];

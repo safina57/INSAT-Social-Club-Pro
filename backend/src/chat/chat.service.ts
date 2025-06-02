@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { eventsPatterns } from 'src/common/events/events.patterns';
-import e from 'express';
-import { from } from 'rxjs';
 
 @Injectable()
 export class ChatService {
-  constructor(private readonly prisma: PrismaService, private readonly eventEmitter: EventEmitter2,) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   private async findConversationBetween(user1Id: string, user2Id: string) {
     return this.prisma.conversation.findFirst({
@@ -21,7 +22,10 @@ export class ChatService {
   }
 
   async getOrCreateConversation(user1Id: string, user2Id: string) {
-    const existingConversation = await this.findConversationBetween(user1Id, user2Id);
+    const existingConversation = await this.findConversationBetween(
+      user1Id,
+      user2Id,
+    );
     if (existingConversation) return existingConversation;
 
     return this.prisma.conversation.create({
@@ -35,7 +39,10 @@ export class ChatService {
   }
 
   async sendMessage(senderId: string, recipientId: string, content: string) {
-    const conversation = await this.getOrCreateConversation(senderId, recipientId);
+    const conversation = await this.getOrCreateConversation(
+      senderId,
+      recipientId,
+    );
 
     const message = this.prisma.message.create({
       data: {
@@ -49,17 +56,17 @@ export class ChatService {
       },
     });
     const sender = await this.prisma.user.findUnique({
-        where: { id: senderId },
-        select: { username: true, profilePhoto:true },
-    })
+      where: { id: senderId },
+      select: { username: true, profilePhoto: true },
+    });
     this.eventEmitter.emit(eventsPatterns.MESSAGE_RECIEVED, {
-        type: eventsPatterns.MESSAGE_RECIEVED,
-        userId: recipientId,
-        fromUserId: senderId,
-        senderName: sender?.username,
-        senderAvatar: sender?.profilePhoto,
-        message: "sent you a message",
-    })
+      type: eventsPatterns.MESSAGE_RECIEVED,
+      userId: recipientId,
+      fromUserId: senderId,
+      senderName: sender?.username,
+      senderAvatar: sender?.profilePhoto,
+      message: 'sent you a message',
+    });
     return message;
   }
 
@@ -76,21 +83,21 @@ export class ChatService {
 
   async getConversationsForUser(userId: string) {
     return this.prisma.conversation.findMany({
-        where: {
+      where: {
         participants: {
-            some: { id: userId },
+          some: { id: userId },
         },
-        },
-        include: {
+      },
+      include: {
         participants: true,
         messages: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
+          orderBy: { createdAt: 'desc' },
+          take: 1,
         },
-        },
-        orderBy: {
+      },
+      orderBy: {
         updatedAt: 'desc',
-        },
+      },
     });
   }
 }
