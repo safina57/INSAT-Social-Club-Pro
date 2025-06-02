@@ -22,13 +22,16 @@ import ResetPassword from "./components/reset-password";
 import ForgotPassword from "./components/forgot-password";
 import ResendVerification from "./components/resend-verification";
 import AuthInitializer from "./components/auth/AuthInitializer";
+import CreateJobPage from "./pages/CreateJobPage";
+import JobManagementPage from "./pages/JobManagementPage";
+import { JobApplicantsPage } from "./components/jobs/JobApplicantsPage";
 import { RequireAuth } from './components/require-auth'
 import { RequireAdmin } from './components/require-admin'
 import AdminReports from "./components/admin/reports";
 
 function ProfilePageWrapper() {
   const { username } = useParams<{ username: string }>();
-  return <ProfilePage params={{ username: username || "" }} />;
+  return <ProfilePage params={{ username: username ?? "" }} />;
 }
 
 function App() {
@@ -96,6 +99,23 @@ function App() {
           <Route path="/jobs" element={
             <RequireAuth>
               <JobsPage />
+            </RequireAuth>
+          } />          {/* Create Job Page */}
+          <Route path="/jobs/create" element={
+            <RequireAuth>
+              <CreateJobPage />
+            </RequireAuth>
+          } />          {/* Job Management Dashboard */}
+          <Route path="/jobs/manage" element={
+            <RequireAuth>
+              <JobManagementPage />
+            </RequireAuth>
+          } />
+
+          {/* Job Applicants Page */}
+          <Route path="/jobs/:jobId/applicants" element={
+            <RequireAuth>
+              <JobApplicantsPage />
             </RequireAuth>
           } />
 

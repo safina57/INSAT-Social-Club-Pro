@@ -7,6 +7,7 @@ import {
 } from '@nestjs/graphql';
 import { CompanyManagerService } from './company-manager.service';
 import { CreateCompanyManagerInput } from './dto/create-company-manager.input';
+import { UpdateCompanyManagerInput } from './dto/update-company-manager.input';
 import { CompanyManagerType } from './entities/company-manager.type';
 import { UseGuards } from '@nestjs/common';
 import { JWTAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -44,8 +45,26 @@ export class CompanyManagerResolver {
     );
   }
 
+  @Mutation(() => CompanyManagerType)
+  updateManager(
+    @Args('input') input: UpdateCompanyManagerInput,
+    @GetUser() user: User,
+  ) {
+    return this.companyManagerService.updateManager(
+      input.managerId,
+      input.companyId,
+      input.role,
+      user.id,
+    );
+  }
+
   @Query(() => [CompanyManagerType])
   listManagers(@Args('companyId', { type: () => ID }) companyId: string) {
     return this.companyManagerService.listManagers(companyId);
+  }
+
+  @Query(() => [CompanyManagerType])
+  getManagedCompanies(@GetUser() user: User) {
+    return this.companyManagerService.getManagedCompanies(user.id);
   }
 }
