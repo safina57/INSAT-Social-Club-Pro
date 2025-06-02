@@ -24,7 +24,7 @@ export const GET_COMPANIES = gql`
 
 
 export const GET_COMPANY_BY_ID = gql`
-  query Company($id: ID!) {
+query CompanyWithDetails($id: ID!, $paginationDto: PaginationDto) {
     Company(id: $id) {
       id
       name
@@ -32,25 +32,40 @@ export const GET_COMPANY_BY_ID = gql`
       website
       createdAt
       updatedAt
-      managers {
-        userId
-        role
-      }
-      jobs {
+    }
+
+    jobsByCompany(companyId: $id, paginationDto: $paginationDto) {
+      results {
         id
         title
         description
         location
-        type
         salary
         createdAt
-        applicants {
-          id
-        }
+        updatedAt
+      }
+      meta {
+        total
+        page
+        lastPage
+        limit
+      }
+    }
+
+    getManagedCompanies {
+      id
+      companyId
+      role
+      user {
+        id
+        username
+        email
+        role
+        profilePhoto
       }
     }
   }
-`
+`;
 
 
 export const CREATE_COMPANY = gql`
@@ -87,7 +102,7 @@ export const DELETE_COMPANY = gql`
 `
 
 export const CHECK_COMPANY_PERMISSIONS = gql`
-  query CheckCompanyPermissions($companyId: String!) {
+    query CheckCompanyPermissions($companyId: ID!) {
     checkCompanyPermissions(companyId: $companyId) {
       canEdit
       canDelete

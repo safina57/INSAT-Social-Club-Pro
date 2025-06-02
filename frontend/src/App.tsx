@@ -30,10 +30,16 @@ import JobManagementPage from "./pages/JobManagementPage";
 import { JobApplicantsPage } from "./components/jobs/JobApplicantsPage";
 import AdminReports from "./components/admin/reports";
 import CompaniesPage from "./components/companies";
+import CompanyDetailPage from "./components/companyDetails";
 
 function ProfilePageWrapper() {
   const { id } = useParams<{ id: string }>();
   return <ProfilePage params={{ id: id || "" }} />;
+}
+
+function CompanyDetailsWrapper() {
+  const { id } = useParams<{ id: string }>();
+  return <CompanyDetailPage params={{ id: id || "" }} />;
 }
 
 function App() {
@@ -160,9 +166,17 @@ function App() {
                 <CompaniesPage />
               </RequireAuth>
             }
-          />  
+          /> 
 
-
+          {/* Company Detail Page */}
+          <Route
+            path="/companies/:companyId"
+            element={
+              <RequireAuth>
+                <CompanyDetailsWrapper />
+              </RequireAuth>
+            } 
+          />
 
           {/* Catch-All Route */}
           <Route path="*" element={<NotFound />} />
