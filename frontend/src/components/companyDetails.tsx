@@ -384,7 +384,7 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.1 }}
                     >
-                      <a href={`/jobs/${job.id}`}>
+                      <div>
                         <Card className="h-full bg-background/40 backdrop-blur-md border-white/10 hover:bg-background/60 transition-all duration-200 cursor-pointer">
                           <CardHeader>
                             <div className="flex items-start justify-between">
@@ -416,7 +416,7 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
                             </div>
                           </CardContent>
                         </Card>
-                      </a>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
