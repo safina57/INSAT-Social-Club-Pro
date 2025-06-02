@@ -11,15 +11,6 @@ import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -33,7 +24,6 @@ import {
 import {
   Building2,
   ExternalLink,
-  Users,
   Briefcase,
   Calendar,
   Edit,
@@ -54,31 +44,13 @@ interface Job {
   description: string
   location: string
   salary: string
+  companyId: string
   createdAt: string
   updatedAt: string
 }
 
-interface JobsPagination {
+interface JobsData {
   results: Job[]
-  meta: {
-    total: number
-    page: number
-    lastPage: number
-    limit: number
-  }
-}
-
-interface ManagedCompany {
-  id: string
-  companyId: string
-  role: string
-  user: {
-    id: string
-    username: string
-    email: string
-    role: string
-    profilePhoto: string | null
-  }
 }
 
 interface Company {
@@ -92,8 +64,7 @@ interface Company {
 
 interface CompanyData {
   Company: Company
-  jobsByCompany: JobsPagination
-  getManagedCompanies: ManagedCompany[]
+  jobsByCompany: JobsData
 }
 
 interface PermissionsData {
@@ -105,23 +76,19 @@ interface PermissionsData {
 }
 
 export default function CompanyDetailPage({ params }: { params: { id: string } }) {
+  console.log("CompanyDetailPage params:", params)
   const navigate = useNavigate()
   const [userToken, setUserToken] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, _setPageSize] = useState(6)
 
   useEffect(() => {
     const token = localStorage.getItem("userToken")
     setUserToken(token)
   }, [])
 
-  const { data, loading, error, refetch } = useQuery<CompanyData>(GET_COMPANY_BY_ID, {
+  const { data, loading, error } = useQuery<CompanyData>(GET_COMPANY_BY_ID, {
     variables: {
       id: params.id,
-      paginationDto: {
-        page: currentPage,
-        limit: pageSize,
-      },
+      companyId: params.id,
     },
     fetchPolicy: "cache-and-network",
   })
@@ -158,27 +125,8 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
     },
   })
 
-  // Update when pagination changes
-  useEffect(() => {
-    if (data) {
-      refetch({
-        id: params.id,
-        paginationDto: {
-          page: currentPage,
-          limit: pageSize,
-        },
-      })
-    }
-  }, [currentPage, pageSize, params.id, refetch, data])
-
   const company = data?.Company
   const jobs = data?.jobsByCompany?.results || []
-  const jobsMeta = data?.jobsByCompany?.meta
-  const managedCompanies = data?.getManagedCompanies || []
-
-  // Filter managers for this specific company
-  const managers = managedCompanies.filter((mc) => mc.companyId === params.id)
-
   const permissions = permissionsData?.checkCompanyPermissions
 
   const handleDelete = async () => {
@@ -210,108 +158,6 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
     if (diffInDays < 7) return `${diffInDays} days ago`
     if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`
     return `${Math.floor(diffInDays / 30)} months ago`
-  }
-
-  const generatePaginationItems = () => {
-    if (!jobsMeta) return null
-
-    const items = []
-    const maxVisiblePages = 5
-    const totalPages = jobsMeta.lastPage
-
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        items.push(
-          <PaginationItem key={i}>
-            <PaginationLink
-              href="#"
-              isActive={currentPage === i}
-              onClick={(e) => {
-                e.preventDefault()
-                setCurrentPage(i)
-              }}
-            >
-              {i}
-            </PaginationLink>
-          </PaginationItem>,
-        )
-      }
-    } else {
-      // Always show first page
-      items.push(
-        <PaginationItem key={1}>
-          <PaginationLink
-            href="#"
-            isActive={currentPage === 1}
-            onClick={(e) => {
-              e.preventDefault()
-              setCurrentPage(1)
-            }}
-          >
-            1
-          </PaginationLink>
-        </PaginationItem>,
-      )
-
-      // Show ellipsis if needed
-      if (currentPage > 3) {
-        items.push(
-          <PaginationItem key="ellipsis1">
-            <PaginationEllipsis />
-          </PaginationItem>,
-        )
-      }
-
-      // Show pages around current page
-      const start = Math.max(2, currentPage - 1)
-      const end = Math.min(totalPages - 1, currentPage + 1)
-
-      for (let i = start; i <= end; i++) {
-        items.push(
-          <PaginationItem key={i}>
-            <PaginationLink
-              href="#"
-              isActive={currentPage === i}
-              onClick={(e) => {
-                e.preventDefault()
-                setCurrentPage(i)
-              }}
-            >
-              {i}
-            </PaginationLink>
-          </PaginationItem>,
-        )
-      }
-
-      // Show ellipsis if needed
-      if (currentPage < totalPages - 2) {
-        items.push(
-          <PaginationItem key="ellipsis2">
-            <PaginationEllipsis />
-          </PaginationItem>,
-        )
-      }
-
-      // Always show last page
-      if (totalPages > 1) {
-        items.push(
-          <PaginationItem key={totalPages}>
-            <PaginationLink
-              href="#"
-              isActive={currentPage === totalPages}
-              onClick={(e) => {
-                e.preventDefault()
-                setCurrentPage(totalPages)
-              }}
-            >
-              {totalPages}
-            </PaginationLink>
-          </PaginationItem>,
-        )
-      }
-    }
-
-    return items
   }
 
   if (loading) {
@@ -385,11 +231,7 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
                         )}
                         <div className="flex items-center text-muted-foreground">
                           <Briefcase className="mr-1 h-4 w-4" />
-                          {jobsMeta?.total || 0} open positions
-                        </div>
-                        <div className="flex items-center text-muted-foreground">
-                          <Users className="mr-1 h-4 w-4" />
-                          {managers.length} managers
+                          {jobs.length} open positions
                         </div>
                       </div>
                       <div className="flex items-center text-sm text-muted-foreground">
@@ -457,8 +299,7 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="bg-background/40 backdrop-blur-md border border-white/10">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="jobs">Jobs ({jobsMeta?.total || 0})</TabsTrigger>
-            <TabsTrigger value="team">Team ({managers.length})</TabsTrigger>
+            <TabsTrigger value="jobs">Jobs ({jobs.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -506,11 +347,11 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Open Positions:</span>
-                          <span>{jobsMeta?.total || 0}</span>
+                          <span>{jobs.length}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Team Members:</span>
-                          <span>{managers.length}</span>
+                          <span className="text-muted-foreground">Company ID:</span>
+                          <span className="font-mono text-xs">{company.id}</span>
                         </div>
                       </div>
                     </div>
@@ -535,123 +376,47 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
                   </CardContent>
                 </Card>
               ) : (
-                <>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    {jobs.map((job, index) => (
-                      <motion.div
-                        key={job.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                      >
-                        <a href={`/jobs/${job.id}`}>
-                          <Card className="h-full bg-background/40 backdrop-blur-md border-white/10 hover:bg-background/60 transition-all duration-200 cursor-pointer">
-                            <CardHeader>
-                              <div className="flex items-start justify-between">
-                                <div>
-                                  <CardTitle className="text-lg line-clamp-1">{job.title}</CardTitle>
-                                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                                    <div className="flex items-center">
-                                      <MapPin className="mr-1 h-3 w-3" />
-                                      {job.location}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <p className="text-sm text-muted-foreground line-clamp-3 mb-4">{job.description}</p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center text-sm text-muted-foreground">
-                                  <DollarSign className="mr-1 h-3 w-3" />
-                                  {job.salary}
-                                </div>
-                                <div className="flex items-center text-xs text-muted-foreground">
-                                  <Clock className="mr-1 h-3 w-3" />
-                                  {formatJobDate(job.createdAt)}
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </a>
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  {/* Jobs Pagination */}
-                  {jobsMeta && jobsMeta.lastPage > 1 && (
-                    <div className="flex justify-center mt-6">
-                      <Pagination>
-                        <PaginationContent>
-                          <PaginationItem>
-                            <PaginationPrevious
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                if (currentPage > 1) setCurrentPage(currentPage - 1)
-                              }}
-                              className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                            />
-                          </PaginationItem>
-                          {generatePaginationItems()}
-                          <PaginationItem>
-                            <PaginationNext
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                if (currentPage < jobsMeta.lastPage) setCurrentPage(currentPage + 1)
-                              }}
-                              className={currentPage === jobsMeta.lastPage ? "pointer-events-none opacity-50" : ""}
-                            />
-                          </PaginationItem>
-                        </PaginationContent>
-                      </Pagination>
-                    </div>
-                  )}
-                </>
-              )}
-            </motion.div>
-          </TabsContent>
-
-          <TabsContent value="team">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              {managers.length === 0 ? (
-                <Card className="bg-background/40 backdrop-blur-md border-white/10">
-                  <CardContent className="p-12 text-center">
-                    <Users className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
-                    <h3 className="text-xl font-medium mb-2">No Team Members</h3>
-                    <p className="text-muted-foreground">No team members are currently listed for this company.</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {managers.map((manager, index) => (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {jobs.map((job, index) => (
                     <motion.div
-                      key={manager.id}
+                      key={job.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.1 }}
                     >
-                      <Card className="bg-background/40 backdrop-blur-md border-white/10">
-                        <CardContent className="p-6 text-center">
-                          <Avatar className="h-16 w-16 mx-auto mb-4 border-2 border-primary/50">
-                            <AvatarImage
-                              src={manager.user.profilePhoto || `/placeholder.svg?height=64&width=64`}
-                              alt={manager.user.username}
-                            />
-                            <AvatarFallback>{manager.user.username.charAt(0).toUpperCase()}</AvatarFallback>
-                          </Avatar>
-                          <h3 className="font-medium mb-1">{manager.user.username}</h3>
-                          <p className="text-sm text-muted-foreground mb-2">{manager.user.email}</p>
-                          <Badge variant="secondary" className="text-xs">
-                            {manager.role}
-                          </Badge>
-                        </CardContent>
-                      </Card>
+                      <a href={`/jobs/${job.id}`}>
+                        <Card className="h-full bg-background/40 backdrop-blur-md border-white/10 hover:bg-background/60 transition-all duration-200 cursor-pointer">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <CardTitle className="text-lg line-clamp-1">{job.title}</CardTitle>
+                                <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                                  <div className="flex items-center">
+                                    <MapPin className="mr-1 h-3 w-3" />
+                                    {job.location}
+                                  </div>
+                                </div>
+                              </div>
+                              <Badge variant="outline" className="text-xs">
+                                {formatJobDate(job.createdAt)}
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-sm text-muted-foreground line-clamp-3 mb-4">{job.description}</p>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center text-sm text-muted-foreground">
+                                <DollarSign className="mr-1 h-3 w-3" />
+                                {job.salary}
+                              </div>
+                              <div className="flex items-center text-xs text-muted-foreground">
+                                <Clock className="mr-1 h-3 w-3" />
+                                Updated {formatJobDate(job.updatedAt)}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </a>
                     </motion.div>
                   ))}
                 </div>
