@@ -29,6 +29,7 @@ import CreateJobPage from "./pages/CreateJobPage";
 import JobManagementPage from "./pages/JobManagementPage";
 import { JobApplicantsPage } from "./components/jobs/JobApplicantsPage";
 import AdminReports from "./components/admin/reports";
+import CompaniesPage from "./components/companies";
 
 function ProfilePageWrapper() {
   const { id } = useParams<{ id: string }>();
@@ -150,6 +151,19 @@ function App() {
           />
           {/* Search Page */}
           <Route path="/search" element={<SearchPage />} />
+
+          {/* Companies Page */}
+          <Route
+            path="/companies"
+            element={
+              <RequireAuth>
+                <CompaniesPage />
+              </RequireAuth>
+            }
+          />  
+
+
+
           {/* Catch-All Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
