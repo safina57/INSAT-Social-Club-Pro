@@ -141,8 +141,8 @@ export class UsersService extends BaseService<User> {
       type: eventsPatterns.FRIEND_REQUEST_ACCEPTED,
       userId: friendId,
       fromUserId: userId,
-      accepterName: accepter?.username,
-      accepterAvatar: accepter?.profilePhoto,
+      senderName: accepter?.username,
+      senderAvatar: accepter?.profilePhoto,
       message: "has accepted your friend request",
     });
 
