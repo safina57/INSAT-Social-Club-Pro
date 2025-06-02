@@ -6,13 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  UserPlus,
-  MessageSquare,
-  MoreHorizontal,
-  Edit,
-  Settings,
-} from "lucide-react";
+import { UserPlus, MoreHorizontal, Edit, Settings } from "lucide-react";
 import { useAppSelector } from "@/state/store";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@/types/profile";
@@ -63,10 +57,6 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
         ) : (
           // Buttons for other user's profile
           <>
-            <Button variant="outline" size="sm" className="h-9">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Message
-            </Button>
             <Button size="sm" className="h-9">
               <UserPlus className="mr-2 h-4 w-4" />
               Connect
