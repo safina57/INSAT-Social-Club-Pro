@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useQuery } from "@apollo/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -43,11 +43,6 @@ export default function MessagesPage() {
   const [userToken, setUserToken] = useState<string | null>(null)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [socketConnected, setSocketConnected] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-
-  // Refs to track previous conversation and message count for scrolling logic
-  const prevConversationRef = useRef<string | null>(null)
-  const prevMessagesCountRef = useRef<number>(0)
 
   // Retrieve user token and decode user ID
   useEffect(() => {
@@ -133,31 +128,6 @@ export default function MessagesPage() {
   const allMessages = [...serverMessages].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   )
-
-  // Combined effect for scrolling on conversation change or new server messages
-  useEffect(() => {
-    if (!activeConversation) return
-
-    const prevConv = prevConversationRef.current
-    const prevCount = prevMessagesCountRef.current
-    const currentCount = serverMessages.length
-
-    // If conversation changed, scroll to bottom once
-    if (activeConversation !== prevConv) {
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-      }, 50)
-      prevConversationRef.current = activeConversation
-      prevMessagesCountRef.current = currentCount
-      return
-    }
-
-    // Same conversation: if the number of messages increased, scroll
-    if (currentCount > prevCount) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-    }
-    prevMessagesCountRef.current = currentCount
-  }, [serverMessages, activeConversation])
 
   // Handle incoming messages from socket by refetching
   useEffect(() => {
@@ -288,7 +258,7 @@ export default function MessagesPage() {
       </div>
       <Header />
       <div className="container mx-auto px-0 py-4 content-z-index">
-        <div className="rounded-xl bg-background/40 backdrop-blur-md border border-white/10 overflow-hidden h-[calc(100vh-8rem)]">
+        <div className="rounded-xl bg-background/40 backdrop-blur-md border border-white/10 h-[calc(100vh-8rem)]">
           <div className="grid h-full md:grid-cols-[320px_1fr]">
             {/* Conversations Sidebar */}
             {(!activeConversation || !isMobileView) && (
@@ -382,7 +352,7 @@ export default function MessagesPage() {
 
             {/* Chat Area */}
             {activeChat ? (
-              <div className="flex flex-col h-full">
+              <div className="flex flex-col h-full min-h-0">
                 {/* Chat Header */}
                 <div className="p-4 border-b border-white/10 flex items-center justify-between">
                   <div className="flex items-center">
@@ -423,7 +393,7 @@ export default function MessagesPage() {
                 </div>
 
                 {/* Messages */}
-                <ScrollArea className="flex-1 p-4">
+                <div className="flex-1 p-4 overflow-y-auto">
                   <div className="space-y-4">
                     {messagesLoading ? (
                       <div className="flex items-center justify-center py-8">
@@ -470,9 +440,8 @@ export default function MessagesPage() {
                         )
                       })
                     )}
-                    <div ref={messagesEndRef} />
                   </div>
-                </ScrollArea>
+                </div>
 
                 {/* Message Input */}
                 <div className="p-4 border-t border-white/10">
