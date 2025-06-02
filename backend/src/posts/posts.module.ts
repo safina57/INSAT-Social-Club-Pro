@@ -6,7 +6,7 @@ import { ImageUploadModule } from 'src/image-upload/image-upload.module';
 import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [ImageUploadModule , UsersModule],
+  imports: [ImageUploadModule, UsersModule],
   providers: [PostsResolver, PostsService, UsersService],
 })
 export class PostsModule {}

@@ -12,7 +12,7 @@ export class DashboardResolver {
 
   @Query(() => DashboardAnalytics)
   async dashboardAnalytics(
-    @Args('timeframe', { type: () => TimeFrame})
+    @Args('timeframe', { type: () => TimeFrame })
     timeFrame: TimeFrame,
   ): Promise<DashboardAnalytics> {
     return this.dashboardService.getAnalytics(timeFrame);

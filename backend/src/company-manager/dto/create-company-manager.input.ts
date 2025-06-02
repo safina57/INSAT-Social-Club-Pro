@@ -4,7 +4,6 @@ import { IsEnum, IsString } from 'class-validator';
 
 @InputType()
 export class CreateCompanyManagerInput {
-
   @IsString()
   @Field()
   userId: string;

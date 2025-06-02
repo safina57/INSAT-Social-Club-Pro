@@ -58,7 +58,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('error', 'Recipient ID required');
       return;
     }
-  
+
     const message = await this.chatService.sendMessage(
       senderId,
       payload.recipientId,

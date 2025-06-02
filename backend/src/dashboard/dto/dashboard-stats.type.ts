@@ -1,6 +1,6 @@
-import { ObjectType, Field, Int } from "@nestjs/graphql";
-import { ApplicationsByStatus } from "./applications-by-status.type";
-import { TimeFrameData } from "./time-frame-data.type";
+import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ApplicationsByStatus } from './applications-by-status.type';
+import { TimeFrameData } from './time-frame-data.type';
 
 @ObjectType()
 export class DashboardStats {
@@ -24,5 +24,4 @@ export class DashboardStats {
 
   @Field(() => [TimeFrameData])
   userSignupsPerTimeFrame: TimeFrameData[];
-
 }

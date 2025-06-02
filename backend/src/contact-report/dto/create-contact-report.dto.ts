@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsEnum, IsNotEmpty }from 'class-validator';
+import { IsString, IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
 import { Category } from '@prisma/client';
 
 export class CreateContactReportDto {

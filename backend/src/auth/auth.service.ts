@@ -292,12 +292,11 @@ export class AuthService {
 
   private isPasswordStrong(password: string): boolean {
     const strongPasswordRegex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.\-])[A-Za-z\d@$!%*?&.\-]{8,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.\-])[A-Za-z\d@$!%*?&.\-]{8,}$/;
     return strongPasswordRegex.test(password);
   }
 
   async resendVerificationEmail(email: string) {
-
     const user = await this.usersService.findByField('email', email);
 
     if (!user) {
@@ -305,20 +304,20 @@ export class AuthService {
     }
 
     const verifyToken = this.generateVerificationToken(user);
-      await this.usersService.update(user.id, {
-        ...user,
-        verificationToken: verifyToken,
-      });
+    await this.usersService.update(user.id, {
+      ...user,
+      verificationToken: verifyToken,
+    });
 
-      const verificationUrl = `${this.config.get('FRONTEND_URL')}/verify-email?token=${verifyToken}`;
-      const emailHtml = `<p>Please click the following link to verify your email:</p>
+    const verificationUrl = `${this.config.get('FRONTEND_URL')}/verify-email?token=${verifyToken}`;
+    const emailHtml = `<p>Please click the following link to verify your email:</p>
                          <p><a href="${verificationUrl}">${verificationUrl}</a></p>`;
-      await this.mailerService.sendMail(
-        user.email,
-        'Verify Your Email',
-        emailHtml,
-      );
+    await this.mailerService.sendMail(
+      user.email,
+      'Verify Your Email',
+      emailHtml,
+    );
 
-    return { message: 'Verification email sent successfully' };  
+    return { message: 'Verification email sent successfully' };
   }
 }

@@ -24,6 +24,7 @@ import AuthInitializer from "./components/auth/AuthInitializer";
 import { RequireAuth } from "./components/require-auth";
 import { RequireAdmin } from "./components/require-admin";
 import ProfilePage from "./pages/profile";
+import EditProfilePage from "./pages/edit-profile";
 import CreateJobPage from "./pages/CreateJobPage";
 import JobManagementPage from "./pages/JobManagementPage";
 import { JobApplicantsPage } from "./components/jobs/JobApplicantsPage";
@@ -144,6 +145,15 @@ function App() {
             element={
               <RequireAuth>
                 <ProfilePageWrapper />
+              </RequireAuth>
+            }
+          />
+          {/* Edit Profile Page */}
+          <Route
+            path="/profile/edit"
+            element={
+              <RequireAuth>
+                <EditProfilePage />
               </RequireAuth>
             }
           />
