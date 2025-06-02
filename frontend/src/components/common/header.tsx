@@ -18,7 +18,7 @@ import {
   Menu,
   X,
   LogOut,
-  User,
+  Building,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationsPanel } from "./notifications-panel";
@@ -89,6 +89,7 @@ export function Header() {
     { name: "Home", href: "/home", icon: Home },
     { name: "Messages", href: "/messages", icon: MessageSquare },
     { name: "Jobs", href: "/jobs", icon: Briefcase },
+    { name: "Companies", href: "/companies", icon: Building }
   ];
 
   const handleSearch = (e: React.FormEvent) => {

@@ -93,4 +93,16 @@ export class CompanyService {
       where: { id },
     });
   }
+
+  async isAdmin(userId: string, companyId: string) {
+    const manager = await this.prisma.companyManager.findUnique({
+      where: {
+        userId_companyId: {
+          userId,
+          companyId: companyId,
+        },
+      },
+    });
+    return manager?.role === ManagerRole.ADMIN;
+  }
 }

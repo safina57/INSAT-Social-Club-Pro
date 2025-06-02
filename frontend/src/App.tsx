@@ -29,11 +29,25 @@ import CreateJobPage from "./pages/CreateJobPage";
 import JobManagementPage from "./pages/JobManagementPage";
 import { JobApplicantsPage } from "./components/jobs/JobApplicantsPage";
 import AdminReports from "./components/admin/reports";
+import CompaniesPage from "./components/companies";
+import CompanyDetailPage from "./components/companyDetails";
+import CreateCompanyPage from "./pages/newCompany";
+import EditCompanyPage from "./pages/editCompany";
 import AdminUsers from "./components/admin/users";
 
 function ProfilePageWrapper() {
   const { id } = useParams<{ id: string }>();
   return <ProfilePage params={{ id: id || "" }} />;
+}
+
+function CompanyDetailsWrapper() {
+  const { id } = useParams<{ id: string }>();
+  return <CompanyDetailPage params={{ id: id || "" }} />;
+}
+
+function EditCompanyWrapper() {
+  const { id } = useParams<{ id: string }>();
+  return <EditCompanyPage params={{ id: id || "" }} />;
 }
 
 function App() {
@@ -159,6 +173,42 @@ function App() {
           />
           {/* Search Page */}
           <Route path="/search" element={<SearchPage />} />
+          {/* Companies Page */}
+          <Route
+            path="/companies"
+            element={
+              <RequireAuth>
+                <CompaniesPage />
+              </RequireAuth>
+            }
+          />
+          {/* Company Detail Page */}
+          <Route
+            path="/companies/:id"
+            element={
+              <RequireAuth>
+                <CompanyDetailsWrapper />
+              </RequireAuth>
+            }
+          />
+          {/* New Company Page */}
+          <Route
+            path="/companies/new"
+            element={
+              <RequireAuth>
+                <CreateCompanyPage />
+              </RequireAuth>
+            }
+          />
+          {/* Edit Company Page */}
+          <Route
+            path="/companies/:id/edit"
+            element={
+              <RequireAuth>
+                <EditCompanyWrapper />
+              </RequireAuth>
+            }
+          />
           {/* Catch-All Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
