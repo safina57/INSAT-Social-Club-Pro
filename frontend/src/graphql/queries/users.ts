@@ -14,3 +14,19 @@ export const GET_RECENT_USERS = gql`
     }
   }
 `
+
+export const GET_CURRENT_USER = gql`
+  query GetCurrentUser {
+    currentuser {
+      id
+      username
+      email
+      profilePhoto
+      friends {
+        id
+        username
+        profilePhoto
+      }
+    }
+  }
+`
