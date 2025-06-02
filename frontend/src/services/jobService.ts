@@ -1,6 +1,8 @@
 import { useQuery, useMutation } from '@apollo/client'
 import { GET_JOBS, GET_JOB, GET_JOBS_BY_COMPANY, CREATE_JOB } from '@/graphql/queries/job'
+import { APPLY_TO_JOB, MY_APPLICATIONS, GET_APPLICANTS_FOR_JOB, UPDATE_APPLICATION } from '@/graphql/queries/jobApplication'
 import { Job as GraphQLJob, PaginatedJobs as GraphQLPaginatedJobs, CreateJobInput } from '@/graphql/types/job'
+import { JobApplication, ApplyJobInput, UpdateApplicationInput } from '@/graphql/types/jobApplication'
 import { Job } from '@/types/job'
 
 interface PaginationDto {
@@ -31,6 +33,28 @@ export const useJobsByCompany = (companyId: string, paginationDto?: PaginationDt
 
 export const useCreateJob = () => {
   return useMutation<{ createJob: GraphQLJob }, { createJobInput: CreateJobInput }>(CREATE_JOB)
+}
+
+// Job Application hooks
+export const useApplyToJob = () => {
+  return useMutation<{ applyToJob: JobApplication }, { input: ApplyJobInput }>(APPLY_TO_JOB)
+}
+
+export const useMyApplications = () => {
+  return useQuery<{ myApplications: JobApplication[] }>(MY_APPLICATIONS, {
+    errorPolicy: 'all',
+  })
+}
+
+export const useGetApplicantsForJob = (jobId: string) => {
+  return useQuery<{ applicantsForJob: JobApplication[] }>(GET_APPLICANTS_FOR_JOB, {
+    variables: { jobId },
+    errorPolicy: 'all',
+  })
+}
+
+export const useUpdateApplication = () => {
+  return useMutation<{ updateApplication: JobApplication }, { applicationId: string, updatedApplication: UpdateApplicationInput }>(UPDATE_APPLICATION)
 }
 
 // Job service utility functions

@@ -4,18 +4,38 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Header } from "@/components/common/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, CheckCircle2, Mail, User, MessageSquare, HelpCircle } from "lucide-react"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Loader2,
+  CheckCircle2,
+  Mail,
+  User,
+  MessageSquare,
+  HelpCircle,
+} from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
 import Aurora from "@/components/ui/Aurora"
 
 const formSchema = z.object({
-  name: z.string().min(2, {
+  fullName: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
   email: z.string().email({
@@ -41,7 +61,7 @@ export default function ContactPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      fullName: "",
       email: "",
       subject: "",
       category: "",
@@ -51,42 +71,49 @@ export default function ContactPage() {
 
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true)
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL
+      const res = await fetch(`${backendUrl}/contact-reports`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      })
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`)
+      }
+      setIsSuccess(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    console.log("Form submitted:", values)
-    setIsSubmitting(false)
-    setIsSuccess(true)
-
-    // Reset form after success
-    setTimeout(() => {
-      form.reset()
-      setIsSuccess(false)
-    }, 5000)
+      // Reset form & success state after 5s
+      setTimeout(() => {
+        form.reset()
+        setIsSuccess(false)
+      }, 5000)
+    } catch (error) {
+      console.error("Submission failed:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
-  <div className="relative min-h-screen w-full overflow-hidden">
-    {/* Aurora Background */}
-    <div className="absolute inset-0 -z-10">
-      <Aurora
-        colorStops={[
-          "#003B49", // Aqua blue
-          "#003B49", // Dark green
-        ]}
-        blend={0.2}
-        amplitude={1.2}
-        speed={0.5}
-      />
-    </div>
-    <Header />
+    <div className="relative min-h-screen w-full overflow-hidden">
+      {/* Aurora Background */}
+      <div className="absolute inset-0 -z-10">
+        <Aurora
+          colorStops={["#003B49", "#003B49"]}
+          blend={0.2}
+          amplitude={1.2}
+          speed={0.5}
+        />
+      </div>
       <div className="container mx-auto px-4 py-8 content-z-index">
         <div className="max-w-3xl mx-auto">
           <div className="rounded-xl bg-background/40 backdrop-blur-md p-6 md:p-8 shadow-lg border border-white/10">
             <div className="mb-8 text-center">
               <h1 className="text-3xl font-bold mb-2">Contact Us</h1>
-              <p className="text-muted-foreground">Have questions or feedback? We'd love to hear from you.</p>
+              <p className="text-muted-foreground">
+                Have questions or feedback? We'd love to hear from you.
+              </p>
             </div>
 
             <AnimatePresence mode="wait">
@@ -102,27 +129,35 @@ export default function ContactPage() {
                   </div>
                   <h3 className="text-xl font-medium mb-2">Message Sent!</h3>
                   <p className="text-muted-foreground max-w-md">
-                    Thank you for reaching out. Our team will get back to you as soon as possible.
+                    Thank you for reaching out. Our team will get back to you
+                    as soon as possible.
                   </p>
                 </motion.div>
               ) : (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <form
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      className="space-y-6"
+                    >
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                           control={form.control}
-                          name="name"
+                          name="fullName"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="flex items-center">
                                 <User className="h-4 w-4 mr-2 text-primary" />
-                                Name
+                                Full Name
                               </FormLabel>
                               <FormControl>
                                 <div className="relative glow-effect">
                                   <Input
-                                    placeholder="Your name"
+                                    placeholder="Your full name"
                                     className="bg-secondary/50 backdrop-blur-sm border-secondary-foreground/10 h-11"
                                     {...field}
                                   />
@@ -189,18 +224,29 @@ export default function ContactPage() {
                                 <HelpCircle className="h-4 w-4 mr-2 text-primary" />
                                 Category
                               </FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
                                   <SelectTrigger className="bg-secondary/50 backdrop-blur-sm border-secondary-foreground/10 h-11">
                                     <SelectValue placeholder="Select a category" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent className="bg-background/95 backdrop-blur-md border-white/10">
-                                  <SelectItem value="general">General Inquiry</SelectItem>
-                                  <SelectItem value="technical">Technical Support</SelectItem>
-                                  <SelectItem value="feedback">Feedback</SelectItem>
-                                  <SelectItem value="bug">Bug Report</SelectItem>
-                                  <SelectItem value="feature">Feature Request</SelectItem>
+                                  <SelectItem value="General_Inquiry">
+                                    General Inquiry
+                                  </SelectItem>
+                                  <SelectItem value="Technical_Support">
+                                    Technical Support
+                                  </SelectItem>
+                                  <SelectItem value="Feedback">
+                                    Feedback
+                                  </SelectItem>
+                                  <SelectItem value="Bug_Report">Bug Report</SelectItem>
+                                  <SelectItem value="Feature_Request">
+                                    Feature Request
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -224,14 +270,20 @@ export default function ContactPage() {
                                 />
                               </div>
                             </FormControl>
-                            <FormDescription>Your message will be sent to our support team.</FormDescription>
+                            <FormDescription>
+                              Your message will be sent to our support team.
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
 
                       <div className="flex justify-end">
-                        <Button type="submit" className="glow-on-hover px-8" disabled={isSubmitting}>
+                        <Button
+                          type="submit"
+                          className="glow-on-hover px-8"
+                          disabled={isSubmitting}
+                        >
                           {isSubmitting ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

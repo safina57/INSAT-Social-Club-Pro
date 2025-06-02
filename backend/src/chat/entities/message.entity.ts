@@ -1,21 +1,19 @@
-import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { User } from 'src/users/entities/user.entity';
-import { Conversation } from './conversation.entity';
+import { ObjectType, Field } from '@nestjs/graphql';
 
 @ObjectType()
-export class Message {
-  @Field(() => ID)
+export class MessageEntity {
+  @Field()
   id: string;
 
   @Field()
   content: string;
 
-  @Field(() => User)
-  sender: User;
-
-  @Field(() => Conversation)
-  conversation: Conversation;
-
   @Field()
   createdAt: Date;
+
+  @Field()
+  senderId: string;
+
+  @Field()
+  conversationId: string;
 }

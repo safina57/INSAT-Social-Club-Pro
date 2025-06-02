@@ -1,6 +1,8 @@
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
+import { FriendRequest } from './entities/friend-request.entity';
+import { SimpleResponse } from './entities/simple-response.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -49,14 +51,55 @@ export class UsersResolver {
   @Mutation(() => User)
   removeUser(@Args('id', { type: () => ID }) id: string) {
     return this.usersService.remove(id);
-  }
-  @Mutation(() => User)
+  }  @Mutation(() => FriendRequest)
   addFriend(
-    @Args('userId', { type: () => ID }) userId: string,
+    @GetUser() user: User,
     @Args('friendId', { type: () => ID }) friendId: string,
   ) {
-    return this.usersService.addFriend(userId, friendId);
+    return this.usersService.addFriend(user.id, friendId);
   }
+
+  @Mutation(() => User)
+  acceptFriendRequest(
+    @GetUser() user: User,
+    @Args('friendId', { type: () => ID }) friendId: string,
+  ) {
+    return this.usersService.acceptFriendRequest(user.id, friendId);
+  }
+
+  @Mutation(() => FriendRequest)
+  rejectFriendRequest(
+    @GetUser() user: User,
+    @Args('friendId', { type: () => ID }) friendId: string,
+  ) {
+    return this.usersService.rejectFriendRequest(user.id, friendId);
+  }
+  @Mutation(() => SimpleResponse)
+  cancelFriendRequest(
+    @GetUser() user: User,
+    @Args('friendId', { type: () => ID }) friendId: string,
+  ) {
+    return this.usersService.cancelFriendRequest(user.id, friendId);
+  }
+
+  @Mutation(() => SimpleResponse)
+  removeFriend(
+    @GetUser() user: User,
+    @Args('friendId', { type: () => ID }) friendId: string,
+  ) {
+    return this.usersService.removeFriend(user.id, friendId);
+  }
+
+  @Query(() => [FriendRequest])
+  getPendingFriendRequests(@GetUser() user: User) {
+    return this.usersService.getPendingFriendRequests(user.id);
+  }
+
+  @Query(() => [FriendRequest])
+  getSentFriendRequests(@GetUser() user: User) {
+    return this.usersService.getSentFriendRequests(user.id);
+  }
+
   @Mutation(() => User)
   async uploadProfilePhoto(
     @GetUser() user: User,
