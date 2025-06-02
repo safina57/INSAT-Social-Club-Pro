@@ -21,8 +21,6 @@ export const GET_COMPANIES = gql`
   }
 `;
 
-
-
 export const GET_COMPANY_BY_ID = gql`
   query GetCompanyById($id: ID!, $companyId: String!) {
     Company(id: $id) {
@@ -47,8 +45,7 @@ export const GET_COMPANY_BY_ID = gql`
       }
     }
   }
-`
-
+`;
 
 export const CREATE_COMPANY = gql`
   mutation CreateCompany($input: CreateCompanyInput!) {
@@ -60,10 +57,10 @@ export const CREATE_COMPANY = gql`
       createdAt
     }
   }
-`
+`;
 
 export const UPDATE_COMPANY = gql`
-  mutation UpdateCompany($id: String!, $input: UpdateCompanyInput!) {
+  mutation UpdateCompany($id: ID!, $input: UpdateCompanyInput!) {
     updateCompany(id: $id, input: $input) {
       id
       name
@@ -72,23 +69,19 @@ export const UPDATE_COMPANY = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const DELETE_COMPANY = gql`
-  mutation DeleteCompany($id: String!) {
+  mutation DeleteCompany($id: ID!) {
     deleteCompany(id: $id) {
       id
       name
     }
   }
-`
+`;
 
 export const CHECK_COMPANY_PERMISSIONS = gql`
-    query CheckCompanyPermissions($companyId: ID!) {
-    checkCompanyPermissions(companyId: $companyId) {
-      canEdit
-      canDelete
-      role
-    }
+  query IsAdmin($id: ID!) {
+    isAdmin(id: $id)
   }
-`
+`;

@@ -80,14 +80,6 @@ interface CompanyData {
   getCompanyById: Company;
 }
 
-interface PermissionsData {
-  checkCompanyPermissions: {
-    canEdit: boolean;
-    canDelete: boolean;
-    role: string;
-  };
-}
-
 export default function EditCompanyPage({
   params,
 }: {
@@ -116,21 +108,27 @@ export default function EditCompanyPage({
     loading: companyLoading,
     error,
   } = useQuery<CompanyData>(GET_COMPANY_BY_ID, {
-    variables: { id: id! },
+    variables: {
+      id: id,
+      companyId: id,
+    },
     fetchPolicy: "cache-and-network",
     skip: !id,
   });
 
-  const { data: permissionsData, loading: permissionsLoading } =
-    useQuery<PermissionsData>(CHECK_COMPANY_PERMISSIONS, {
-      variables: { companyId: id! },
+  const { data: permission, loading: permissionsLoading } = useQuery(
+    CHECK_COMPANY_PERMISSIONS,
+    {
+      variables: { id: id! },
       skip: !userToken || !id,
       context: {
         headers: {
           Authorization: userToken ? `Bearer ${userToken}` : "",
         },
       },
-    });
+    }
+  );
+  const isAdmin = permission?.isAdmin || false;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -202,7 +200,7 @@ export default function EditCompanyPage({
   }
 
   const company = data?.getCompanyById;
-  const permissions = permissionsData?.checkCompanyPermissions;
+  console.log("isAdmin", isAdmin);
   const loading = companyLoading || permissionsLoading;
 
   if (!userToken) {
@@ -250,7 +248,7 @@ export default function EditCompanyPage({
     );
   }
 
-  if (permissions && !permissions.canEdit) {
+  if (isAdmin) {
     return (
       <div className="min-h-screen w-full aurora-gradient">
         <Header />
@@ -417,20 +415,6 @@ export default function EditCompanyPage({
                             </FormItem>
                           )}
                         />
-
-                        {permissions && (
-                          <div className="bg-secondary/20 rounded-lg p-4 border border-white/10">
-                            <h4 className="font-medium mb-2">Your Role</h4>
-                            <p className="text-sm text-muted-foreground">
-                              You are a{" "}
-                              <span className="font-medium text-primary">
-                                {permissions.role}
-                              </span>{" "}
-                              of this company. You have permission to edit
-                              company information.
-                            </p>
-                          </div>
-                        )}
 
                         <div className="flex gap-4 pt-4">
                           <Link to={`/companies/${id}`} className="flex-1">
