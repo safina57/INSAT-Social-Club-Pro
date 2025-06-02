@@ -81,32 +81,6 @@ export default function MessagesPage() {
     }
   }, [userToken, currentUserId])
 
-  // Handle new messages via socket
-  useEffect(() => {
-    if (socketConnected && activeConversation) {
-      const handleNewMessage = (message: Message) => {
-        // Only add message if it's for the active conversation
-        const isForActiveConversation =
-          message.senderId === activeConversation || (message.senderId === currentUserId && activeConversation)
-
-        if (isForActiveConversation) {
-          setLocalMessages((prev) => {
-            // Avoid duplicates
-            const exists = prev.some((m) => m.id === message.id)
-            if (exists) return prev
-            return [...prev, message]
-          })
-        }
-      }
-
-      socketService.onNewMessage(handleNewMessage)
-
-      return () => {
-        socketService.offNewMessage()
-      }
-    }
-  }, [socketConnected, activeConversation, currentUserId])
-
   useEffect(() => {
     const checkMobileView = () => {
       setIsMobileView(window.innerWidth < 768)
@@ -155,6 +129,69 @@ export default function MessagesPage() {
     }
   }, [localMessages, messagesData])
 
+  // Handle new messages via socket
+  useEffect(() => {
+    if (socketConnected && activeConversation && conversations.length > 0) {
+      const handleNewMessage = (backendMessage: any) => {
+        console.log('[Socket] Received new message:', backendMessage)
+        
+        try {
+          // Transform backend message to frontend format
+          const message: Message = {
+            id: backendMessage.id,
+            content: backendMessage.content,
+            senderId: backendMessage.senderId || backendMessage.sender?.id,
+            createdAt: backendMessage.createdAt,
+          }
+
+          // Validate message
+          if (!message.id || !message.content || !message.senderId) {
+            console.error('[Socket] Invalid message format:', backendMessage)
+            return
+          }
+          
+          // Find the other participant in the active conversation
+          const otherParticipantId = conversations
+            ?.find((c) => c.id === activeConversation)
+            ?.participants.find((p) => p.id !== currentUserId)?.id
+
+          // Only add message if it's for the active conversation
+          const isForActiveConversation =
+            (message.senderId === otherParticipantId) || 
+            (message.senderId === currentUserId)
+
+          console.log('[Socket] Message is for active conversation:', isForActiveConversation, {
+            messageSenderId: message.senderId,
+            otherParticipantId,
+            currentUserId,
+            activeConversation
+          })
+
+          if (isForActiveConversation) {
+            setLocalMessages((prev) => {
+              // Avoid duplicates
+              const exists = prev.some((m) => m.id === message.id)
+              if (exists) {
+                console.log('[Socket] Message already exists, skipping')
+                return prev
+              }
+              console.log('[Socket] Adding new message to local messages')
+              return [...prev, message]
+            })
+          }
+        } catch (error) {
+          console.error('[Socket] Error processing message:', error)
+        }
+      }
+
+      socketService.onNewMessage(handleNewMessage)
+
+      return () => {
+        socketService.offNewMessage()
+      }
+    }
+  }, [socketConnected, activeConversation, currentUserId, conversations])
+
   // Reset local messages when conversation changes
   useEffect(() => {
     setLocalMessages([])
@@ -191,8 +228,18 @@ export default function MessagesPage() {
     const messageContent = newMessage.trim()
     setNewMessage("")
 
+    // Get the recipient ID (the other participant in the conversation)
+    const recipientId = conversations
+      ?.find((c) => c.id === activeConversation)
+      ?.participants.find((p) => p.id !== currentUserId)?.id
+
+    if (!recipientId) {
+      console.error("Could not find recipient ID")
+      return
+    }
+
     // Send via socket for real-time delivery
-    socketService.sendMessage(activeConversation, messageContent)
+    socketService.sendMessage(recipientId, messageContent)
 
     // Create optimistic message for immediate UI update
     const optimisticMessage: Message = {
@@ -208,7 +255,7 @@ export default function MessagesPage() {
     setTimeout(() => {
       refetchConversations()
     }, 1000)
-  }, [newMessage, activeConversation, socketConnected, currentUserId, refetchConversations])
+  }, [newMessage, activeConversation, socketConnected, currentUserId, refetchConversations, conversations])
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
