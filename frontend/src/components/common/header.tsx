@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   LogOut,
+  Building,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationsPanel } from "./notifications-panel";
@@ -45,7 +46,8 @@ export function Header() {
   const navItems = [
     { name: "Home", href: "/home", icon: Home },
     { name: "Messages", href: "/messages", icon: MessageSquare },
-    { name: "Jobs", href: "/jobs", icon: Briefcase}
+    { name: "Jobs", href: "/jobs", icon: Briefcase },
+    { name: "Companies", href: "/companies", icon: Building }
   ];
 
   const handleSearch = (e: React.FormEvent) => {
