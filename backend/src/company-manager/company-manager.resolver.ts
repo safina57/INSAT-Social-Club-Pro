@@ -1,10 +1,4 @@
-import {
-  Resolver,
-  Mutation,
-  Args,
-  ID,
-  Query,
-} from '@nestjs/graphql';
+import { Resolver, Mutation, Args, ID, Query } from '@nestjs/graphql';
 import { CompanyManagerService } from './company-manager.service';
 import { CreateCompanyManagerInput } from './dto/create-company-manager.input';
 import { UpdateCompanyManagerInput } from './dto/update-company-manager.input';

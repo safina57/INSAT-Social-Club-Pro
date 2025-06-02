@@ -1,10 +1,4 @@
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Args,
-  ID,
-} from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { CompanyService } from './company.service';
 import { CreateCompanyInput } from './dto/create-company.input';
 import { UpdateCompanyInput } from './dto/update-company.input';
@@ -34,9 +28,10 @@ export class CompanyResolver {
 
   @Public()
   @Query(() => paginatedCompanies)
-  Companies
-  (@Args('paginationDto', { type: () => PaginationDto, nullable: true }) paginationDto?: PaginationDto,
-){
+  Companies(
+    @Args('paginationDto', { type: () => PaginationDto, nullable: true })
+    paginationDto?: PaginationDto,
+  ) {
     return this.companyService.findAll(paginationDto ?? {});
   }
 

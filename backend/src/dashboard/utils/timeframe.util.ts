@@ -1,4 +1,4 @@
-import { TimeFrame } from "../enums/timeframe.enum";
+import { TimeFrame } from '../enums/timeframe.enum';
 
 export class TimeFrameUtil {
   static getConfig(timeFrame: TimeFrame) {

@@ -3,6 +3,6 @@ import { JobResolver } from './job.resolver';
 import { JobService } from './job.service';
 
 @Module({
-  providers: [JobResolver, JobService]
+  providers: [JobResolver, JobService],
 })
 export class JobModule {}

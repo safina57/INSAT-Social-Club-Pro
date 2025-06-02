@@ -1,6 +1,6 @@
-import { Field, ID, ObjectType } from "@nestjs/graphql";
-import { ApplicationStatus } from "../enum/application-status.enum";
-import { User } from "../../users/entities/user.entity";
+import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { ApplicationStatus } from '../enum/application-status.enum';
+import { User } from '../../users/entities/user.entity';
 
 @ObjectType()
 export class JobApplication {

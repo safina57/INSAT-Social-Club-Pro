@@ -14,7 +14,7 @@ export class JobResolver {
   @Mutation(() => Job)
   createJob(
     @Args('createJobInput') createJobInput: CreateJobInput,
-    @GetUser() user: User
+    @GetUser() user: User,
   ) {
     const userId = user.id;
     return this.jobService.create(createJobInput, userId);
@@ -22,7 +22,8 @@ export class JobResolver {
 
   @Query(() => paginatedJobs)
   jobs(
-    @Args('paginationDto', { type: () => PaginationDto, nullable: true }) paginationDto?: PaginationDto,
+    @Args('paginationDto', { type: () => PaginationDto, nullable: true })
+    paginationDto?: PaginationDto,
   ) {
     return this.jobService.findAll(paginationDto ?? {});
   }
@@ -35,7 +36,8 @@ export class JobResolver {
   @Query(() => paginatedJobs)
   jobsByCompany(
     @Args('companyId') companyId: string,
-    @Args('paginationDto', { type: () => PaginationDto, nullable: true }) paginationDto?: PaginationDto,
+    @Args('paginationDto', { type: () => PaginationDto, nullable: true })
+    paginationDto?: PaginationDto,
   ) {
     return this.jobService.findByCompany(companyId, paginationDto);
   }

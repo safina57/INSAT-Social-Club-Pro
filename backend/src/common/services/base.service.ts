@@ -14,7 +14,7 @@ export class BaseService<T> {
   }
 
   findAll(paginationDto: PaginationDto): Promise<PaginatedResult<T>> {
-     return paginate<T>(this.prisma[this.model], {
+    return paginate<T>(this.prisma[this.model], {
       page: paginationDto.page ?? 1,
       limit: paginationDto.limit ?? 10,
     });
@@ -25,7 +25,9 @@ export class BaseService<T> {
   }
 
   findByField(field: string, value: any): Promise<T> {
-    return (this.prisma[this.model] as any).findUnique({ where: { [field]: value } });
+    return (this.prisma[this.model] as any).findUnique({
+      where: { [field]: value },
+    });
   }
 
   update(id: string, data: any): Promise<T> {

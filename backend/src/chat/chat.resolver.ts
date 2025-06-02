@@ -18,7 +18,11 @@ export class ChatResolver {
     @GetUser() user: User,
     @Args('input') input: SendMessageInput,
   ) {
-    return this.chatService.sendMessage(user.id, input.recipientId, input.content);
+    return this.chatService.sendMessage(
+      user.id,
+      input.recipientId,
+      input.content,
+    );
   }
 
   @Query(() => [MessageEntity])
@@ -28,7 +32,7 @@ export class ChatResolver {
   ) {
     return this.chatService.getMessagesBetweenUsers(user.id, withUserId);
   }
-  
+
   @Query(() => [ConversationEntity])
   async getMyConversations(@GetUser() user: User) {
     return this.chatService.getConversationsForUser(user.id);
