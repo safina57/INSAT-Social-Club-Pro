@@ -26,12 +26,13 @@ interface Message {
   content: string
   senderId: string
   createdAt: string
+  conversationId: string
 }
 
 interface Conversation {
   id: string
   participants: User[]
-  messages: Message[]
+  messages: Message[] // assume sorted descending by createdAt in the query
 }
 
 export default function MessagesPage() {
@@ -42,16 +43,17 @@ export default function MessagesPage() {
   const [userToken, setUserToken] = useState<string | null>(null)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [socketConnected, setSocketConnected] = useState(false)
-  const [localMessages, setLocalMessages] = useState<Message[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Get user token from localStorage and decode user ID
+  // Refs to track previous conversation and message count for scrolling logic
+  const prevConversationRef = useRef<string | null>(null)
+  const prevMessagesCountRef = useRef<number>(0)
+
+  // Retrieve user token and decode user ID
   useEffect(() => {
     const token = localStorage.getItem("access_token")
     if (token) {
       setUserToken(token)
-
-      // Decode JWT to get user ID (basic decode, in production use a proper JWT library)
       try {
         const payload = JSON.parse(atob(token.split(".")[1]))
         setCurrentUserId(payload.id || payload.sub)
@@ -61,40 +63,35 @@ export default function MessagesPage() {
     }
   }, [])
 
-  // Socket connection management
+  // Manage socket connection whenever token and userId are available
   useEffect(() => {
-    if (userToken && currentUserId) {
-      const socket = socketService.connect(userToken)
+    if (!userToken || !currentUserId) return
 
-      socket.on("connect", () => {
-        setSocketConnected(true)
-      })
+    const socket = socketService.connect(userToken)
 
-      socket.on("disconnect", () => {
-        setSocketConnected(false)
-      })
+    socket.on("connect", () => {
+      setSocketConnected(true)
+    })
 
-      return () => {
-        socketService.disconnect()
-        setSocketConnected(false)
-      }
+    socket.on("disconnect", () => {
+      setSocketConnected(false)
+    })
+
+    return () => {
+      socketService.disconnect()
+      setSocketConnected(false)
     }
   }, [userToken, currentUserId])
 
+  // Track window size for mobile view
   useEffect(() => {
-    const checkMobileView = () => {
-      setIsMobileView(window.innerWidth < 768)
-    }
-
-    checkMobileView()
-    window.addEventListener("resize", checkMobileView)
-
-    return () => {
-      window.removeEventListener("resize", checkMobileView)
-    }
+    const checkMobile = () => setIsMobileView(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  // GraphQL queries
+  // Fetch user's conversations
   const {
     data: conversationsData,
     loading: conversationsLoading,
@@ -102,17 +99,25 @@ export default function MessagesPage() {
     refetch: refetchConversations,
   } = useQuery(GET_MY_CONVERSATIONS, {
     skip: !userToken,
+    context: {
+      headers: {
+        Authorization: userToken ? `Bearer ${userToken}` : "",
+      },
+    },
   })
 
   const conversations: Conversation[] = conversationsData?.getMyConversations || []
 
+  // Determine the other user's ID for the active conversation
   const otherUserId = conversations
-    ?.find((c) => c.id === activeConversation)
-    ?.participants.find((p) => p.id !== currentUserId)?.id || null;
+    .find((c) => c.id === activeConversation)
+    ?.participants.find((p) => p.id !== currentUserId)?.id || null
 
+  // Fetch messages with the other user when a conversation is active
   const {
     data: messagesData,
     loading: messagesLoading,
+    refetch: refetchMessages,
   } = useQuery(GET_MESSAGES, {
     variables: { withUserId: otherUserId },
     skip: !activeConversation || !userToken,
@@ -123,114 +128,76 @@ export default function MessagesPage() {
     },
   })
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
-    }
-  }, [localMessages, messagesData])
-
-  // Handle new messages via socket
-  useEffect(() => {
-    if (socketConnected && activeConversation && conversations.length > 0) {
-      const handleNewMessage = (backendMessage: any) => {
-        console.log('[Socket] Received new message:', backendMessage)
-        
-        try {
-          // Transform backend message to frontend format
-          const message: Message = {
-            id: backendMessage.id,
-            content: backendMessage.content,
-            senderId: backendMessage.senderId || backendMessage.sender?.id,
-            createdAt: backendMessage.createdAt,
-          }
-
-          // Validate message
-          if (!message.id || !message.content || !message.senderId) {
-            console.error('[Socket] Invalid message format:', backendMessage)
-            return
-          }
-          
-          // Find the other participant in the active conversation
-          const otherParticipantId = conversations
-            ?.find((c) => c.id === activeConversation)
-            ?.participants.find((p) => p.id !== currentUserId)?.id
-
-          // Only add message if it's for the active conversation
-          const isForActiveConversation =
-            (message.senderId === otherParticipantId) || 
-            (message.senderId === currentUserId)
-
-          console.log('[Socket] Message is for active conversation:', isForActiveConversation, {
-            messageSenderId: message.senderId,
-            otherParticipantId,
-            currentUserId,
-            activeConversation
-          })
-
-          if (isForActiveConversation) {
-            setLocalMessages((prev) => {
-              // Avoid duplicates
-              const exists = prev.some((m) => m.id === message.id)
-              if (exists) {
-                console.log('[Socket] Message already exists, skipping')
-                return prev
-              }
-              console.log('[Socket] Adding new message to local messages')
-              return [...prev, message]
-            })
-          }
-        } catch (error) {
-          console.error('[Socket] Error processing message:', error)
-        }
-      }
-
-      socketService.onNewMessage(handleNewMessage)
-
-      return () => {
-        socketService.offNewMessage()
-      }
-    }
-  }, [socketConnected, activeConversation, currentUserId, conversations])
-
-  // Reset local messages when conversation changes
-  useEffect(() => {
-    setLocalMessages([])
-  }, [activeConversation])
-
   const serverMessages: Message[] = messagesData?.getMessages || []
+  // Use only serverMessages—no optimistic localMessages
+  const allMessages = [...serverMessages].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  )
 
-  // Combine server messages with local messages, removing duplicates
-  const allMessages = [...serverMessages, ...localMessages]
-    .reduce((acc, message) => {
-      const exists = acc.some((m) => m.id === message.id)
-      if (!exists) {
-        acc.push(message)
+  // Combined effect for scrolling on conversation change or new server messages
+  useEffect(() => {
+    if (!activeConversation) return
+
+    const prevConv = prevConversationRef.current
+    const prevCount = prevMessagesCountRef.current
+    const currentCount = serverMessages.length
+
+    // If conversation changed, scroll to bottom once
+    if (activeConversation !== prevConv) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+      }, 50)
+      prevConversationRef.current = activeConversation
+      prevMessagesCountRef.current = currentCount
+      return
+    }
+
+    // Same conversation: if the number of messages increased, scroll
+    if (currentCount > prevCount) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+    prevMessagesCountRef.current = currentCount
+  }, [serverMessages, activeConversation])
+
+  // Handle incoming messages from socket by refetching
+  useEffect(() => {
+    if (!socketConnected || !activeConversation) return
+
+    const handleNewMessage = (backendMessage: any) => {
+      if (backendMessage.conversationId === activeConversation) {
+        // Refetch to pull in the new message
+        refetchMessages()
+        refetchConversations()
       }
-      return acc
-    }, [] as Message[])
-    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    }
 
-  const filteredConversations = conversations.filter((conversation) => {
-    const otherParticipant = conversation.participants.find((p) => p.id !== currentUserId)
-    return (
-      !searchQuery ||
-      otherParticipant?.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conversation.messages[0]?.content.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    socketService.onNewMessage(handleNewMessage)
+    return () => {
+      socketService.offNewMessage()
+    }
+  }, [socketConnected, activeConversation, refetchMessages, refetchConversations])
+
+  // Filter conversations for the sidebar search
+  const filteredConversations = conversations.filter((conv) => {
+    const other = conv.participants.find((p) => p.id !== currentUserId)
+    const lastMsg = conv.messages?.[0]
+    const usernameMatch = other?.username.toLowerCase().includes(searchQuery.toLowerCase())
+    const messageMatch = lastMsg?.content.toLowerCase().includes(searchQuery.toLowerCase())
+    return !searchQuery || usernameMatch || messageMatch
   })
 
-  const activeChat = conversations.find((conversation) => conversation.id === activeConversation)
+  const activeChat = conversations.find((conv) => conv.id === activeConversation)
   const otherParticipant = activeChat?.participants.find((p) => p.id !== currentUserId)
 
+  // Send a new message: emit via socket, then refetch
   const handleSendMessage = useCallback(async () => {
     if (!newMessage.trim() || !activeConversation || !socketConnected) return
 
-    const messageContent = newMessage.trim()
+    const content = newMessage.trim()
     setNewMessage("")
 
-    // Get the recipient ID (the other participant in the conversation)
     const recipientId = conversations
-      ?.find((c) => c.id === activeConversation)
+      .find((c) => c.id === activeConversation)
       ?.participants.find((p) => p.id !== currentUserId)?.id
 
     if (!recipientId) {
@@ -238,24 +205,14 @@ export default function MessagesPage() {
       return
     }
 
-    // Send via socket for real-time delivery
-    socketService.sendMessage(recipientId, messageContent)
+    socketService.sendMessage(recipientId, content)
 
-    // Create optimistic message for immediate UI update
-    const optimisticMessage: Message = {
-      id: `temp-${Date.now()}`,
-      content: messageContent,
-      senderId: currentUserId!,
-      createdAt: new Date().toISOString(),
-    }
-
-    setLocalMessages((prev) => [...prev, optimisticMessage])
-
-    // Optionally refetch conversations to update last message
+    // After sending, refetch both messages and conversations to update UI
     setTimeout(() => {
+      refetchMessages()
       refetchConversations()
-    }, 1000)
-  }, [newMessage, activeConversation, socketConnected, currentUserId, refetchConversations, conversations])
+    }, 500)
+  }, [newMessage, activeConversation, socketConnected, currentUserId, refetchMessages, refetchConversations, conversations])
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
@@ -278,21 +235,18 @@ export default function MessagesPage() {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   }
 
+  // If not authenticated, show sign-in prompt
   if (!userToken) {
     return (
-    <div className="relative min-h-screen w-full overflow-hidden">
-      {/* Aurora Background */}
-      <div className="absolute inset-0 -z-10">
-        <Aurora
-          colorStops={[
-            "#003B49", // Aqua blue
-            "#003B49", // Dark green
-          ]}
-          blend={0.2}
-          amplitude={1.2}
-          speed={0.5}
-        />
-      </div>
+      <div className="relative min-h-screen w-full overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <Aurora
+            colorStops={["#003B49", "#003B49"]}
+            blend={0.2}
+            amplitude={1.2}
+            speed={0.5}
+          />
+        </div>
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-3xl font-bold mb-4">Authentication Required</h1>
@@ -304,19 +258,15 @@ export default function MessagesPage() {
 
   if (conversationsError) {
     return (
-    <div className="relative min-h-screen w-full overflow-hidden">
-      {/* Aurora Background */}
-      <div className="absolute inset-0 -z-10">
-        <Aurora
-          colorStops={[
-            "#003B49", // Aqua blue
-            "#003B49", // Dark green
-          ]}
-          blend={0.2}
-          amplitude={1.2}
-          speed={0.5}
-        />
-      </div>
+      <div className="relative min-h-screen w-full overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <Aurora
+            colorStops={["#003B49", "#003B49"]}
+            blend={0.2}
+            amplitude={1.2}
+            speed={0.5}
+          />
+        </div>
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-3xl font-bold mb-4">Error Loading Messages</h1>
@@ -327,19 +277,15 @@ export default function MessagesPage() {
   }
 
   return (
-  <div className="relative min-h-screen w-full overflow-hidden">
-    {/* Aurora Background */}
-    <div className="absolute inset-0 -z-10">
-      <Aurora
-        colorStops={[
-          "#003B49", // Aqua blue
-          "#003B49", // Dark green
-        ]}
-        blend={0.2}
-        amplitude={1.2}
-        speed={0.5}
-      />
-    </div>
+    <div className="relative min-h-screen w-full overflow-hidden">
+      <div className="absolute inset-0 -z-10">
+        <Aurora
+          colorStops={["#003B49", "#003B49"]}
+          blend={0.2}
+          amplitude={1.2}
+          speed={0.5}
+        />
+      </div>
       <Header />
       <div className="container mx-auto px-0 py-4 content-z-index">
         <div className="rounded-xl bg-background/40 backdrop-blur-md border border-white/10 overflow-hidden h-[calc(100vh-8rem)]">
@@ -389,14 +335,14 @@ export default function MessagesPage() {
                     ) : (
                       filteredConversations.map((conversation) => {
                         const participant = conversation.participants.find((p) => p.id !== currentUserId)
-                        const lastMessage = conversation.messages[0]
+                        const lastMessage = conversation.messages?.[0]
 
                         return (
                           <button
                             key={conversation.id}
                             className={cn(
                               "w-full flex items-start p-3 rounded-lg mb-1 hover:bg-white/5 transition-colors text-left",
-                              activeConversation === conversation.id && "bg-white/10",
+                              activeConversation === conversation.id && "bg-white/10"
                             )}
                             onClick={() => setActiveConversation(conversation.id)}
                           >
@@ -491,8 +437,6 @@ export default function MessagesPage() {
                     ) : (
                       allMessages.map((message) => {
                         const isSentByMe = message.senderId === currentUserId
-                        const isOptimistic = message.id.startsWith("temp-")
-
                         return (
                           <div key={message.id} className={cn("flex", isSentByMe ? "justify-end" : "justify-start")}>
                             {!isSentByMe && (
@@ -508,8 +452,7 @@ export default function MessagesPage() {
                               <div
                                 className={cn(
                                   "chat-bubble",
-                                  isSentByMe ? "chat-bubble-sent" : "chat-bubble-received",
-                                  isOptimistic && "opacity-70",
+                                  isSentByMe ? "chat-bubble-sent" : "chat-bubble-received"
                                 )}
                               >
                                 <p className="text-sm">{message.content}</p>
@@ -517,11 +460,10 @@ export default function MessagesPage() {
                               <div
                                 className={cn(
                                   "flex items-center text-xs text-muted-foreground mt-1",
-                                  isSentByMe ? "justify-end" : "justify-start",
+                                  isSentByMe ? "justify-end" : "justify-start"
                                 )}
                               >
                                 <span>{formatMessageTime(message.createdAt)}</span>
-                                {isOptimistic && <span className="ml-1 text-xs">Sending...</span>}
                               </div>
                             </div>
                           </div>
