@@ -36,6 +36,7 @@ export default function AuthInitializer() {
                   username
                   email
                   role
+                  profilePhoto
                 }
               }
             `,

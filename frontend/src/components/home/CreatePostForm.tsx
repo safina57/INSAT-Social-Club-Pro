@@ -53,7 +53,7 @@ export default function CreatePostForm({ onCreatePost }: CreatePostFormProps) {
       <div className="flex items-start space-x-4">
         <Avatar className="h-10 w-10 border-2 border-primary/50">
           <AvatarImage
-            src="/placeholder.svg?height=40&width=40"
+            src={user?.profilePhoto || "/default-avatar.png"}
             alt="Current User"
           />
           <AvatarFallback>
@@ -108,7 +108,7 @@ export default function CreatePostForm({ onCreatePost }: CreatePostFormProps) {
             <Button
               className="glow-on-hover"
               onClick={handleCreatePost}
-              disabled={!newPostText.trim() && !newPostImage}
+              disabled={!newPostText.trim()}
             >
               Post
             </Button>

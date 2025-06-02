@@ -97,6 +97,7 @@ export const api = createApi({
                 username
                 email
                 role
+                profilePhoto
               }
             }
           `,
@@ -223,6 +224,7 @@ export const api = createApi({
                     username
                     email
                     role
+                    profilePhoto
                   }
                   authorId
                   comments {
@@ -235,6 +237,7 @@ export const api = createApi({
                       username
                       email
                       role
+                      profilePhoto
                     }
                     authorId
                   }

@@ -140,7 +140,7 @@ export function Header() {
               <Button variant="ghost" className="h-16 px-2">
                 <Avatar className="h-8 w-8 border border-white/10">
                   <AvatarImage
-                    src="/placeholder.svg?height=32&width=32"
+                    src={user?.profilePhoto || "/default-avatar.png"}
                     alt="User"
                   />
                   <AvatarFallback>

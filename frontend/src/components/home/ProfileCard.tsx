@@ -26,7 +26,7 @@ export default function ProfileCard() {
         <div className="relative">
           <Avatar className="h-20 w-20 border-4 border-primary/50">
             <AvatarImage
-              src="/placeholder.svg?height=80&width=80"
+              src={user?.profilePhoto || "/default-avatar.png"}
               alt={user?.username || "User"}
             />
             <AvatarFallback>
