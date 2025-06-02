@@ -5,13 +5,13 @@ import { FriendRequest } from './entities/friend-request.entity';
 import { SimpleResponse } from './entities/simple-response.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Paginated } from 'src/common/factories/paginated.factory';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { FileUpload } from 'graphql-upload/processRequest.mjs';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from './enums/role.enum';
 
 const PaginatedUsers = Paginated(User);
 @Resolver(() => User)
@@ -41,6 +41,15 @@ export class UsersResolver {
   findOne(@Args('id', { type: () => ID }) id: string) {
     console.log('Finding user with ID:', id);
     return this.usersService.getUserById(id);
+  }
+
+  @Query(() => [User], { name: 'searchUsers' })
+  searchUsers(
+    @Args('query', { type: () => String }) query: string,
+    @Args('paginationDto', { type: () => PaginationDto, nullable: true })
+    paginationDto?: PaginationDto,
+  ) {
+    return this.usersService.searchUsers(query, paginationDto);
   }
 
   @Mutation(() => User)

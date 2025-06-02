@@ -2,9 +2,10 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/state/store";
+import { useSearchUsersQuery } from "@/state/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ import {
   Menu,
   X,
   LogOut,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationsPanel } from "./notifications-panel";
@@ -41,22 +43,71 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchDebounce, setSearchDebounce] = useState("");
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchDebounce(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Search users query
+  const { data: searchResults = [], isLoading: isSearching } =
+    useSearchUsersQuery(
+      { query: searchDebounce, limit: 5 },
+      { skip: searchDebounce.length < 2 }
+    );
+
+  // Show/hide search results
+  useEffect(() => {
+    setShowSearchResults(
+      searchDebounce.length >= 2 && searchResults.length > 0
+    );
+  }, [searchDebounce, searchResults]);
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setShowSearchResults(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const navItems = [
     { name: "Home", href: "/home", icon: Home },
     { name: "Messages", href: "/messages", icon: MessageSquare },
-    { name: "Jobs", href: "/jobs", icon: Briefcase}
+    { name: "Jobs", href: "/jobs", icon: Briefcase },
   ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle search logic
-    console.log("Searching for:", searchQuery);
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setShowSearchResults(false);
+      setSearchQuery("");
+    }
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/signin");
+  const handleUserClick = (userId: string) => {
+    navigate(`/profile/${userId}`);
+    setShowSearchResults(false);
+    setSearchQuery("");
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   // Get user initials for avatar fallback
@@ -80,16 +131,91 @@ export function Header() {
           </a>
         </div>
 
-        <div className="hidden md:block flex-1 px-8 max-w-md mx-4">
+        <div
+          className="hidden md:block flex-1 px-8 max-w-md mx-4"
+          ref={searchRef}
+        >
           <form onSubmit={handleSearch} className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search..."
+              placeholder="Search users..."
               className="w-full bg-secondary/50 pl-9 h-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() =>
+                searchDebounce.length >= 2 && setShowSearchResults(true)
+              }
             />
+
+            {/* Search Results Dropdown */}
+            {showSearchResults && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-background/95 backdrop-blur-md border border-white/10 rounded-md shadow-lg max-h-80 overflow-y-auto z-50">
+                {isSearching ? (
+                  <div className="p-3 text-center text-sm text-muted-foreground">
+                    Searching...
+                  </div>
+                ) : (
+                  <>
+                    {searchResults.length > 0 ? (
+                      <>
+                        <div className="p-2 border-b border-white/10">
+                          <div className="text-xs text-muted-foreground font-medium">
+                            Users
+                          </div>
+                        </div>
+                        {searchResults.map((user) => (
+                          <div
+                            key={user.id}
+                            className="flex items-center gap-3 p-3 hover:bg-secondary/30 cursor-pointer transition-colors"
+                            onClick={() => handleUserClick(user.id)}
+                          >
+                            <Avatar className="h-8 w-8 border border-white/10">
+                              <AvatarImage
+                                src={user.profilePhoto || "/default-avatar.png"}
+                                alt={user.username}
+                              />
+                              <AvatarFallback>
+                                {getUserInitials(user.username)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium truncate">
+                                {user.username}
+                              </div>
+                              <div className="text-xs text-muted-foreground truncate">
+                                {user.email}
+                              </div>
+                            </div>
+                            <User className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        ))}
+                        {searchQuery.length >= 2 && (
+                          <div className="p-2 border-t border-white/10">
+                            <button
+                              onClick={() => {
+                                navigate(
+                                  `/search?q=${encodeURIComponent(searchQuery)}`
+                                );
+                                setShowSearchResults(false);
+                                setSearchQuery("");
+                              }}
+                              className="w-full text-left text-sm text-primary hover:text-primary/80 transition-colors"
+                            >
+                              See all results for "{searchQuery}"
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="p-3 text-center text-sm text-muted-foreground">
+                        No users found for "{searchDebounce}"
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </form>
         </div>
 
@@ -195,16 +321,98 @@ export function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-white/10 bg-background/95 backdrop-blur-md">
           <div className="container px-4 py-3">
-            <form onSubmit={handleSearch} className="relative mb-4">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="w-full bg-secondary/50 pl-9"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </form>
+            <div className="relative mb-4" ref={searchRef}>
+              <form onSubmit={handleSearch} className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search users..."
+                  className="w-full bg-secondary/50 pl-9"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() =>
+                    searchDebounce.length >= 2 && setShowSearchResults(true)
+                  }
+                />
+              </form>
+
+              {/* Mobile Search Results Dropdown */}
+              {showSearchResults && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-background/95 backdrop-blur-md border border-white/10 rounded-md shadow-lg max-h-80 overflow-y-auto z-50">
+                  {isSearching ? (
+                    <div className="p-3 text-center text-sm text-muted-foreground">
+                      Searching...
+                    </div>
+                  ) : (
+                    <>
+                      {searchResults.length > 0 ? (
+                        <>
+                          <div className="p-2 border-b border-white/10">
+                            <div className="text-xs text-muted-foreground font-medium">
+                              Users
+                            </div>
+                          </div>
+                          {searchResults.map((user) => (
+                            <div
+                              key={user.id}
+                              className="flex items-center gap-3 p-3 hover:bg-secondary/30 cursor-pointer transition-colors"
+                              onClick={() => {
+                                handleUserClick(user.id);
+                                setMobileMenuOpen(false);
+                              }}
+                            >
+                              <Avatar className="h-8 w-8 border border-white/10">
+                                <AvatarImage
+                                  src={
+                                    user.profilePhoto || "/default-avatar.png"
+                                  }
+                                  alt={user.username}
+                                />
+                                <AvatarFallback>
+                                  {getUserInitials(user.username)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium truncate">
+                                  {user.username}
+                                </div>
+                                <div className="text-xs text-muted-foreground truncate">
+                                  {user.email}
+                                </div>
+                              </div>
+                              <User className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          ))}
+                          {searchQuery.length >= 2 && (
+                            <div className="p-2 border-t border-white/10">
+                              <button
+                                onClick={() => {
+                                  navigate(
+                                    `/search?q=${encodeURIComponent(
+                                      searchQuery
+                                    )}`
+                                  );
+                                  setShowSearchResults(false);
+                                  setSearchQuery("");
+                                  setMobileMenuOpen(false);
+                                }}
+                                className="w-full text-left text-sm text-primary hover:text-primary/80 transition-colors"
+                              >
+                                See all results for "{searchQuery}"
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="p-3 text-center text-sm text-muted-foreground">
+                          No users found for "{searchDebounce}"
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
             <nav className="grid grid-cols-3 gap-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
