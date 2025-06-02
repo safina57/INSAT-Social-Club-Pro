@@ -60,9 +60,8 @@ model User {
   managedCompanies CompanyManager[]
   jobApplications  JobApplication[] @relation("JobApplications")
   
-  // Add these two lines:
-  conversations    Conversation[]   @relation("ConversationParticipants")
-  sentMessages     Message[]        @relation("MessageSender")
+  conversations      Conversation[] @relation("ConversationParticipants")
+  messagesSent       Message[]     @relation("MessageSender")
   
   friends   User[]   @relation("UserFriends")
   friendOf  User[]   @relation("UserFriends")
@@ -181,9 +180,34 @@ model JobApplication {
   @@unique([userId, jobId])
 }
 
+enum Category {
+  General_Inquiry
+  Technical_Support
+  Feedback
+  Bug_Report
+  Feature_Request
+}
+
+enum Status {
+  Pending
+  Being_Treated 
+  Treated
+}
+
+model ContactReport {
+  id        String   @id @default(uuid())
+  fullName  String
+  email     String
+  subject   String
+  category  Category
+  message   String
+  status    Status   @default(Pending)
+  createdAt DateTime @default(now())
+}
+
 model Conversation {
   id             String     @id @default(uuid())
-  participants   User[]   @relation("ConversationParticipants")
+  participants   User[]     @relation("ConversationParticipants")
   messages       Message[]
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
