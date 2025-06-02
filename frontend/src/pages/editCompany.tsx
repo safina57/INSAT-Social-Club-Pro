@@ -77,7 +77,7 @@ interface Company {
 }
 
 interface CompanyData {
-  getCompanyById: Company;
+  Company: Company; 
 }
 
 export default function EditCompanyPage({
@@ -141,8 +141,8 @@ export default function EditCompanyPage({
 
   // Update form when company data loads
   useEffect(() => {
-    if (data?.getCompanyById) {
-      const company = data.getCompanyById;
+    if (data?.Company) {
+      const company = data.Company;
       form.reset({
         name: company.name,
         description: company.description,
@@ -199,7 +199,7 @@ export default function EditCompanyPage({
     }
   }
 
-  const company = data?.getCompanyById;
+  const company = data?.Company;
   console.log("isAdmin", isAdmin);
   const loading = companyLoading || permissionsLoading;
 
@@ -248,7 +248,7 @@ export default function EditCompanyPage({
     );
   }
 
-  if (isAdmin) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen w-full aurora-gradient">
         <Header />
