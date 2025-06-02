@@ -160,6 +160,40 @@ export const api = createApi({
         },
     }),
 
+    searchUsers: builder.query<
+      Array<{
+        id: string;
+        username: string;
+        email: string;
+        role: string;
+        profilePhoto?: string;
+      }>,
+      { query: string; page?: number; limit?: number }
+    >({
+      query: ({ query, page = 1, limit = 10 }) => ({
+        url: "/graphql",
+        method: "POST",
+        body: {
+          query: `
+            query SearchUsers($searchQuery: String!, $page: Int!, $limit: Int!) {
+              searchUsers(query: $searchQuery, paginationDto: { page: $page, limit: $limit }) {
+                id
+                username
+                email
+                role
+                profilePhoto
+              }
+            }
+          `,
+          variables: { searchQuery: query, page, limit },
+        },
+      }),
+      providesTags: ["User"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transformResponse: (response: { searchUsers?: any }) =>
+        response.searchUsers ?? [],
+    }),
+
     uploadProfilePhoto: builder.mutation<
       { profilePhoto: string },
       { file: File }
@@ -602,6 +636,7 @@ export const api = createApi({
 export const {
   useGetCurrentUserQuery,
   useGetUserByIdQuery,
+  useSearchUsersQuery,
   useUploadProfilePhotoMutation,
   useGetPostsQuery,
   useCreatePostMutation,

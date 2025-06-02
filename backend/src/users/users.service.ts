@@ -6,6 +6,7 @@ import { FileUpload } from 'graphql-upload/processRequest.mjs';
 import { ImageUploadService } from '../image-upload/image-upload.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { eventsPatterns } from 'src/common/events/events.patterns';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class UsersService extends BaseService<User> {
@@ -291,6 +292,31 @@ export class UsersService extends BaseService<User> {
       where: { id: userId },
       data: {
         profilePhoto: url,
+      },
+    });
+  }
+
+  async searchUsers(query: string, paginationDto?: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto ?? {};
+
+    return this.prisma.user.findMany({
+      where: {
+        username: {
+          contains: query,
+          mode: 'insensitive',
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        profilePhoto: true,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: {
+        username: 'asc',
       },
     });
   }

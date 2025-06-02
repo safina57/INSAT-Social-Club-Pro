@@ -33,6 +33,7 @@ import CompaniesPage from "./components/companies";
 import CompanyDetailPage from "./components/companyDetails";
 import CreateCompanyPage from "./pages/newCompany";
 import EditCompanyPage from "./pages/editCompany";
+import AdminUsers from "./components/admin/users";
 
 function ProfilePageWrapper() {
   const { id } = useParams<{ id: string }>();
@@ -104,6 +105,14 @@ function App() {
             element={
               <RequireAdmin>
                 <AdminReports />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <RequireAdmin>
+                <AdminUsers />
               </RequireAdmin>
             }
           />

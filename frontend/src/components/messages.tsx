@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Header } from "@/components/common/header"
-import { Search, Send, ChevronLeft, MessageSquare, Wifi, WifiOff } from "lucide-react"
+import { Search, Send, ChevronLeft, MessageSquare, Wifi, WifiOff, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { GET_MY_CONVERSATIONS, GET_MESSAGES } from "@/graphql/queries/chat"
+import { GET_CURRENT_USER } from "@/graphql/queries/users"
 import { socketService } from "@/lib/socket"
 import { Badge } from "@/components/ui/badge"
 import Aurora from "@/components/ui/Aurora"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface User {
   id: string
@@ -103,10 +105,30 @@ export default function MessagesPage() {
 
   const conversations: Conversation[] = conversationsData?.getMyConversations || []
 
+  // Fetch current user with friends
+  const {
+    data: currentUserData,
+    loading: currentUserLoading,
+  } = useQuery(GET_CURRENT_USER, {
+    skip: !userToken,
+    context: {
+      headers: {
+        Authorization: userToken ? `Bearer ${userToken}` : "",
+      },
+    },
+  })
+  const currentUser = currentUserData?.currentuser
+  const friends = currentUser?.friends || []
+
   // Determine the other user's ID for the active conversation
-  const otherUserId = conversations
+  let otherUserId = conversations
     .find((c) => c.id === activeConversation)
     ?.participants.find((p) => p.id !== currentUserId)?.id || null
+  
+  // If it's a new conversation with a friend, extract the friend ID
+  if (activeConversation?.startsWith("new-")) {
+    otherUserId = activeConversation.replace("new-", "")
+  }
 
   // Fetch messages with the other user when a conversation is active
   const {
@@ -155,10 +177,16 @@ export default function MessagesPage() {
     const messageMatch = lastMsg?.content.toLowerCase().includes(searchQuery.toLowerCase())
     return !searchQuery || usernameMatch || messageMatch
   })
-
   const activeChat = conversations.find((conv) => conv.id === activeConversation)
-  const otherParticipant = activeChat?.participants.find((p) => p.id !== currentUserId)
-
+    // Handle both existing conversations and new conversations with friends
+  let otherParticipant = activeChat?.participants.find((p) => p.id !== currentUserId)
+  let recipientId = otherParticipant?.id
+    // If it's a new conversation with a friend (activeConversation starts with "new-")
+  if (activeConversation?.startsWith("new-")) {
+    recipientId = activeConversation.replace("new-", "")
+    // Find the friend details for display
+    otherParticipant = friends.find((friend: any) => friend.id === recipientId)
+  }
   // Send a new message: emit via socket, then refetch
   const handleSendMessage = useCallback(async () => {
     if (!newMessage.trim() || !activeConversation || !socketConnected) return
@@ -166,10 +194,7 @@ export default function MessagesPage() {
     const content = newMessage.trim()
     setNewMessage("")
 
-    const recipientId = conversations
-      .find((c) => c.id === activeConversation)
-      ?.participants.find((p) => p.id !== currentUserId)?.id
-
+    // Use the recipientId we determined above
     if (!recipientId) {
       console.error("Could not find recipient ID")
       return
@@ -181,8 +206,37 @@ export default function MessagesPage() {
     setTimeout(() => {
       refetchMessages()
       refetchConversations()
+      
+      // If this was a new conversation, switch to the actual conversation once it's created
+      if (activeConversation?.startsWith("new-")) {
+        setTimeout(() => {
+          refetchConversations()
+          // Find the new conversation with this participant
+          const newConv = conversations.find(conv => 
+            conv.participants.some(p => p.id === recipientId)
+          )
+          if (newConv) {
+            setActiveConversation(newConv.id)
+          }
+        }, 1000)
+      }
     }, 500)
-  }, [newMessage, activeConversation, socketConnected, currentUserId, refetchMessages, refetchConversations, conversations])
+  }, [newMessage, activeConversation, socketConnected, recipientId, refetchMessages, refetchConversations, conversations])  // Function to start a conversation with a friend
+  const handleStartConversationWithFriend = useCallback((friendId: string) => {
+    // Check if a conversation already exists with this friend
+    const existingConversation = conversations.find(conv => 
+      conv.participants.some(p => p.id === friendId)
+    )
+    
+    if (existingConversation) {
+      // If conversation exists, switch to it
+      setActiveConversation(existingConversation.id)
+    } else {
+      // Create a new conversation by setting the friend as active
+      // The backend will handle creating the conversation when the first message is sent
+      setActiveConversation(`new-${friendId}`)
+    }
+  }, [conversations])
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
@@ -259,8 +313,7 @@ export default function MessagesPage() {
       <Header />
       <div className="container mx-auto px-0 py-4 content-z-index">
         <div className="rounded-xl bg-background/40 backdrop-blur-md border border-white/10 h-[calc(100vh-8rem)]">
-          <div className="grid h-full md:grid-cols-[320px_1fr]">
-            {/* Conversations Sidebar */}
+          <div className="grid h-full md:grid-cols-[320px_1fr]">            {/* Conversations Sidebar */}
             {(!activeConversation || !isMobileView) && (
               <div className="border-r border-white/10 h-full flex flex-col">
                 <div className="p-4 border-b border-white/10">
@@ -280,7 +333,7 @@ export default function MessagesPage() {
                       )}
                     </Badge>
                   </div>
-                  <div className="relative">
+                  <div className="relative mb-4">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="search"
@@ -291,67 +344,120 @@ export default function MessagesPage() {
                     />
                   </div>
                 </div>
-                <ScrollArea className="flex-1">
-                  <div className="px-2 py-2">
-                    {conversationsLoading ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                      </div>
-                    ) : filteredConversations.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <MessageSquare className="mx-auto h-8 w-8 mb-2 opacity-50" />
-                        <p>No conversations found</p>
-                      </div>
-                    ) : (
-                      filteredConversations.map((conversation) => {
-                        const participant = conversation.participants.find((p) => p.id !== currentUserId)
-                        const lastMessage = conversation.messages?.[0]
-
-                        return (
-                          <button
-                            key={conversation.id}
-                            className={cn(
-                              "w-full flex items-start p-3 rounded-lg mb-1 hover:bg-white/5 transition-colors text-left",
-                              activeConversation === conversation.id && "bg-white/10"
-                            )}
-                            onClick={() => setActiveConversation(conversation.id)}
-                          >
-                            <div className="relative mr-3">
-                              <Avatar className="h-12 w-12 border border-white/10">
-                                <AvatarImage
-                                  src={participant?.avatar || "/placeholder.svg"}
-                                  alt={participant?.username || "User"}
-                                />
-                                <AvatarFallback>{participant?.username?.charAt(0) || "U"}</AvatarFallback>
-                              </Avatar>
-                              {participant?.status === "online" && (
-                                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary border-2 border-background" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <h4 className="font-medium truncate">{participant?.username || "Unknown User"}</h4>
-                                <span className="text-xs text-muted-foreground">
-                                  {lastMessage && formatTimestamp(lastMessage.createdAt)}
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-between mt-1">
-                                <p className="text-sm text-muted-foreground truncate max-w-[180px]">
-                                  {lastMessage?.content || "No messages yet"}
-                                </p>
-                              </div>
-                            </div>
-                          </button>
-                        )
-                      })
-                    )}
+                <Tabs defaultValue="conversations" className="w-full flex-1 flex flex-col">
+                  <div className="px-4 pb-2">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="conversations" className="text-xs">
+                        <MessageSquare className="h-3 w-3 mr-1" />
+                        Conversations
+                      </TabsTrigger>
+                      <TabsTrigger value="friends" className="text-xs">
+                        <Users className="h-3 w-3 mr-1" />
+                        Friends
+                      </TabsTrigger>
+                    </TabsList>
                   </div>
-                </ScrollArea>
-              </div>
-            )}
+                  <ScrollArea className="flex-1">
+                    <TabsContent value="conversations" className="mt-0 h-full">
+                      <div className="px-2 py-2">
+                        {conversationsLoading ? (
+                          <div className="flex items-center justify-center py-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                          </div>
+                        ) : filteredConversations.length === 0 ? (
+                          <div className="text-center py-8 text-muted-foreground">
+                            <MessageSquare className="mx-auto h-8 w-8 mb-2 opacity-50" />
+                            <p>No conversations found</p>
+                          </div>
+                        ) : (
+                          filteredConversations.map((conversation) => {
+                            const participant = conversation.participants.find((p) => p.id !== currentUserId)
+                            const lastMessage = conversation.messages?.[0]
 
-            {/* Chat Area */}
-            {activeChat ? (
+                            return (
+                              <button
+                                key={conversation.id}
+                                className={cn(
+                                  "w-full flex items-start p-3 rounded-lg mb-1 hover:bg-white/5 transition-colors text-left",
+                                  activeConversation === conversation.id && "bg-white/10"
+                                )}
+                                onClick={() => setActiveConversation(conversation.id)}
+                              >
+                                <div className="relative mr-3">
+                                  <Avatar className="h-12 w-12 border border-white/10">
+                                    <AvatarImage
+                                      src={participant?.avatar || "/placeholder.svg"}
+                                      alt={participant?.username || "User"}
+                                    />
+                                    <AvatarFallback>{participant?.username?.charAt(0) || "U"}</AvatarFallback>
+                                  </Avatar>
+                                  {participant?.status === "online" && (
+                                    <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary border-2 border-background" />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="font-medium truncate">{participant?.username || "Unknown User"}</h4>
+                                    <span className="text-xs text-muted-foreground">
+                                      {lastMessage && formatTimestamp(lastMessage.createdAt)}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center justify-between mt-1">
+                                    <p className="text-sm text-muted-foreground truncate max-w-[180px]">
+                                      {lastMessage?.content || "No messages yet"}
+                                    </p>
+                                  </div>
+                                </div>
+                              </button>
+                            )
+                          })
+                        )}
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="friends" className="mt-0 h-full">
+                      <div className="px-2 py-2">
+                        {currentUserLoading ? (
+                          <div className="flex items-center justify-center py-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                          </div>
+                        ) : friends.length === 0 ? (
+                          <div className="text-center py-8 text-muted-foreground">
+                            <Users className="mx-auto h-8 w-8 mb-2 opacity-50" />
+                            <p>No friends yet</p>
+                          </div>
+                        ) : (
+                          friends.map((friend: any) => (
+                            <button
+                              key={friend.id}
+                              className="w-full flex items-start p-3 rounded-lg mb-1 hover:bg-white/5 transition-colors text-left"
+                              onClick={() => handleStartConversationWithFriend(friend.id)}
+                            >
+                              <div className="relative mr-3">
+                                <Avatar className="h-12 w-12 border border-white/10">
+                                  <AvatarImage
+                                    src={friend.profilePhoto || "/placeholder.svg"}
+                                    alt={friend.username || "Friend"}
+                                  />
+                                  <AvatarFallback>{friend.username?.charAt(0) || "F"}</AvatarFallback>
+                                </Avatar>
+                                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 border-2 border-background" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="font-medium truncate">{friend.username}</h4>
+                                </div>
+                                <p className="text-sm text-muted-foreground">Click to start conversation</p>
+                              </div>
+                            </button>
+                          ))
+                        )}                      </div>
+                    </TabsContent>
+                  </ScrollArea>
+                </Tabs>
+              </div>
+            )}            {/* Chat Area */}
+            {(activeChat || activeConversation?.startsWith("new-")) ? (
               <div className="flex flex-col h-full min-h-0">
                 {/* Chat Header */}
                 <div className="p-4 border-b border-white/10 flex items-center justify-between">
@@ -365,10 +471,9 @@ export default function MessagesPage() {
                       >
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
-                    )}
-                    <Avatar className="h-10 w-10 mr-3 border border-white/10">
+                    )}                    <Avatar className="h-10 w-10 mr-3 border border-white/10">
                       <AvatarImage
-                        src={otherParticipant?.avatar || "/placeholder.svg"}
+                        src={otherParticipant?.avatar || otherParticipant?.profilePhoto || "/placeholder.svg"}
                         alt={otherParticipant?.username || "User"}
                       />
                       <AvatarFallback>{otherParticipant?.username?.charAt(0) || "U"}</AvatarFallback>
@@ -381,6 +486,8 @@ export default function MessagesPage() {
                             <span className="h-1.5 w-1.5 rounded-full bg-primary mr-1.5"></span>
                             Online
                           </span>
+                        ) : activeConversation?.startsWith("new-") ? (
+                          "Friend"
                         ) : (
                           "Offline"
                         )}
@@ -409,10 +516,9 @@ export default function MessagesPage() {
                         const isSentByMe = message.senderId === currentUserId
                         return (
                           <div key={message.id} className={cn("flex", isSentByMe ? "justify-end" : "justify-start")}>
-                            {!isSentByMe && (
-                              <Avatar className="h-8 w-8 mr-2 mt-1 flex-shrink-0 border border-white/10">
+                            {!isSentByMe && (                              <Avatar className="h-8 w-8 mr-2 mt-1 flex-shrink-0 border border-white/10">
                                 <AvatarImage
-                                  src={otherParticipant?.avatar || "/placeholder.svg"}
+                                  src={otherParticipant?.avatar || otherParticipant?.profilePhoto || "/placeholder.svg"}
                                   alt={otherParticipant?.username || "User"}
                                 />
                                 <AvatarFallback>{otherParticipant?.username?.charAt(0) || "U"}</AvatarFallback>
