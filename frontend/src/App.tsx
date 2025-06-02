@@ -175,7 +175,7 @@ function App() {
           />
           {/* Company Detail Page */}
           <Route
-            path="/companies/:companyId"
+            path="/companies/:id"
             element={
               <RequireAuth>
                 <CompanyDetailsWrapper />

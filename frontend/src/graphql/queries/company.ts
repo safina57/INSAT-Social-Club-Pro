@@ -24,7 +24,7 @@ export const GET_COMPANIES = gql`
 
 
 export const GET_COMPANY_BY_ID = gql`
-query CompanyWithDetails($id: ID!, $paginationDto: PaginationDto) {
+  query GetCompanyById($id: ID!, $companyId: String!) {
     Company(id: $id) {
       id
       name
@@ -34,38 +34,20 @@ query CompanyWithDetails($id: ID!, $paginationDto: PaginationDto) {
       updatedAt
     }
 
-    jobsByCompany(companyId: $id, paginationDto: $paginationDto) {
+    jobsByCompany(companyId: $companyId) {
       results {
         id
         title
         description
         location
         salary
+        companyId
         createdAt
         updatedAt
       }
-      meta {
-        total
-        page
-        lastPage
-        limit
-      }
-    }
-
-    getManagedCompanies {
-      id
-      companyId
-      role
-      user {
-        id
-        username
-        email
-        role
-        profilePhoto
-      }
     }
   }
-`;
+`
 
 
 export const CREATE_COMPANY = gql`
