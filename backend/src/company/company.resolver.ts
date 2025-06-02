@@ -26,6 +26,12 @@ export class CompanyResolver {
     return this.companyService.create(input, user.id);
   }
 
+  @Query(() => Boolean)
+  isAdmin(@GetUser() user: User,
+  @Args('id', { type: () => ID }) id: string){
+    return this.companyService.isAdmin(user.id, id);
+  }
+
   @Public()
   @Query(() => paginatedCompanies)
   Companies(

@@ -280,6 +280,7 @@ export class UsersService extends BaseService<User> {
       },
     });
   }
+  
   async updateProfilePhoto(userId: string, file: FileUpload) {
     const url: string = await this.imageUploadService.uploadImage(
       file,
